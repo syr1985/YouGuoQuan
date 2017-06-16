@@ -1,0 +1,240 @@
+//
+//  PublishProductViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/17.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "PublishProductViewController.h"
+#import "PublishProductHeaderView.h"
+#import "PublishProductFooterView.h"
+#import "ProductPhotoViewCell.h"
+#import <TZImagePickerController.h>
+#import "SYStickHeaderWaterFallLayout.h"
+#import <TZImageManager.h>
+
+@interface PublishProductViewController () <SYStickHeaderWaterFallDelegate>
+
+@property (weak, nonatomic) IBOutlet UICollectionView *photosCollectionView;
+@property (weak, nonatomic) IBOutlet UIButton *publishProductButton;
+@property (nonatomic, strong) NSMutableArray *photoArray;
+@property (nonatomic,   copy) NSString *coverUrl;
+@property (nonatomic, strong) UIImage *coverImage;
+@property (nonatomic,   copy) NSString *photosSizeString;
+@property (nonatomic, assign) BOOL isUploadOrignalPhoto;
+@property (nonatomic,   copy) NSString *productName;
+@property (nonatomic,   copy) NSString *productPrice;
+@property (nonatomic,   copy) NSString *productIntro;;
+@end
+
+static NSString * const collectionViewCellID_Header = @"PublishProductHeaderView";
+static NSString * const collectionViewCellID_Footer = @"PublishProductFooterView";
+static NSString * const collectionViewCellID_Photo  = @"ProductPhotoViewCell";
+
+@implementation PublishProductViewController
+
+- (NSMutableArray *)photoArray {
+    if (!_photoArray) {
+        _photoArray = [NSMutableArray array];
+        [_photoArray addObject:[UIImage imageNamed:@"发布-添加"]];
+    }
+    return _photoArray;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    SYStickHeaderWaterFallLayout *cvLayout = [[SYStickHeaderWaterFallLayout alloc] init];
+    cvLayout.delegate = self;
+    cvLayout.isStickyHeader = NO;
+    self.photosCollectionView.collectionViewLayout = cvLayout;
+    
+    UINib *nib_photo  = [UINib nibWithNibName:collectionViewCellID_Photo bundle:nil];
+    [self.photosCollectionView registerNib:nib_photo forCellWithReuseIdentifier:collectionViewCellID_Photo];
+    
+    UINib *nib_header = [UINib nibWithNibName:collectionViewCellID_Header bundle:nil];
+    [self.photosCollectionView registerNib:nib_header forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:collectionViewCellID_Header];
+    
+    UINib *nib_footer = [UINib nibWithNibName:collectionViewCellID_Footer bundle:nil];
+    [self.photosCollectionView registerNib:nib_footer forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:collectionViewCellID_Footer];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/**
+ *  打开相册
+ */
+- (void)openPhotoAlbum:(NSUInteger)maxImagesCount cover:(BOOL)isCover edit:(BOOL)canEdit {
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:maxImagesCount delegate:nil];
+    imagePickerVc.allowTakePicture = NO;
+    // You can get the photos by block, the same as by delegate.
+    // 你可以通过block或者代理，来得到用户选择的照片.
+    __weak typeof(self) weakself = self;
+    imagePickerVc.didFinishPickingPhotosHandle = ^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+        //YGQLog(@"%@",assets);
+        
+        __strong typeof(self) strongself = weakself;
+        if (photos.count) {
+            
+            NSMutableArray *muArray = [NSMutableArray array];
+            for (PHAsset *asset in assets) {
+                TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhoto];
+                [muArray addObject:model];
+            }
+            
+            [[TZImageManager manager] getPhotosBytesWithArray:muArray completion:^(NSString *totalBytes) {
+                YGQLog(@"%@",totalBytes);
+                weakself.photosSizeString = totalBytes;
+            }];
+            
+            if (isSelectOriginalPhoto) {
+                
+            }
+            
+            if (isCover) {
+                strongself.coverImage = photos[0];
+            } else {
+                NSArray *oldArray = strongself.photoArray;
+                NSMutableArray *muArray = [NSMutableArray array];
+                [muArray addObjectsFromArray:photos];
+                [muArray addObjectsFromArray:oldArray];
+                strongself.photoArray = muArray;
+            }
+            [strongself.photosCollectionView reloadData];
+        }
+    };
+    [self presentViewController:imagePickerVc animated:YES completion:nil];
+}
+
+- (IBAction)dismissViewController {
+    
+    __weak typeof(self) weakself = self;
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                                   message:@"您确认放弃此次操作吗？"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *sureAction = [UIAlertAction actionWithTitle:@"确定"
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^(UIAlertAction * action) {
+                                                           [weakself dismissViewControllerAnimated:YES completion:nil];
+                                                       }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消"
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:^(UIAlertAction * action) {
+                                                             
+                                                         }];
+    [alert addAction:sureAction];
+    [alert addAction:cancelAction];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+#pragma mark -
+#pragma mark - UICollectionView DataSource and Delegate
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.photoArray.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    ProductPhotoViewCell *cell_photo = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Photo forIndexPath:indexPath];
+    cell_photo.photo = self.photoArray[indexPath.row];
+    cell_photo.index = indexPath.row;
+    cell_photo.isShowDeleteButton = (indexPath.row == (self.photoArray.count - 1));
+    
+    __weak typeof(self) weakself = self;
+    cell_photo.deletePhotoBlock = ^(NSUInteger index) {
+        [weakself.photoArray removeObjectAtIndex:index];
+        [weakself.photosCollectionView reloadData];
+    };
+    
+    return cell_photo;
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    UICollectionReusableView *reusableview = nil;
+    
+    if ([kind isEqualToString:UICollectionElementKindSectionFooter]) {
+        PublishProductFooterView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                                  withReuseIdentifier:collectionViewCellID_Footer
+                                                                                         forIndexPath:indexPath];
+        footerview.photosSize = self.photosSizeString;
+        __weak typeof(self) weakself = self;
+        footerview.setUploadOrignalPhoto = ^(BOOL isUploadOrignalPhoto) {
+            weakself.isUploadOrignalPhoto = isUploadOrignalPhoto;
+        };
+        reusableview = footerview;
+    } else {
+        PublishProductHeaderView *headerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                                  withReuseIdentifier:collectionViewCellID_Header
+                                                                                         forIndexPath:indexPath];
+        headerview.coverImage = _coverImage;
+        __weak typeof(self) weakself = self;
+        headerview.openPhotoAlbumBlock = ^() {
+            [weakself openPhotoAlbum:1 cover:YES edit:YES];
+        };
+        headerview.setProductInfo = ^(NSString *productName, NSString *productPrice, NSString *productIntro) {
+            weakself.productName = productName;
+            weakself.productPrice = productPrice;
+            weakself.productIntro = productIntro;
+            if (productPrice.length && productName.length) {
+                weakself.publishProductButton.enabled = YES;
+            }
+        };
+        reusableview = headerview;
+    }
+    
+    return reusableview;
+}
+
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row == self.photoArray.count - 1) {
+        [self openPhotoAlbum:(9 - self.photoArray.count + 1) cover:NO edit:NO];
+    }
+}
+
+#pragma mark - SYStickHeaderWaterFallDelegate
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(SYStickHeaderWaterFallLayout *)collectionViewLayout heightForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return (WIDTH - 40) / 3;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForHeaderAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    return WIDTH * 230 / 375 + 244;//8 + 30 + 8 + 1 + 8 + 30 + 8 + 1 + 8 + 134 + 8;
+}
+
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForFooterAtIndexPath:(NSIndexPath *)indexPath {
+    return 30;
+}
+
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout widthForItemInSection:( NSInteger )section {
+    return (WIDTH - 40) / 3;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout topInSection:(NSInteger)section {
+    return 0;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout bottomInSection:(NSInteger)section {
+    return 0;
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

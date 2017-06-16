@@ -1,0 +1,71 @@
+//
+//  ActionSheetHelp.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/25.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "PayHelp.h"
+#import <LCActionSheet.h>
+
+@interface PayHelp () <LCActionSheetDelegate>
+
+@end
+
+@implementation PayHelp
+
+static PayHelp *_instance;
+
++ (instancetype)sharedInstance {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _instance = [[self alloc] init];
+    });
+    return _instance;
+}
+
+- (void)pay {
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:@"请选择支付方式"
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"支付宝", @"微信", @"零钱钱包", nil];
+    [actionSheet show];
+}
+
+- (void)pay:(void (^)(NSUInteger index))payType {
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:@"请选择支付方式"
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"支付宝", @"微信", @"零钱钱包", nil];
+    if (payType) {
+        _actionSheetItemClicked = [payType copy];
+    }
+    [actionSheet show];
+}
+
+#pragma mark - LCActionSheet Delegate
+
+- (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (_actionSheetItemClicked) {
+        _actionSheetItemClicked(buttonIndex);
+    }
+    switch (buttonIndex) {
+        case 1:
+            YGQLog(@"支付宝");
+            break;
+        case 2:
+            YGQLog(@"微信");
+            break;
+        case 3:
+            YGQLog(@"零钱钱包");
+            break;
+        default:
+            break;
+    }
+    //    [NetworkTool rewardOtherWithMoney:self.inputReward userID:_userId success:^{
+    //
+    //    }];
+}
+
+@end

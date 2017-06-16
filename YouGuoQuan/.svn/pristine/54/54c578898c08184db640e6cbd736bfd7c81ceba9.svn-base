@@ -1,0 +1,85 @@
+//
+//  UserBaseInfoModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+/**
+ 
+ 
+ idCardNo = "";
+ 
+ isDelete = "";
+ isLock = 0;
+ */
+
+@interface UserBaseInfoModel : NSObject
+// 用户ID
+@property (nonatomic,   copy) NSString *userId;
+// 头像url
+@property (nonatomic,   copy) NSString *headImg;
+// 昵称
+@property (nonatomic,   copy) NSString *nickName;
+// 性别
+@property (nonatomic,   copy) NSString *sex;
+// 城市
+@property (nonatomic,   copy) NSString *city;
+// 身高
+@property (nonatomic,   copy) NSString *height;
+// 体重
+@property (nonatomic,   copy) NSString *weight;
+// 星座
+@property (nonatomic,   copy) NSString *constellatory;
+// 工作
+@property (nonatomic,   copy) NSString *work;
+// 情感
+@property (nonatomic,   copy) NSString *emotion;
+// 省份
+@property (nonatomic,   copy) NSString *province;
+// 尤果认证
+@property (nonatomic,   copy) NSString *auditResult;
+// 真实姓名
+@property (nonatomic,   copy) NSString *realName;
+// 粉丝数
+@property (nonatomic,   copy) NSString *fansCount;
+// 关注数
+@property (nonatomic,   copy) NSString *focusCount;
+// 赞数
+@property (nonatomic,   copy) NSString *zanCount;
+// 好评率
+@property (nonatomic,   copy) NSString *rateOfPraise;
+// 头像背景图
+@property (nonatomic,   copy) NSString *coverImgUrl;
+//
+@property (nonatomic,   copy) NSString *authentiUrl;
+//
+@property (nonatomic,   copy) NSString *email;
+//
+@property (nonatomic,   copy) NSString *mobile;
+//
+@property (nonatomic,   copy) NSString *passwd;
+//
+@property (nonatomic,   copy) NSString *imageCount;
+// 
+@property (nonatomic,   copy) NSString *qq;
+//
+@property (nonatomic,   copy) NSString *wechat;
+// 是否认证（vip）0（未认证） 1（已认证） 2（进行中）
+@property (nonatomic, assign) int  audit;
+// 是否系统推荐
+@property (nonatomic, assign) BOOL isRecommend;
+// 是否贵族
+@property (nonatomic, assign) BOOL tags;
+// 等级
+@property (nonatomic, assign) int  star;
+// 经度
+@property (nonatomic, assign) double longitude;
+// 纬度
+@property (nonatomic, assign) double latitude;
+
++ (instancetype)userBaseInfoModelWithDict:(NSDictionary *)dict;
+- (instancetype)initUserBaseInfoModelWithDict:(NSDictionary *)dict;
+@end

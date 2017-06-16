@@ -1,0 +1,28 @@
+//
+//  YGQLocationService.h
+//  YouGuoQuan
+//
+//  Created by jqoo on 2016/12/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <CoreLocation/CoreLocation.h>
+
+@interface YGQLocationService : NSObject
+
+// support KVO
+@property (nonatomic, readonly, getter=isAuthorized) BOOL authorized;
+// support KVO
+@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
+
+@property (nonatomic, readonly, getter=isCoordinateValid) BOOL coordinateValid;
+
++ (instancetype)sharedInstance;
+
+- (BOOL)isStarted;
+
+// 开始获取地理位置，如果没有开启，则提示开启
+-(void)startUserLocationService;
+
+@end

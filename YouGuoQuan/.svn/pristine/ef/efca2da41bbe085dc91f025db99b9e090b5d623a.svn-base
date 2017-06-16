@@ -1,0 +1,51 @@
+//
+//  MoreButtonHelp.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/5.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "MoreButtonHelp.h"
+#import <LCActionSheet.h>
+
+@interface MoreButtonHelp () <LCActionSheetDelegate>
+
+@end
+
+@implementation MoreButtonHelp
+
+static MoreButtonHelp *_instance;
+
++ (instancetype)sharedInstance {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _instance = [[self alloc] init];
+    });
+    return _instance;
+}
+
+- (void)showMoreMenu:(void (^)(NSUInteger index))returnBlock {
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:nil
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"置顶动态",@"删除动态",nil];
+    actionSheet.destructiveButtonIndexSet = [NSSet setWithObject:@2];
+    actionSheet.destructiveButtonColor = [UIColor redColor];
+    if (returnBlock) {
+        _actionSheetItemClicked = [returnBlock copy];
+    }
+    [actionSheet show];
+}
+
+#pragma mark - LCActionSheet Delegate
+
+- (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (buttonIndex != 0) {
+        if (_actionSheetItemClicked) {
+            _actionSheetItemClicked(buttonIndex);
+        }
+    }
+}
+
+@end

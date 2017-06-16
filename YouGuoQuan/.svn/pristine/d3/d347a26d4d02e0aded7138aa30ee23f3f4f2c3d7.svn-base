@@ -1,0 +1,56 @@
+//
+//  ConversionHelper.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 2016/12/16.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "ConversionHelper.h"
+#import "EaseLocalDefine.h"
+
+@implementation ConversionHelper
+
++ (NSString *)latestMessageTitleForConversationModel:(id<IConversationModel>)conversationModel
+{
+    NSString *latestMessageTitle = @"";
+    EMMessage *lastMessage = [conversationModel.conversation latestMessage];
+    if (lastMessage) {
+        EMMessageBody *messageBody = lastMessage.body;
+        switch (messageBody.type) {
+            case EMMessageBodyTypeImage:{
+                
+            }
+                break;
+            case EMMessageBodyTypeText:{
+                NSString *didReceiveText = [EaseConvertToCommonEmoticonsHelper
+                                            convertToSystemEmoticons:((EMTextMessageBody *)messageBody).text];
+                latestMessageTitle = didReceiveText;
+            }
+                break;
+            case EMMessageBodyTypeVoice:{
+                latestMessageTitle = NSEaseLocalizedString(@"message.voice1", @"[voice]");
+            }
+                break;
+            case EMMessageBodyTypeLocation: {
+                latestMessageTitle = NSEaseLocalizedString(@"message.location1", @"[location]");
+            }
+                break;
+            case EMMessageBodyTypeVideo: {
+                latestMessageTitle = NSEaseLocalizedString(@"message.video1", @"[video]");
+            }
+                break;
+            case EMMessageBodyTypeFile: {
+                latestMessageTitle = NSEaseLocalizedString(@"message.file1", @"[file]");
+            }
+                break;
+            default: {
+            }
+                break;
+        }
+    }
+    return latestMessageTitle;
+}
+
+
+@end

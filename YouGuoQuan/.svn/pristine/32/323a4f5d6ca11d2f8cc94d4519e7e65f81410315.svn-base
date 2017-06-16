@@ -1,0 +1,51 @@
+//
+//  HomeTopTabbarView.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/18.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "HomeTopTabbarView.h"
+#import "SCNavTabBar.h"
+
+@interface HomeTopTabbarView () <SCNavTabBarDelegate>
+@property (strong, nonatomic) SCNavTabBar *navTabBar;
+
+@end
+
+@implementation HomeTopTabbarView
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    _navTabBar = [[SCNavTabBar alloc] initWithFrame:self.bounds showArrowButton:NO];
+    _navTabBar.delegate = self;
+    _navTabBar.backgroundColor = NavColor;
+    _navTabBar.itemTitles = @[@"尤果", @"关注"];
+    _navTabBar.bHandleItem = YES;
+    [_navTabBar updateData];
+    
+    [self addSubview:_navTabBar];
+}
+
+- (void)setCurrentIndex:(NSUInteger)currentIndex {
+    _currentIndex = currentIndex;
+    
+    _navTabBar.currentItemIndex = currentIndex;
+}
+
+#pragma mark - SCNavTabBarDelegate Methods
+#pragma mark -
+- (void)itemDidSelectedWithIndex:(NSInteger)index {
+    //YGQLog(@"SelectedWithIndex :%ld",index);
+    if (index != _currentIndex) {
+        /**
+         *  通知HomeVC scroll view 这边只是让Home scroll view 滚动，但是没有同步顶部的tabbar
+         */
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"TopNavItem" object:nil userInfo:@{@"ItemIndex":@(index)}];
+    }
+}
+
+
+@end

@@ -1,0 +1,141 @@
+//
+//  LoginViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/11.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "LoginViewController.h"
+#import "LoginData.h"
+#import <Hyphenate_CN/EMSDKFull.h>
+#import "EaseSDKHelper.h"
+#import "ConversionManager.h"
+
+@interface LoginViewController () <UITextFieldDelegate>
+@property (weak, nonatomic) IBOutlet UITextField *telephoneNumberTextField;
+@property (weak, nonatomic) IBOutlet UITextField *loginPasswordTextField;
+@property (weak, nonatomic) IBOutlet UIButton *loginButton;
+
+@end
+
+NSString * const kNotification_LoginSuccess = @"LoginSuccessNotification";
+
+@implementation LoginViewController
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.title = @"尤果圈";
+    
+    _telephoneNumberTextField.layer.borderWidth = 1;
+    _telephoneNumberTextField.layer.cornerRadius = 5;
+    _telephoneNumberTextField.layer.borderColor = [UIColor lightGrayColor].CGColor;
+    
+    _loginPasswordTextField.layer.borderWidth = 1;
+    _loginPasswordTextField.layer.cornerRadius = 5;
+    _loginPasswordTextField.layer.borderColor = [UIColor lightGrayColor].CGColor;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(dismissViewController)
+                                                 name:kNotification_LoginSuccess
+                                               object:nil];
+}
+
+- (IBAction)colseLoginVC:(id)sender {
+    [self dismissViewController];
+}
+
+- (void)dismissViewController {
+    
+    if (![EMClient sharedClient].isAutoLogin) {
+        EMError *error = [[EMClient sharedClient] loginWithUsername:[LoginData sharedLoginData].hxu
+                                                           password:[LoginData sharedLoginData].hxp];
+        if (!error) {
+            //设置是否自动登录
+            [[EMClient sharedClient].options setIsAutoLogin:YES];
+            
+            //获取数据库中数据
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [[EMClient sharedClient] migrateDatabaseToLatestSDK];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[ConversionManager shareManager] asyncGroupFromServer];
+                    [[ConversionManager shareManager] asyncConversationFromDB];
+                    [[ConversionManager shareManager] asyncPushOptions];
+                });
+            });
+        } else {
+            switch (error.code) {
+                case EMErrorNetworkUnavailable:
+                    break;
+                case EMErrorServerNotReachable:
+                    break;
+                case EMErrorUserAuthenticationFailed:
+                    break;
+                case EMErrorServerTimeout:
+                    break;
+                case EMErrorServerServingForbidden:
+                    break;
+                default:
+                    break;
+            }
+            NSLog(@"%@",error.errorDescription);
+        }
+        
+        //    __weak typeof(self) weakself = self;
+        //        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //            
+        //            dispatch_async(dispatch_get_main_queue(), ^{
+        //            });
+        //        });
+        
+    }
+    
+    __weak typeof(self) weakself = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [weakself dismissViewControllerAnimated:YES completion:nil];
+    });
+}
+
+/**
+ *  调取登录接口
+ */
+- (IBAction)loginButtonClicked {
+    [self.view endEditing:YES];
+    [NetworkTool loginWithPhone:_telephoneNumberTextField.text Password:_loginPasswordTextField.text Success:^(id result) {
+        [LoginData loginDataWithDict:result];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_LoginSuccess object:nil];
+    }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - UITextFieldDelegate
+- (void)textFieldDidBeginEditing:(UITextField *)textField {
+    textField.layer.borderColor = NavColor.CGColor;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    textField.layer.borderColor = [UIColor lightGrayColor].CGColor;
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

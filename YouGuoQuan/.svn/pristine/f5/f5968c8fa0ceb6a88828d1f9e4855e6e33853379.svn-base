@@ -1,0 +1,61 @@
+//
+//  ParticipatenViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/29.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "ParticipatenViewCell.h"
+#import "OthersContributerModel.h"
+#import <UIImageView+WebCache.h>
+
+@interface ParticipatenViewCell ()
+@property (weak, nonatomic) IBOutlet UILabel *rankingLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contributionLabel;
+
+@end
+
+@implementation ParticipatenViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    _headerImageView.layer.cornerRadius = _headerImageView.frame.size.width * 0.5;
+    _headerImageView.layer.masksToBounds = YES;
+}
+
+- (void)setContributerModel:(OthersContributerModel *)contributerModel {
+    _contributerModel = contributerModel;
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:contributerModel.headImg]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.vipImageView.hidden = contributerModel.audit != 1;
+    self.levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",contributerModel.star]];
+    self.nickNameLabel.text = contributerModel.nickName;
+    self.contributionLabel.text = [NSString stringWithFormat:@"贡献 %@",contributerModel.totalMoney];
+}
+
+- (void)setIndex:(NSInteger)index {
+    _index = index;
+    
+    self.rankingLabel.text = [NSString stringWithFormat:@"NO.%zd",index + 1];
+    
+    if (index == 0) {
+        self.rankingLabel.textColor = RGBA(255, 216, 86, 1);
+    } else if (index == 1) {
+        self.rankingLabel.textColor = RGBA(150, 181, 192, 1);
+    } else if (index == 2) {
+        self.rankingLabel.textColor = RGBA(249, 139, 0, 1);
+    } else {
+        self.rankingLabel.textColor = RGBA(171, 171, 171, 1);
+    }
+}
+
+@end

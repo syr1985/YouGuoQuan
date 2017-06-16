@@ -1,0 +1,98 @@
+//
+//  OthersFunsViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/2.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "OthersFunsViewController.h"
+#import "OthersConcemViewCell.h"
+
+@interface OthersFunsViewController ()
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UIView *noResultView;
+
+@property (nonatomic, strong) NSArray *infoDictArray;
+@end
+
+static NSString * const tableViewCellID_OthersConcem = @"OthersConcemViewCell";
+
+@implementation OthersFunsViewController
+
+- (NSArray *)infoDictArray {
+    if (!_infoDictArray) {
+        _infoDictArray = @[@{@"HiddenCrown":@"0",
+                             @"HiddenVip":@"0",
+                             @"NickName":@"你你查看此",
+                             @"Level":@"等级 10",
+                             @"Certification":@"尤果认证：模特"},
+                           @{@"HiddenCrown":@"1",
+                             @"HiddenVip":@"0",
+                             @"NickName":@"查看此kjhkj",
+                             @"Level":@"等级 6",
+                             @"Certification":@"尤果认证：模特"},
+                           @{@"HiddenCrown":@"1",
+                             @"HiddenVip":@"1",
+                             @"NickName":@"mingggg",
+                             @"Level":@"等级 3",
+                             @"Certification":@""}];
+    }
+    return _infoDictArray;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Uncomment the following line to preserve selection between presentations.
+    // self.clearsSelectionOnViewWillAppear = NO;
+    
+    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    self.title = @"TA的粉丝";
+    
+    self.tableView.rowHeight = 56;
+    
+    UINib *nib = [UINib nibWithNibName:tableViewCellID_OthersConcem bundle:nil];
+    [self.tableView registerNib:nib forCellReuseIdentifier:tableViewCellID_OthersConcem];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.infoDictArray.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    OthersConcemViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_OthersConcem forIndexPath:indexPath];
+    
+    // Configure the cell...
+    
+    cell.infoDict = self.infoDictArray[indexPath.row];
+    
+    return cell;
+}
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

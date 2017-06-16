@@ -1,0 +1,213 @@
+//
+//  UserCenterHeaderView.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "UserCenterHeaderView.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "MoreMenuHelp.h"
+#import "UIImage+Color.h"
+#import "CityLocation.h"
+#import "UserBaseInfoModel.h"
+#import "OthersContributerModel.h"
+
+@interface UserCenterHeaderView ()
+@property (weak, nonatomic) IBOutlet UIImageView  *headerBackgroundImageView;   // 头像背景
+@property (weak, nonatomic) IBOutlet UIImageView  *headerImageView;             // 头像
+@property (weak, nonatomic) IBOutlet UIImageView  *crownImageView;              // 皇冠
+@property (weak, nonatomic) IBOutlet UIImageView  *vipImageView;                // vip
+
+@property (weak, nonatomic) IBOutlet UIScrollView *contributionScrollView;      // 贡献人
+@property (weak, nonatomic) IBOutlet UIButton     *contributionButton;          // 贡献数
+@property (weak, nonatomic) IBOutlet UIButton     *distanceButton;              // 距离
+
+@property (weak, nonatomic) IBOutlet UILabel      *nickNameLabel;               // 昵称
+@property (weak, nonatomic) IBOutlet UIImageView  *sexImageView;                // 性别
+@property (weak, nonatomic) IBOutlet UIImageView  *levelImageView;              // 等级
+
+@property (weak, nonatomic) IBOutlet UILabel      *indentificationLabel;        // 尤果认证
+@property (weak, nonatomic) IBOutlet UILabel      *positiveRateLabel;           // 好评率
+
+@property (weak, nonatomic) IBOutlet UIButton     *concemButton;                // 关注
+@property (weak, nonatomic) IBOutlet UIButton     *fansButton;                  // 粉丝
+@property (weak, nonatomic) IBOutlet UIButton     *favourButton;                // 赞
+
+@property (weak, nonatomic) IBOutlet UIScrollView *photoWallScrollView;         // 照片墙
+
+@end
+
+@implementation UserCenterHeaderView
+
+/**
+ *  创建实例对象
+ *
+ *  @return 实例对象
+ */
++ (instancetype)loadUserCenterHeaderView {
+    CGFloat headerH = WIDTH * 230 / 375 + 257;// 32 + 12 + 20.5 + 8 + 16 + 8 + 50 + 8 + 90 + 12;
+    NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"UserCenterHeaderView" owner:self options:nil];
+    UserCenterHeaderView *headerView = [nib objectAtIndex:0];
+    headerView.frame = CGRectMake(0, 0, WIDTH, headerH);
+    return headerView;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    CGFloat cornerRadius = self.headerImageView.frame.size.width * 0.5;
+    self.headerImageView.layer.cornerRadius = cornerRadius;
+    self.headerImageView.layer.masksToBounds = YES;
+    self.headerImageView.layer.borderColor = [UIColor whiteColor].CGColor;
+    self.headerImageView.layer.borderWidth = 2;
+    
+    self.contributionScrollView.userInteractionEnabled = YES;
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapContributerView)];
+    [self.contributionScrollView addGestureRecognizer:tap];
+}
+
+/**
+ *  更多按钮点击
+ */
+- (IBAction)moreButtonClicked {
+    [MoreMenuHelp showMoreMenu:^(NSUInteger index) {
+        if (_actionSheetItemClicked) {
+            _actionSheetItemClicked(index);
+        }
+    }];
+}
+
+/**
+ *  分享按钮点击
+ */
+- (IBAction)shareButtonClicked {
+    if (_shareButtonClickedBlock) {
+        _shareButtonClickedBlock();
+    }
+}
+
+/**
+ *  点击头像查看个人信息
+ */
+- (IBAction)tapUserHeaderImageView:(id)sender {
+    if (_tapHeaderImageViewBlock) {
+        _tapHeaderImageViewBlock(nil);
+    }
+}
+
+/**
+ *  他人关注
+ */
+- (IBAction)lookOthersConcems {
+    if (_concemButtonClickedBlock) {
+        _concemButtonClickedBlock();
+    }
+}
+
+/**
+ *  他人粉丝
+ */
+- (IBAction)lookOthersFuns {
+    if (_funsButtonClickedBlock) {
+        _funsButtonClickedBlock();
+    }
+}
+
+/**
+ *  他赞过的
+ */
+- (IBAction)lookOthersFavours {
+    if (_favourButtonClickedBlock) {
+        _favourButtonClickedBlock();
+    }
+}
+
+- (void)tapContributerView {
+    if (_contributerViewTapedBlock) {
+        _contributerViewTapedBlock();
+    }
+}
+
+- (void)setUserBaseInfoModel:(UserBaseInfoModel *)userBaseInfoModel {
+    _userBaseInfoModel = userBaseInfoModel;
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:userBaseInfoModel.headImg]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.crownImageView.hidden = !userBaseInfoModel.isRecommend;
+    self.vipImageView.hidden = (userBaseInfoModel.audit != 1);
+    
+    self.nickNameLabel.text = userBaseInfoModel.nickName;
+    self.sexImageView.image = [UIImage imageNamed:userBaseInfoModel.sex];
+    self.levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",userBaseInfoModel.star]];
+    
+    self.indentificationLabel.text = [NSString stringWithFormat:@"尤果认证：%@", userBaseInfoModel.auditResult];
+    self.positiveRateLabel.text = [NSString stringWithFormat:@"好评率：%@%%",userBaseInfoModel.rateOfPraise];
+    
+    [self.concemButton setTitle:[NSString stringWithFormat:@"%@关注",userBaseInfoModel.focusCount] forState:UIControlStateNormal];
+    [self.fansButton setTitle:[NSString stringWithFormat:@"%@粉丝",userBaseInfoModel.fansCount] forState:UIControlStateNormal];
+    [self.favourButton setTitle:[NSString stringWithFormat:@"%@赞",userBaseInfoModel.zanCount] forState:UIControlStateNormal];
+    
+    CLLocationCoordinate2D myCoordinate = [CityLocation sharedInstance].coordinate;
+    CLLocation *myLocation = [[CLLocation alloc] initWithLatitude:myCoordinate.latitude longitude:myCoordinate.longitude];
+    CLLocation *location = [[CLLocation alloc] initWithLatitude:userBaseInfoModel.latitude longitude:userBaseInfoModel.longitude];
+    CLLocationDistance distance = [myLocation distanceFromLocation:location];
+    [self.distanceButton setTitle:[NSString stringWithFormat:@"%.2fkm",distance / 1000] forState:UIControlStateNormal];
+    //    if (distance > 1000) {
+    //        
+    //    } else {
+    //        [self.distanceButton setTitle:[NSString stringWithFormat:@"%.0fm",distance] forState:UIControlStateNormal];
+    //    }
+}
+
+- (void)setPhotoArray:(NSArray *)photoArray {
+    _photoArray = photoArray;
+    
+    NSUInteger photoCount = photoArray.count;
+    CGFloat imageViewH = _photoWallScrollView.frame.size.height;
+    UIImage *phImage = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]
+                                                     size:CGSizeMake(imageViewH, imageViewH)];
+    for (NSUInteger i = 0; i < photoCount; i++) {
+        CGFloat imageViewX = (imageViewH + 8) * i + 8;
+        NSString *imageUrl = photoArray[i];
+        UIImageView *imageView = [[UIImageView alloc] init];
+        imageView.layer.cornerRadius = 4;
+        imageView.layer.masksToBounds = YES;
+        imageView.frame = CGRectMake(imageViewX, 0, imageViewH, imageViewH);
+        
+        [imageView sd_setImageWithURL:[NSURL URLWithString:imageUrl]
+                     placeholderImage:phImage];
+        [self.photoWallScrollView addSubview:imageView];
+    }
+    self.photoWallScrollView.contentSize = CGSizeMake((imageViewH + 8) * photoCount + 8, imageViewH);
+}
+
+- (void)setContributerArray:(NSArray *)contributerArray {
+    _contributerArray = contributerArray;
+    
+    _contributionButton.hidden = contributerArray.count == 0;
+    if (contributerArray.count) {
+        OthersContributerModel *firstModel = contributerArray[0];
+        [_contributionButton setTitle:firstModel.totalMoney forState:UIControlStateNormal];
+        
+        NSInteger count = contributerArray.count;
+        CGFloat viewH = _contributionScrollView.frame.size.height;
+        for (NSInteger index = 0; index < count; index++) {
+            OthersContributerModel *model = contributerArray[count - 1 - index];
+            CGFloat viewX = (count - 1 - index) * viewH * 0.5;
+            UIImageView *imageView = [[UIImageView alloc] init];
+            imageView.layer.cornerRadius = viewH * 0.5;
+            imageView.layer.masksToBounds = YES;
+            imageView.layer.borderWidth = 2;
+            imageView.layer.borderColor = [UIColor whiteColor].CGColor;
+            imageView.frame = CGRectMake(viewX, 0, viewH, viewH);
+            [imageView sd_setImageWithURL:[NSURL URLWithString:model.headImg]
+                         placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+            [_contributionScrollView addSubview:imageView];
+        }
+    }
+}
+
+@end

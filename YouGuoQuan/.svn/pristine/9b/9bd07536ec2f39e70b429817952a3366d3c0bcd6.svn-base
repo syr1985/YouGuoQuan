@@ -1,0 +1,16 @@
+//
+//  MessageVM.h
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/8.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface MessageVM : NSObject
+
+
+
+
+@end

@@ -1,0 +1,120 @@
+//
+//  HomeBannerViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/9.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "HomeBannerViewCell.h"
+#import "NewPagedFlowView.h"
+#import "IndexBannerSubiew.h"
+#import "UIImage+Color.h"
+#import "HomeBannerModel.h"
+
+@interface HomeBannerViewCell () <NewPagedFlowViewDelegate, NewPagedFlowViewDataSource>
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (nonatomic, strong) NewPagedFlowView *pageFlowView;
+@property (nonatomic, strong) NSMutableArray *bannerModelArray;
+@end
+
+@implementation HomeBannerViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    //    for (int index = 0; index < 5; index++) {
+    //        UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"Yosemite%02d",index]];
+    //        [self.imageArray addObject:image];
+    //    }
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool getBannerListWithPageNo:@"1" pageSize:@"5" success:^(NSArray *dataArray) {
+        if (dataArray.count) {
+            NSMutableArray *muArray = [NSMutableArray array];
+            for (NSDictionary *dict in dataArray) {
+                HomeBannerModel *homeBannerModel = [HomeBannerModel homeBannerModelWithDict:dict];
+                [muArray addObject:homeBannerModel];
+            }
+            weakself.bannerModelArray = muArray;
+            [_pageFlowView reloadData];
+        }
+    } failure:^{
+        
+    }];
+    
+    
+    CGFloat heght = WIDTH * 198 / 322;
+    UIView *bgView = [[UIView alloc] init];
+    bgView.backgroundColor = NavColor;
+    bgView.frame = CGRectMake(0, 0, WIDTH, heght * 0.7);
+    [self.scrollView addSubview:bgView];
+    
+    NewPagedFlowView *pageFlowView = [[NewPagedFlowView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, heght)];
+    //    pageFlowView.backgroundColor = [UIColor greenColor];
+    pageFlowView.delegate = self;
+    pageFlowView.dataSource = self;
+    pageFlowView.minimumPageAlpha = 0.3;
+    pageFlowView.minimumPageScale = 0.9;
+    pageFlowView.orientation = NewPagedFlowViewOrientationHorizontal;
+    pageFlowView.isOpenAutoScroll = YES;
+    
+    CGRect pageControlRect = CGRectMake(0, pageFlowView.frame.size.height - 20, WIDTH, 5);
+    SMPageControl *pageControl = [[SMPageControl alloc] initWithFrame:pageControlRect];
+    pageControl.pageIndicatorImage = [UIImage imageFromContextWithColor:[UIColor grayColor] size:CGSizeMake(10,5)];
+    pageControl.currentPageIndicatorImage = [UIImage imageFromContextWithColor:NavColor size:CGSizeMake(10, 5)];
+    pageFlowView.pageControl = pageControl;
+    [pageFlowView addSubview:pageControl];
+    
+    /****************************
+     使用导航控制器(UINavigationController)
+     如果控制器中不存在UIScrollView或者继承自UIScrollView的UI控件
+     请使用UIScrollView作为NewPagedFlowView的容器View,才会显示正常,如下
+     *****************************/
+    [self.scrollView addSubview:pageFlowView];
+    _pageFlowView = pageFlowView;
+}
+
+
+#pragma mark NewPagedFlowView Delegate
+- (CGSize)sizeForPageInFlowView:(NewPagedFlowView *)flowView {
+    return CGSizeMake(WIDTH - 50, (WIDTH - 50) * 198 / 322);
+}
+
+- (void)didSelectCell:(UIView *)subView withSubViewIndex:(NSInteger)subIndex {
+    
+    //NSLog(@"点击了第%ld张图",(long)subIndex + 1);
+}
+
+#pragma mark NewPagedFlowView Datasource
+- (NSInteger)numberOfPagesInFlowView:(NewPagedFlowView *)flowView {
+    return self.bannerModelArray.count;
+}
+
+- (UIView *)flowView:(NewPagedFlowView *)flowView cellForPageAtIndex:(NSInteger)index{
+    IndexBannerSubiew *bannerView = (IndexBannerSubiew *)[flowView dequeueReusableCell];
+    if (!bannerView) {
+        //        bannerView = [[PGIndexBannerSubiew alloc] initWithFrame:CGRectMake(0, 0, WIDTH - 50, (WIDTH - 50) * 198 / 322)];
+        bannerView = [IndexBannerSubiew loadIndexBannerSubiew];
+    }
+    
+    bannerView.homeBannerModel = self.bannerModelArray[index];
+    
+    return bannerView;
+}
+
+- (void)didScrollToPage:(NSInteger)pageNumber inFlowView:(NewPagedFlowView *)flowView {
+    
+    //NSLog(@"滚动到了第%ld页",pageNumber);
+}
+
+#pragma mark --懒加载
+- (NSMutableArray *)bannerModelArray {
+    if (_bannerModelArray == nil) {
+        _bannerModelArray = [NSMutableArray array];
+    }
+    return _bannerModelArray;
+}
+
+@end

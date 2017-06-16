@@ -1,0 +1,56 @@
+//
+//  VideoDetailHeaderView.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/30.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "VideoDetailHeaderView.h"
+#import <LCActionSheet.h>
+
+@interface VideoDetailHeaderView () <LCActionSheetDelegate>
+
+@end
+
+@implementation VideoDetailHeaderView
+
+/*
+ // Only override drawRect: if you perform custom drawing.
+ // An empty implementation adversely affects performance during animation.
+ - (void)drawRect:(CGRect)rect {
+ // Drawing code
+ }
+ */
+
++ (instancetype)videoDetailHeaderView {
+    CGFloat headerH = WIDTH * 4 / 7 + 200;//16 + 40 + 18 + 8 + 54 + 8 + 44 + 8
+    NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"VideoDetailHeaderView" owner:self options:nil];
+    VideoDetailHeaderView *headerView = nib[0];
+    headerView.frame = CGRectMake(0, 0, WIDTH, headerH);
+    return headerView;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    
+}
+
+- (IBAction)moreButtonClicked {
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:nil
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"拉黑该用户",@"举报该用户",nil];
+    [actionSheet show];
+}
+
+#pragma mark - LCActionSheetDelegate
+- (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (_actionSheetItemClicked) {
+        _actionSheetItemClicked(buttonIndex);
+    }
+}
+
+
+@end

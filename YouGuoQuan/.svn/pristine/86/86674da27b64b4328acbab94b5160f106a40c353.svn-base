@@ -1,0 +1,28 @@
+//
+//  ChatViewController.h
+//  YouGuoQuan
+//
+//  Created by liushuai on 2016/12/16.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+//#import <UIKit/UIKit.h>
+#import "BaseViewController.h"
+
+extern NSString * const Key_Conversation_Ext;
+extern NSString * const Flag_Snap;
+extern NSString * const Flag_Redpacket;
+
+@interface ChatViewController : BaseViewController
+
+/**
+ *  初始化聊天页面
+ *
+ *  @param conversationId 会话对方的用户名. 如果是群聊, 则是群组的id
+ *  @param target         用户信息
+ *  @return 控制器实例
+ */
+- (instancetype)initWithConversationChatter:(NSString *)conversationId
+                                   userInfo:(NSDictionary *)target;
+
+@end

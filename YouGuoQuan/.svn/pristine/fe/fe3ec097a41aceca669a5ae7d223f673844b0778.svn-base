@@ -1,0 +1,19 @@
+//
+//  CommentMessageCell.h
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface CommentMessageCell : UITableViewCell
+
+- (void) refreshContent : (id) content;
+
++ (NSString *) reuseIdentifier;
+
++ (CGFloat) cellHeightWithText : (NSString *) text;
+
+@end

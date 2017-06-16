@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PublishProductFooterView" id="U6b-Vx-4bR" customClass="PublishProductFooterView">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="30"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tzo-ou-xpN">
+                    <rect key="frame" x="8" y="5" width="20" height="20"/>
+                    <constraints>
+                        <constraint firstAttribute="width" secondItem="tzo-ou-xpN" secondAttribute="height" multiplier="1:1" id="83S-Ft-075"/>
+                        <constraint firstAttribute="width" constant="20" id="S5C-0d-TyQ"/>
+                    </constraints>
+                    <state key="normal" backgroundImage="选框"/>
+                    <state key="selected" backgroundImage="选框选中"/>
+                    <connections>
+                        <action selector="singleSelectButtonClicked:" destination="U6b-Vx-4bR" eventType="touchUpInside" id="5AQ-YR-ORX"/>
+                    </connections>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="原图上传" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vA6-qw-XmP">
+                    <rect key="frame" x="36" y="7" width="58" height="17"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ruW-Id-VeS">
+                    <rect key="frame" x="98" y="15.5" width="70" height="0.0"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="70" id="hbk-YI-TuC"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <constraints>
+                <constraint firstItem="vA6-qw-XmP" firstAttribute="centerY" secondItem="tzo-ou-xpN" secondAttribute="centerY" id="Aav-jZ-Fck"/>
+                <constraint firstItem="ruW-Id-VeS" firstAttribute="centerY" secondItem="vA6-qw-XmP" secondAttribute="centerY" id="XNL-df-Vl5"/>
+                <constraint firstItem="tzo-ou-xpN" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="8" id="dZZ-dR-NhR"/>
+                <constraint firstItem="ruW-Id-VeS" firstAttribute="leading" secondItem="vA6-qw-XmP" secondAttribute="trailing" constant="4" id="eNb-Pg-dwH"/>
+                <constraint firstItem="vA6-qw-XmP" firstAttribute="leading" secondItem="tzo-ou-xpN" secondAttribute="trailing" constant="8" id="jBZ-Qs-QzC"/>
+                <constraint firstItem="tzo-ou-xpN" firstAttribute="centerY" secondItem="U6b-Vx-4bR" secondAttribute="centerY" id="o9d-jk-AI5"/>
+            </constraints>
+            <connections>
+                <outlet property="singleSelectButton" destination="tzo-ou-xpN" id="0Pb-Zf-eja"/>
+                <outlet property="uploadImageSizeLabel" destination="ruW-Id-VeS" id="8SW-FX-iGJ"/>
+            </connections>
+            <point key="canvasLocation" x="-350" y="-138"/>
+        </collectionReusableView>
+    </objects>
+    <resources>
+        <image name="选框" width="20" height="20"/>
+        <image name="选框选中" width="20" height="20"/>
+    </resources>
+</document>

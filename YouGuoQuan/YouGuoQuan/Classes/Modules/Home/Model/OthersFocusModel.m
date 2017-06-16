@@ -1,0 +1,42 @@
+//
+//  OthersFocusModel.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/16.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "OthersFocusModel.h"
+#import <MJExtension.h>
+
+@implementation OthersFocusModel
+
++ (instancetype)othersFocusModelWithDict:(NSDictionary *)dict {
+    [OthersFocusModel mj_setupReplacedKeyFromPropertyName:^NSDictionary *{
+        return @{@"userId" : @"id"};
+    }];
+    return [[OthersFocusModel alloc] initOthersFocusModelWithDict:dict];
+}
+
+- (instancetype)initOthersFocusModelWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self =  [OthersFocusModel mj_objectWithKeyValues:dict];
+    }
+    return self;
+}
+
+- (NSString *)auditResult {
+    if (!_auditResult || !_auditResult.length) {
+        return @"";
+    }
+    return _auditResult;
+}
+
+- (int)star {
+    if (_star > 6) {
+        return 6;
+    }
+    return _star;
+}
+
+@end

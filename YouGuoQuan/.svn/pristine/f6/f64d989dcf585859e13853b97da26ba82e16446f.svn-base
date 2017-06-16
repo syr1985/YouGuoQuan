@@ -1,0 +1,93 @@
+//
+//  FollowMessageCell.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "FollowMessageCell.h"
+#import "Masonry.h"
+#import "UIScreen+Adapt.h"
+#import "HelperUtil.h"
+
+@interface FollowMessageCell() {
+    
+}
+@property(nonatomic) CGFloat screenWidth;
+
+@property(nonatomic, strong) UIImageView *headImgView;
+@property(nonatomic, strong) UIImageView *vMarkImgView;
+@property(nonatomic, strong) UILabel *nameLabel;
+@property(nonatomic, strong) UILabel *followLabel;
+@property(nonatomic, strong) UILabel *timeLabel;
+@property(nonatomic, strong) UIButton *followBtn;
+
+
+@end
+
+@implementation FollowMessageCell
+
+- (instancetype) initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        self.screenWidth = [UIScreen mainScreen].bounds.size.width;
+        [self.contentView addSubview:self.headImgView];
+        [self.contentView addSubview:self.vMarkImgView];
+        [self.contentView addSubview:self.nameLabel];
+        [self.contentView addSubview:self.followLabel];
+        [self.contentView addSubview:self.followBtn];
+        [self.contentView addSubview:self.timeLabel];
+    }
+    return self;
+}
+
+- (void) addAutoLayoutConstraint {
+    __weak __typeof(self)weakSelf = self;
+    [self.headImgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        
+    }];
+    
+    
+    [self.vMarkImgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        
+    }];
+    
+    [self.nameLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        
+    }];
+    
+    [self.followLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        
+    }];
+    
+    [self.followBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        
+    }];
+    
+    [self.timeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.right.mas_equalTo([UIScreen adaptedLengthOf:-12]);
+        make.centerY.mas_equalTo(strongSelf.nameLabel);
+    }];
+}
+
+- (UIImageView *) headImgView {
+    if (_headImgView) {
+        if (!_headImgView) {
+            _headImgView = [[UIImageView alloc] init];
+        }
+    }
+    return _headImgView;
+}
+
++ (CGFloat) cellHeight {
+    return [UIScreen adaptedLengthOf:56];
+}
+
+@end

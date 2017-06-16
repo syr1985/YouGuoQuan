@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="IM7-qF-HeA">
+    <device id="retina4_0" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--发现-->
+        <scene sceneID="r20-y8-kiM">
+            <objects>
+                <viewController title="发现" id="IM7-qF-HeA" customClass="DiscoveryViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="UBu-25-97K"/>
+                        <viewControllerLayoutGuide type="bottom" id="t3M-tl-MFw"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="RFq-iR-SQW">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="5mY-Ju-W6G"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="H12-En-1L7" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="751.20000000000005" y="208.24587706146929"/>
+        </scene>
+        <!--Nearby Person View Controller-->
+        <scene sceneID="KYi-3v-Hve">
+            <objects>
+                <viewController storyboardIdentifier="NearbyPerson" id="Bzl-T9-DTm" customClass="NearbyPersonViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Xwg-Lx-z3w"/>
+                        <viewControllerLayoutGuide type="bottom" id="AAF-pg-QLm"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="9GP-SI-WPR">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="4iv-Aq-pWN">
+                                <rect key="frame" x="0.0" y="20" width="320" height="548"/>
+                                <color key="backgroundColor" red="1" green="0.1151486266" blue="0.039722114840000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="Bzl-T9-DTm" id="LRp-Bo-2XH"/>
+                                    <outlet property="delegate" destination="Bzl-T9-DTm" id="k2O-pP-if7"/>
+                                </connections>
+                            </tableView>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iZU-Do-soF">
+                                <rect key="frame" x="0.0" y="20" width="320" height="564"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Hwu-h5-6TV">
+                                        <rect key="frame" x="110" y="232" width="100" height="100"/>
+                                        <color key="backgroundColor" red="1" green="0.50196078430000002" blue="0.38431372549999998" alpha="1" colorSpace="calibratedRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="100" id="aTG-8c-2ls"/>
+                                            <constraint firstAttribute="width" secondItem="Hwu-h5-6TV" secondAttribute="height" id="sXm-N3-QGZ"/>
+                                        </constraints>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="获取地理位置信息失败" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QAS-GO-PPB">
+                                        <rect key="frame" x="84" y="340" width="153" height="18"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="Hwu-h5-6TV" firstAttribute="centerX" secondItem="iZU-Do-soF" secondAttribute="centerX" id="UbF-WD-5yD"/>
+                                    <constraint firstItem="QAS-GO-PPB" firstAttribute="centerX" secondItem="iZU-Do-soF" secondAttribute="centerX" id="Zbg-DZ-Sm1"/>
+                                    <constraint firstItem="Hwu-h5-6TV" firstAttribute="centerY" secondItem="iZU-Do-soF" secondAttribute="centerY" id="gLm-Lb-7Hz"/>
+                                    <constraint firstItem="QAS-GO-PPB" firstAttribute="top" secondItem="Hwu-h5-6TV" secondAttribute="bottom" constant="8" id="hy3-Ag-6i0"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="AAF-pg-QLm" firstAttribute="top" secondItem="iZU-Do-soF" secondAttribute="bottom" constant="-16" id="2Zi-JG-imS"/>
+                            <constraint firstItem="4iv-Aq-pWN" firstAttribute="top" secondItem="Xwg-Lx-z3w" secondAttribute="bottom" id="7xN-Pt-z3r"/>
+                            <constraint firstItem="AAF-pg-QLm" firstAttribute="top" secondItem="4iv-Aq-pWN" secondAttribute="bottom" id="8ex-fg-d62"/>
+                            <constraint firstItem="4iv-Aq-pWN" firstAttribute="leading" secondItem="9GP-SI-WPR" secondAttribute="leading" id="997-Zg-I2n"/>
+                            <constraint firstAttribute="trailing" secondItem="4iv-Aq-pWN" secondAttribute="trailing" id="OS7-tY-b4a"/>
+                            <constraint firstItem="iZU-Do-soF" firstAttribute="leading" secondItem="9GP-SI-WPR" secondAttribute="leadingMargin" constant="-16" id="P9L-qn-nzE"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="iZU-Do-soF" secondAttribute="trailing" constant="-16" id="PUG-jr-ipR"/>
+                            <constraint firstItem="iZU-Do-soF" firstAttribute="top" secondItem="Xwg-Lx-z3w" secondAttribute="bottom" id="awg-rE-k7b"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="getLocationFailedView" destination="iZU-Do-soF" id="uVq-yg-94E"/>
+                        <outlet property="tableView" destination="4iv-Aq-pWN" id="Bn4-jk-6Jo"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Thg-KG-CcZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1606.875" y="208.09859154929578"/>
+        </scene>
+    </scenes>
+</document>

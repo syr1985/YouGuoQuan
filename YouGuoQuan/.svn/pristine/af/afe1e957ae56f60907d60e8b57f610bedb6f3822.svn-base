@@ -1,0 +1,59 @@
+//
+//  BaseViewController.m
+//  XieChengMLS
+//
+//  Created by apple on 15/5/22.
+//  Copyright (c) 2015年 apple. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@interface BaseViewController ()
+
+@end
+
+@implementation BaseViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    //    self.view.backgroundColor = [UIColor whiteColor];
+    
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.center = self.navigationItem.titleView.center;
+    titleLabel.bounds = CGRectMake(0, 0, 200, 30);
+    titleLabel.textColor = [UIColor blackColor];
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    self.navigationItem.titleView = titleLabel;
+    self.titleLabel = titleLabel;
+    
+    UIBarButtonItem *temporaryBarButtonItem = [[UIBarButtonItem alloc] init];
+    temporaryBarButtonItem.title = @"";
+    self.navigationItem.backBarButtonItem = temporaryBarButtonItem;
+    [self.navigationController.navigationBar setTintColor:[UIColor darkGrayColor]];
+    
+    //    self.navigationController.navigationBar.barTintColor = NavColor;
+    //    self.navigationController.navigationBar.tintColor = [UIColor darkGrayColor];
+    //    self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor], NSFontAttributeName:[UIFont systemFontOfSize:[UIFont systemFontSize]]};
+    //    self.navigationController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+    
+}
+
+//- (void)viewWillAppear:(BOOL)animated {
+//    [super viewWillAppear:animated];
+//    
+//    CGFloat width = self.navigationController.navigationBar.items.count * 44.0;
+//    self.titleLabel.bounds = CGRectMake(0, 0, width, 44);
+//    
+//    self.extendedLayoutIncludesOpaqueBars = YES;
+//    self.navigationController.navigationBar.translucent = NO;
+//    self.navigationController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+//    [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsCompact];
+//    
+//}
+
+//- (UIStatusBarStyle)preferredStatusBarStyle {
+//    return UIStatusBarStyleLightContent;
+//}
+
+@end

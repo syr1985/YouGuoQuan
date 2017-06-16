@@ -1,0 +1,57 @@
+//
+//  OthersConcemViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/2.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "OthersFocusViewCell.h"
+#import "OthersFocusModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+
+@interface OthersFocusViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *certificationLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UIButton *concemButton;
+
+@end
+
+@implementation OthersFocusViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    self.headerImageView.layer.cornerRadius = self.headerImageView.bounds.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state
+}
+
+- (void)setOthersFocusModel:(OthersFocusModel *)othersFocusModel {
+    _othersFocusModel = othersFocusModel;
+    
+    self.crownImageView.hidden = !othersFocusModel.isRecommend;
+    self.vipImageView.hidden = !othersFocusModel.audit;
+    
+    self.nickNameLabel.text = othersFocusModel.nickName;
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:othersFocusModel.headImg]];
+    
+    self.levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",othersFocusModel.star]];
+    
+    self.certificationLabel.text = [NSString stringWithFormat:@"尤果认证：%@",othersFocusModel.work];
+    
+    self.concemButton.selected = othersFocusModel.isMyFans;
+}
+
+@end

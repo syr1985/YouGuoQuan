@@ -1,0 +1,251 @@
+//
+//  VideoViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "VideoViewController.h"
+#import "TrendsDetailViewController.h"
+#import "YouGuoNobilityViewController.h"
+#import "UserBaseInfoModel.h"
+
+#import "VideoViewCell.h"
+#import "AlertViewTool.h"
+#import <MJRefresh.h>
+#import "DiscoveryVideoModel.h"
+#import "HomeFocusModel.h"
+
+@interface VideoViewController ()
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@property (nonatomic, assign) int pageNo;
+@property (nonatomic, assign) int pageSize;
+@end
+
+@implementation VideoViewController
+
+static NSString * const collectionViewCellID = @"VideoViewCell";
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray array];
+    }
+    return _modelArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [self configViewController];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+    //    self.modelArray = nil;
+}
+
+#pragma mark -
+#pragma mark - 配置控制器
+- (void)configViewController {
+    self.pageNo = 1;
+    self.pageSize = 20;
+    
+    // Register cell classes
+    self.collectionView.backgroundColor = NavBackgroundColor;
+    UINib *nib = [UINib nibWithNibName:collectionViewCellID bundle:nil];
+    [self.collectionView registerNib:nib forCellWithReuseIdentifier:collectionViewCellID];
+    
+    // Do any additional setup after loading the view.
+    // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingTarget:self
+                                                                     refreshingAction:@selector(loadNewData)];
+    
+    // 设置文字
+    [header setTitle:@"下拉刷新数据" forState:MJRefreshStateIdle];
+    [header setTitle:@"松开刷新" forState:MJRefreshStatePulling];
+    [header setTitle:@"加载中..." forState:MJRefreshStateRefreshing];
+    // 马上进入刷新状态
+    [header beginRefreshing];
+    // 设置刷新控件
+    self.collectionView.mj_header = header;
+    
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self
+                                                                             refreshingAction:@selector(loadMoreData)];
+    // 设置文字
+    [footer setTitle:@"上拉刷新数据" forState:MJRefreshStateIdle];
+    [footer setTitle:@"加载更多..." forState:MJRefreshStateRefreshing];
+    //[footer setTitle:@"到底了" forState:MJRefreshStateNoMoreData];
+    footer.automaticallyRefresh = NO;
+    footer.hidden = YES;
+    // 设置footer
+    self.collectionView.mj_footer = footer;
+}
+
+#pragma mark -
+#pragma mark - 加载数据
+- (void)loadNewData {
+    _pageNo = 1;
+    [self loadDataFromServer];
+}
+
+- (void)loadMoreData {
+    _pageNo++;
+    [self loadDataFromServer];
+}
+
+#pragma mark -
+#pragma mark - 从服务器加载数据
+- (void)loadDataFromServer {
+    __weak typeof(self) weakself = self;
+    [NetworkTool getDiscoveryVideosListWithPageNo:@(_pageNo) pageSize:@(_pageSize) success:^(id result) {
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in result) {
+            DiscoveryVideoModel *model = [DiscoveryVideoModel discoveryVideoModelWithDict:dict];
+            [muArray addObject:model];
+        }
+        if (weakself.pageNo == 1) {
+            [weakself.collectionView.mj_header endRefreshing];
+            weakself.modelArray = muArray;
+            [weakself.collectionView reloadData];
+            
+            //            weakself.collectionView.mj_footer.hidden = muArray.count == 0;
+            //            if (muArray.count < weakself.pageSize) {
+            //                [weakself.collectionView.mj_footer endRefreshingWithNoMoreData];
+            //            } else {
+            //                [weakself.collectionView.mj_footer resetNoMoreData];
+            //            }
+        } else {
+            [weakself.collectionView.mj_footer endRefreshing];
+            [weakself.modelArray addObjectsFromArray:muArray];
+            [weakself.collectionView reloadData];
+            //            if (muArray.count < weakself.pageSize) {
+            //                [weakself.collectionView.mj_footer endRefreshingWithNoMoreData];
+            //            } else {
+            //                [weakself.collectionView.mj_footer endRefreshing];
+            //            }
+        }
+    } failure:^{
+        if (weakself.pageNo == 1) {
+            [weakself.collectionView.mj_header endRefreshing];
+        } else {
+            [weakself.collectionView.mj_footer endRefreshing];
+        }
+    }];
+}
+
+
+#pragma mark -
+#pragma mark - <UICollectionViewDataSource>
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.modelArray.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    VideoViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID forIndexPath:indexPath];
+    
+    // Configure the cell
+    cell.discoveryVideoModel = self.modelArray[indexPath.row];
+    
+    return cell;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    CGFloat sizeW = (WIDTH - 19) * 0.5;
+    return CGSizeMake(sizeW, sizeW);
+}
+
+#pragma mark <UICollectionViewDelegate>
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (![LoginData sharedLoginData].isRecommend) {
+        if (indexPath.row > 11) {
+            __weak typeof(self) weakself = self;
+            [AlertViewTool showAlertViewWithTitle:nil Message:@"非会员用户只能观看部分视频资源，立即开通贵族会员，即可免费观看所有视频" sureTitle:@"开通" sureBlock:^{
+                [weakself pushToYouGuoNobilityViewController];
+            }];
+        } else {
+            [self pushToDetailViewController:indexPath];
+        }
+    } else {
+        [self pushToDetailViewController:indexPath];
+    }
+}
+
+- (void)pushToYouGuoNobilityViewController {
+    __weak typeof(self) weakself = self;
+    [NetworkTool getOthersInfoWithUserId:[LoginData sharedLoginData].userId success:^(id result) {
+        UserBaseInfoModel *userBaseInfoModel = [UserBaseInfoModel userBaseInfoModelWithDict:result[@"list"]];
+        UIStoryboard *centerSB = [UIStoryboard storyboardWithName:@"Center" bundle:nil];
+        YouGuoNobilityViewController *nobilityVC = [centerSB instantiateViewControllerWithIdentifier:@"YouGuoNobilityVC"];
+        nobilityVC.userBaseInfoModel = userBaseInfoModel;
+        nobilityVC.hidesBottomBarWhenPushed = YES;
+        [weakself.navigationController pushViewController:nobilityVC animated:YES];
+    }];
+}
+
+- (void)pushToDetailViewController:(NSIndexPath *)indexPath {
+    if (![LoginData sharedLoginData].userId) {
+        UIStoryboard *loginSB = [UIStoryboard storyboardWithName:@"Login" bundle:nil];
+        UIViewController *loginVC = [loginSB instantiateViewControllerWithIdentifier:@"LoginVC"];
+        [self presentViewController:loginVC animated:YES completion:nil];
+        return;
+    }
+    
+    DiscoveryVideoModel *model = self.modelArray[indexPath.row];
+    HomeFocusModel *homeFocusModel = [[HomeFocusModel alloc] init];
+    homeFocusModel.focusId             = model.videoId;
+    homeFocusModel.goodsId             = @"";
+    homeFocusModel.userId              = model.userId;
+    homeFocusModel.imageUrl            = model.imageUrl;
+    homeFocusModel.buyCount            = model.buyCount;
+    homeFocusModel.commentCount        = model.commentCount;
+    homeFocusModel.recommendCount      = model.recommendCount;
+    homeFocusModel.buyCommentGoodCount = model.buyCommentGoodCount;
+    homeFocusModel.instro              = model.instro;
+    homeFocusModel.createTime          = model.createTime;
+    homeFocusModel.updateTime          = @"";
+    homeFocusModel.playTimes           = @0;
+    homeFocusModel.videoUrl            = model.videoUrl;
+    homeFocusModel.videoEvelope        = model.videoEvelope;
+    homeFocusModel.feedsType           = 2;
+    homeFocusModel.timeLineId          = @"";
+    homeFocusModel.sex                 = model.sex;
+    homeFocusModel.headImg             = model.headImg;
+    homeFocusModel.nickName            = model.nickName;
+    homeFocusModel.star                = model.star;
+    homeFocusModel.isBuy               = NO;
+    homeFocusModel.isRecommend         = model.isRecommend;
+    homeFocusModel.isDelete            = NO;
+    homeFocusModel.praise              = model.isMyZan;
+    homeFocusModel.cellHeight          = model.cellHeight;
+    // createTime 没传，格式不同
+    
+    UIStoryboard *focusSB = [UIStoryboard storyboardWithName:@"Focus" bundle:nil];
+    TrendsDetailViewController *trendsDetailVC = [focusSB instantiateViewControllerWithIdentifier:@"TrendsDetailVC"];
+    trendsDetailVC.hidesBottomBarWhenPushed = YES;
+    trendsDetailVC.homeFocusModel = homeFocusModel;
+    [self.navigationController pushViewController:trendsDetailVC animated:YES];
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

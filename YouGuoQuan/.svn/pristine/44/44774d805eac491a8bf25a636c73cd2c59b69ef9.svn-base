@@ -1,0 +1,128 @@
+//
+//  HomeFocusModel.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/6.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "HomeFocusModel.h"
+#import <MJExtension.h>
+#import "NSString+StringSize.h"
+
+@implementation HomeFocusModel
+
++ (instancetype)homeFocusModelWithDict:(NSDictionary *)dict {
+    [HomeFocusModel mj_setupReplacedKeyFromPropertyName:^NSDictionary *{
+        return @{@"focusId" : @"id", @"praise" : @"isMyZan"};
+    }];
+    return [[HomeFocusModel alloc] initHomeFocusModelWithDict:dict];
+}
+
+- (instancetype)initHomeFocusModelWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self =  [HomeFocusModel mj_objectWithKeyValues:dict];
+        
+        NSString *title = _instro;
+        if (_feedsType == 3) {
+            title = _goodsName;
+        }
+        
+        NSUInteger margin = 6;
+        CGFloat defaultW = (WIDTH - 24 - 2 * margin) / 3;
+        CGFloat maxH = 62;//14 + 40 + 8;
+        CGFloat titleH = [NSString heightWithString:title
+                                            maxSize:CGSizeMake(WIDTH - 24, 0)
+                                            strFont:[UIFont systemFontOfSize:14]];
+        maxH += (titleH + 8);
+        if (_feedsType == 1) {
+            if (_imageUrl && _imageUrl.length) {
+                if ([_imageUrl containsString:@";"]) {
+                    NSArray *urlArray = [_imageUrl componentsSeparatedByString:@";"];
+                    NSUInteger count = urlArray.count;
+                    NSUInteger col = 2;
+                    if (count != 4) {
+                        if (count > 2) {
+                            col = 3;
+                        } else {
+                            col = count;
+                        }
+                    }
+                    NSUInteger row = count % 3 == 0 ? (count / 3) : (count / 3 + 1);
+                    
+                    CGFloat viewW = (WIDTH - 24 - (col - 1) * margin) / col;
+                    if (viewW > defaultW) {
+                        viewW = defaultW;
+                    }
+                    maxH += (row * viewW + (row - 1) * margin);
+                } else {
+                    maxH += 178;//defaultW;
+                }
+            }
+        } else if (_feedsType == 2) {
+            maxH += (WIDTH - 24) * 185 / 320;
+        } else if (_feedsType == 3) {
+            maxH += (WIDTH - 24) * 216 / 350;
+        } else {
+            if (_imageUrl && _imageUrl.length) {
+                if ([_imageUrl containsString:@";"]) {
+                    NSArray *urlArray = [_imageUrl componentsSeparatedByString:@";"];
+                    NSUInteger count = urlArray.count;
+                    NSUInteger col = 2;
+                    if (count != 4) {
+                        if (count > 2) {
+                            col = 3;
+                        } else {
+                            col = count;
+                        }
+                    }
+                    NSUInteger row = count % 3 == 0 ? (count / 3) : (count / 3 + 1);
+                    
+                    CGFloat viewW = (WIDTH - 24 - (col - 1) * margin) / col;
+                    if (viewW > defaultW) {
+                        viewW = defaultW;
+                    }
+                    maxH += (row * viewW + (row - 1) * margin);
+                } else {
+                    maxH += 178;//defaultW;
+                }
+            }
+        }
+        _cellHeight = maxH + 48;
+    }
+    return self;
+}
+
+- (instancetype)copyWithZone:(NSZone *)zone {
+    return (id)self;
+}
+
+- (int)star {
+    if (_star > 12) {
+        _star = 12;
+    }
+    return _star;
+}
+
+- (NSString *)goodsName {
+    if (!_goodsName) {
+        return @"";
+    }
+    return _goodsName;
+}
+
+- (NSString *)instro {
+    if (!_instro) {
+        return @"";
+    }
+    return _instro;
+}
+
+- (NSNumber *)price {
+    if (!_price) {
+        return @0;
+    }
+    return _price;
+}
+
+@end

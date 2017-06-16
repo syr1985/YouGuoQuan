@@ -1,0 +1,174 @@
+//
+//  BlackListViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "BlackListViewController.h"
+#import <MJRefresh.h>
+#import "OthersFocusModel.h"
+#import "BlackListViewCell.h"
+
+@interface BlackListViewController ()
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@property (nonatomic, assign) int pageNo;
+@property (nonatomic, assign) int pageSize;
+@end
+
+@implementation BlackListViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray new];
+    }
+    return _modelArray;
+}
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self configTableView];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+    //    self.modelArray = nil;
+}
+
+#pragma mark -
+#pragma mark - 配置TableView
+- (void)configTableView {
+    self.titleString = @"黑名单";
+    
+    self.pageNo = 1;
+    self.pageSize = 10;
+    
+    self.tableView.rowHeight = 56;
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+    
+    // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingTarget:self
+                                                                     refreshingAction:@selector(loadNewData)];
+    // 设置文字
+    [header setTitle:@"下拉刷新数据" forState:MJRefreshStateIdle];
+    [header setTitle:@"松开刷新" forState:MJRefreshStatePulling];
+    [header setTitle:@"加载中..." forState:MJRefreshStateRefreshing];
+    // 马上进入刷新状态
+    [header beginRefreshing];
+    // 设置刷新控件
+    self.tableView.mj_header = header;
+    
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self
+                                                                             refreshingAction:@selector(loadMoreData)];
+    // 设置文字
+    [footer setTitle:@"上拉刷新数据" forState:MJRefreshStateIdle];
+    [footer setTitle:@"加载更多..." forState:MJRefreshStateRefreshing];
+    //[footer setTitle:@"到底了" forState:MJRefreshStateNoMoreData];
+    footer.automaticallyRefresh = NO;
+    footer.hidden = YES;
+    // 设置footer
+    self.tableView.mj_footer = footer;
+}
+
+- (void)loadNewData {
+    _pageNo = 1;
+    [self loadDataFromServer];
+}
+
+- (void)loadMoreData {
+    _pageNo++;
+    [self loadDataFromServer];
+}
+
+- (void)loadDataSuccess:(NSArray *)dataArray {
+    NSMutableArray *muArray = [NSMutableArray array];
+    for (NSDictionary *dict in dataArray) {
+        OthersFocusModel *model = [OthersFocusModel othersFocusModelWithDict:dict];
+        [muArray addObject:model];
+    }
+    
+    if (_pageNo == 1) {
+        [self.tableView.mj_header endRefreshing];
+        _modelArray = muArray;
+        [self.tableView reloadData];
+        
+        //        self.tableView.mj_footer.hidden = muArray.count == 0;
+        //        if (muArray.count < _pageSize) {
+        //            [self.tableView.mj_footer endRefreshingWithNoMoreData];
+        //        } else {
+        //            [self.tableView.mj_footer resetNoMoreData];
+        //        }
+    } else {
+        [self.tableView.mj_footer endRefreshing];
+        [_modelArray addObjectsFromArray:muArray];
+        [self.tableView reloadData];
+        
+        //        if (muArray.count < _pageSize) {
+        //            [self.tableView.mj_footer endRefreshingWithNoMoreData];
+        //        } else {
+        //            [self.tableView.mj_footer endRefreshing];
+        //        }
+    }
+    //_noResultView.hidden = _modelArray.count;
+}
+
+- (void)loadDataFailure {
+    if (_pageNo == 1) {
+        [self.tableView.mj_header endRefreshing];
+    } else {
+        [self.tableView.mj_footer endRefreshing];
+    }
+}
+
+- (void)loadDataFromServer {
+    __weak typeof(self) weakself = self;
+    //1：关注列表，2：粉丝列表，3：黑名单列表
+    [NetworkTool getMyFunsFocusBlackListWithType:@(3) pageNo:@(_pageNo) pageSize:@(_pageSize) success:^(id result) {
+        [weakself loadDataSuccess:result];
+    } failure:^{
+        [weakself loadDataFailure];
+    }];
+}
+
+#pragma mark -
+#pragma mark - Table view data source
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.modelArray.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    BlackListViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BlackListViewCell" forIndexPath:indexPath];
+    __weak typeof(self) weakself = self;
+    cell.removeUserFromBlackList = ^(OthersFocusModel *model) {
+        [weakself.modelArray removeObject:model];
+        [weakself.tableView reloadData];
+    };
+    cell.blackListModel = self.modelArray[indexPath.row];
+    return cell;
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

@@ -1,0 +1,38 @@
+//
+//  CrowdfundingDetailHeaderView.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/29.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CrowdfundingDetailHeaderView.h"
+
+@interface CrowdfundingDetailHeaderView ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *participateInfoLabel;
+@property (weak, nonatomic) IBOutlet UIScrollView *participatenScrollView;
+@property (weak, nonatomic) IBOutlet UIButton *maxParticipateNumberButton;
+
+@end
+
+@implementation CrowdfundingDetailHeaderView
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(lookParticipatenList)];
+    [_participatenScrollView addGestureRecognizer:tapGesture];
+    
+}
+
+- (void)lookParticipatenList {
+    if (_pushViewControllerBlock) {
+        _pushViewControllerBlock();
+    }
+}
+
+
+
+@end

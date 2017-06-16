@@ -1,0 +1,55 @@
+//
+//  CrowdfundingViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CrowdfundingViewCell.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "DiscoveryCrowdfundingModel.h"
+#import "NSDate+LXExtension.h"
+#import "NSString+AttributedText.h"
+
+@interface CrowdfundingViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UILabel *lastTimeLabel;
+
+@end
+
+@implementation CrowdfundingViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setDiscoveryCrowdfundingModel:(DiscoveryCrowdfundingModel *)discoveryCrowdfundingModel {
+    _discoveryCrowdfundingModel = discoveryCrowdfundingModel;
+    
+    [self.crownImageView sd_setImageWithURL:[NSURL URLWithString:discoveryCrowdfundingModel.coverImgUrl]
+                           placeholderImage:[UIImage imageNamed:@"Yosemite03"]];
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_GB"];
+    dateFormatter.timeZone = [NSTimeZone timeZoneWithName:@"GMT"];
+    dateFormatter.dateFormat = @"yyyy/MM/dd";
+    NSDate *cfEndDate = [dateFormatter dateFromString:discoveryCrowdfundingModel.cfTimeEnd];
+    if ([cfEndDate compare:[NSDate date]] != NSOrderedDescending) {
+        self.lastTimeLabel.text = @"众筹已结束";
+        return;
+    }
+    
+    NSTimeInterval interval = [cfEndDate timeIntervalSinceDate:[NSDate date]];
+    int secondsPerDay = 24 * 3600;
+    int day = interval / secondsPerDay;
+    
+    NSString *lastDayString = [NSString stringWithFormat:@"众筹还有%d天",day];
+    NSRange range = [lastDayString rangeOfString:[NSString stringWithFormat:@"%d",day]];
+    self.lastTimeLabel.attributedText = [NSString attributedStringWithString:lastDayString
+                                                                       color:[UIColor redColor]
+                                                                       range:range];
+}
+
+@end

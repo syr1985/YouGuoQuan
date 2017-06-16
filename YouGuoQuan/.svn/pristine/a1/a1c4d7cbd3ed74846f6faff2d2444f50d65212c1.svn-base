@@ -1,0 +1,64 @@
+//
+//  UndoSoldOrderForWeixinViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/9.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "UndoSoldOrderForWeiXinViewCell.h"
+#import <UIImageView+WebCache.h>
+#import "MyOrderModel.h"
+
+@interface UndoSoldOrderForWeiXinViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *contentImageView;
+@property (weak, nonatomic) IBOutlet UILabel *contentTitleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentPriceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *accountLabel;
+@property (weak, nonatomic) IBOutlet UIView *agreeWithRefundView;
+@end
+
+@implementation UndoSoldOrderForWeiXinViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    _headerImageView.layer.cornerRadius = _headerImageView.bounds.size.width * 0.5;
+    _headerImageView.layer.masksToBounds = YES; // 导致离屏渲染
+}
+
+- (void)setOrderModel:(MyOrderModel *)orderModel {
+    _orderModel = orderModel;
+    
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:orderModel.headImg]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    _titleLabel.text = [NSString stringWithFormat:@"%@ 购买了您的微信", orderModel.buyUserNickName];
+    
+    _contentPriceLabel.text = [NSString stringWithFormat:@"¥%@",orderModel.price];
+    _accountLabel.text = [NSString stringWithFormat:@"微信：%@", orderModel.buyerDesc];
+    
+    _agreeWithRefundView.hidden = orderModel.orderType != 1;
+}
+
+- (IBAction)refuseAddWeiXinAccount:(id)sender {
+    if (_operateOrderBlock) {
+        _operateOrderBlock(_orderModel.orderNo, NO);
+    }
+}
+
+- (IBAction)addedWeiXinAccount:(id)sender {
+    if (_operateOrderBlock) {
+        _operateOrderBlock(_orderModel.orderNo, YES);
+    }
+}
+
+- (IBAction)agreeWithRefundButtonClicked:(id)sender {
+    if (_agreeWithRefundBlock) {
+        _agreeWithRefundBlock(_orderModel.orderNo);
+    }
+}
+
+
+@end

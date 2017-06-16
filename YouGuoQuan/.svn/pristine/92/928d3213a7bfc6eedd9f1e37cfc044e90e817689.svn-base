@@ -1,0 +1,65 @@
+//
+//  MyWalletViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/5.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "MyWalletViewController.h"
+#import "ConsumeRecordViewController.h"
+
+@interface MyWalletViewController ()
+@property (weak, nonatomic) IBOutlet UILabel *myWalletBalanceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *thisMonthConsumeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *thisMonthIncomeLabel;
+
+@end
+
+@implementation MyWalletViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"我的钱包";
+    
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"支出记录"
+                                                                  style:UIBarButtonItemStylePlain
+                                                                 target:self
+                                                                 action:@selector(pushToExpendRecordViewController)];
+    rightItem.tintColor = NavColor;
+    self.navigationItem.rightBarButtonItem = rightItem;
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool getMyWalletInfoSuccess:^(id result){
+        weakself.myWalletBalanceLabel.text = [NSString stringWithFormat:@"%@",result[@"totalMoney"]];;
+        weakself.thisMonthConsumeLabel.text = [NSString stringWithFormat:@"-%@",result[@"consumeMoney"]];
+        weakself.thisMonthIncomeLabel.text = [NSString stringWithFormat:@"+%@",result[@"incomeMoney"]];
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"获取我的钱包数据失败"];
+    }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)pushToExpendRecordViewController {
+    UIStoryboard *walletSB = [UIStoryboard storyboardWithName:@"Wallet" bundle:nil];
+    ConsumeRecordViewController *expendRecordVC = [walletSB instantiateViewControllerWithIdentifier:@"ConsumeRecordVC"];
+    expendRecordVC.type = @"2";
+    [self.navigationController pushViewController:expendRecordVC animated:YES];
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

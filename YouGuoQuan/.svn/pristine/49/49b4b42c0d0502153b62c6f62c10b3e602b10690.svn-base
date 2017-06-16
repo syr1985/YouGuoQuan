@@ -1,0 +1,26 @@
+//
+//  PGIndexBannerSubiew.h
+//  NewPagedFlowViewDemo
+//
+//  Created by Mars on 16/6/18.
+//  Copyright © 2016年 Mars. All rights reserved.
+
+#import <UIKit/UIKit.h>
+
+@class HomeBannerModel;
+
+@interface IndexBannerSubiew : UIView
+/**
+ *  主图
+ */
+@property (nonatomic, weak) IBOutlet UIImageView *mainImageView;
+/**
+ *  用来变色的view
+ */
+@property (nonatomic, weak) IBOutlet UIView *coverView;
+
+@property (nonatomic, strong) HomeBannerModel *homeBannerModel;
+
++ (instancetype)loadIndexBannerSubiew;
+
+@end

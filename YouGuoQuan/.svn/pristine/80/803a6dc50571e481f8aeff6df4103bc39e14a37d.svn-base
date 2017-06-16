@@ -1,0 +1,63 @@
+/************************************************************
+ *  * Hyphenate CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of Hyphenate Inc.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Hyphenate Inc.
+ */
+
+#import "EaseEmotionManager.h"
+
+@implementation EaseEmotionManager
+
+- (id)initWithType:(EMEmotionType)Type
+        emotionRow:(NSInteger)emotionRow
+        emotionCol:(NSInteger)emotionCol
+          emotions:(NSArray*)emotions
+{
+    self = [super init];
+    if (self) {
+        _emotionType = Type;
+        _emotionRow = emotionRow;
+        _emotionCol = emotionCol;
+        NSMutableArray *tempEmotions = [NSMutableArray new];
+        for (id name in emotions) {
+            if ([name isKindOfClass:[NSString class]]) {
+                EaseEmotion *emotion = [[EaseEmotion alloc] initWithName:@""
+                                                               emotionId:name
+                                                        emotionThumbnail:name
+                                                         emotionOriginal:name
+                                                      emotionOriginalURL:@""
+                                                             emotionType:EMEmotionDefault];
+                [tempEmotions addObject:emotion];
+            }
+        }
+        _emotions = tempEmotions;
+        _tagImage = nil;
+    }
+    return self;
+}
+
+- (id)initWithType:(EMEmotionType)Type
+        emotionRow:(NSInteger)emotionRow
+        emotionCol:(NSInteger)emotionCol
+          emotions:(NSArray*)emotions
+          tagImage:(UIImage*)tagImage
+
+{
+    self = [super init];
+    if (self) {
+        _emotionType = Type;
+        _emotionRow = emotionRow;
+        _emotionCol = emotionCol;
+        _emotions = emotions;
+        _tagImage = tagImage;
+    }
+    return self;
+}
+
+@end

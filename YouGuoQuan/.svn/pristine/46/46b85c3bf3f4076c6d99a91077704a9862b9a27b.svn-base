@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="UserCenterVideoViewCell" rowHeight="290" id="KGk-i7-Jjw" customClass="UserCenterVideoViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="290"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="290"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="好漂亮啊~" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6ap-gX-le3">
+                        <rect key="frame" x="8" y="8" width="359" height="18"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ofR-6g-tQ7">
+                        <rect key="frame" x="8" y="253" width="40" height="28"/>
+                        <state key="normal" title="0" image="点赞">
+                            <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                        </state>
+                        <state key="selected" image="已赞">
+                            <color key="titleColor" red="1" green="0.84705882349999995" blue="0.59607843140000005" alpha="1" colorSpace="calibratedRGB"/>
+                        </state>
+                        <state key="highlighted" image="已赞">
+                            <color key="titleColor" red="1" green="0.84705882349999995" blue="0.59607843140000005" alpha="1" colorSpace="calibratedRGB"/>
+                        </state>
+                        <state key="focused" image="已赞">
+                            <color key="titleColor" red="1" green="0.84705882349999995" blue="0.59607843140000005" alpha="1" colorSpace="calibratedRGB"/>
+                        </state>
+                    </button>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dcB-7F-CvE">
+                        <rect key="frame" x="56" y="253" width="59" height="28"/>
+                        <state key="normal" title="123" image="评论">
+                            <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                        </state>
+                        <state key="selected" image="评论-点击">
+                            <color key="titleColor" red="1" green="0.84705882349999995" blue="0.59607843140000005" alpha="1" colorSpace="calibratedRGB"/>
+                        </state>
+                        <state key="highlighted" image="评论-点击">
+                            <color key="titleColor" red="1" green="0.84705882349999995" blue="0.59607843140000005" alpha="1" colorSpace="calibratedRGB"/>
+                        </state>
+                        <state key="focused" image="评论-点击">
+                            <color key="titleColor" red="1" green="0.84705882349999995" blue="0.59607843140000005" alpha="1" colorSpace="calibratedRGB"/>
+                        </state>
+                    </button>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aQ1-jf-02j">
+                        <rect key="frame" x="8" y="34" width="359" height="211"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="视频开始" translatesAutoresizingMaskIntoConstraints="NO" id="9qL-MW-m8h">
+                                <rect key="frame" x="141" y="67" width="76" height="76"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="0.7843137255" blue="0.3921568627" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="9qL-MW-m8h" firstAttribute="centerY" secondItem="aQ1-jf-02j" secondAttribute="centerY" id="nUp-IN-Tu0"/>
+                            <constraint firstItem="9qL-MW-m8h" firstAttribute="centerX" secondItem="aQ1-jf-02j" secondAttribute="centerX" id="paz-cj-jiv"/>
+                        </constraints>
+                    </view>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ILI-OD-VsK">
+                        <rect key="frame" x="123" y="253" width="70" height="28"/>
+                        <state key="normal" title="2222" image="播放次数">
+                            <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                        </state>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="6ap-gX-le3" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" id="0Oy-2A-li9"/>
+                    <constraint firstItem="aQ1-jf-02j" firstAttribute="top" secondItem="6ap-gX-le3" secondAttribute="bottom" constant="8" id="0h3-o4-o86"/>
+                    <constraint firstItem="dcB-7F-CvE" firstAttribute="bottom" secondItem="ofR-6g-tQ7" secondAttribute="bottom" id="5Ez-0t-v5L"/>
+                    <constraint firstItem="6ap-gX-le3" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="EYw-pb-HOj"/>
+                    <constraint firstItem="aQ1-jf-02j" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="Lww-c2-MJj"/>
+                    <constraint firstItem="ofR-6g-tQ7" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="8" id="Mnn-1k-VGL"/>
+                    <constraint firstItem="ILI-OD-VsK" firstAttribute="bottom" secondItem="ofR-6g-tQ7" secondAttribute="bottom" id="O1E-cl-33h"/>
+                    <constraint firstItem="aQ1-jf-02j" firstAttribute="leading" secondItem="6ap-gX-le3" secondAttribute="leading" id="R7l-hc-5Jz"/>
+                    <constraint firstItem="aQ1-jf-02j" firstAttribute="top" secondItem="6ap-gX-le3" secondAttribute="bottom" constant="8" id="RIP-bA-Z6I"/>
+                    <constraint firstItem="ILI-OD-VsK" firstAttribute="height" secondItem="ofR-6g-tQ7" secondAttribute="height" id="SDj-IP-Npz"/>
+                    <constraint firstItem="dcB-7F-CvE" firstAttribute="height" secondItem="ofR-6g-tQ7" secondAttribute="height" id="YHm-1P-kix"/>
+                    <constraint firstItem="aQ1-jf-02j" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailingMargin" id="i7y-43-6es"/>
+                    <constraint firstItem="dcB-7F-CvE" firstAttribute="leading" secondItem="ofR-6g-tQ7" secondAttribute="trailing" constant="8" id="jb0-Gn-Uz7"/>
+                    <constraint firstAttribute="bottom" secondItem="ofR-6g-tQ7" secondAttribute="bottom" constant="8" id="kIH-FV-kGE"/>
+                    <constraint firstItem="ILI-OD-VsK" firstAttribute="leading" secondItem="dcB-7F-CvE" secondAttribute="trailing" constant="8" id="mGc-kJ-x2F"/>
+                    <constraint firstItem="ILI-OD-VsK" firstAttribute="top" secondItem="aQ1-jf-02j" secondAttribute="bottom" constant="8" id="nDX-cv-aG3"/>
+                    <constraint firstAttribute="trailingMargin" relation="greaterThanOrEqual" secondItem="ILI-OD-VsK" secondAttribute="trailing" constant="8" id="tjg-vZ-xtt"/>
+                    <constraint firstItem="6ap-gX-le3" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailingMargin" id="xDF-vB-SmO"/>
+                </constraints>
+            </tableViewCellContentView>
+            <point key="canvasLocation" x="35.5" y="36"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="已赞" width="29" height="28"/>
+        <image name="播放次数" width="28" height="28"/>
+        <image name="点赞" width="29" height="28"/>
+        <image name="视频开始" width="76" height="76"/>
+        <image name="评论" width="29" height="28"/>
+        <image name="评论-点击" width="29" height="28"/>
+    </resources>
+</document>

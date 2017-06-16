@@ -1,0 +1,96 @@
+//
+//  PayForNobilityViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/6.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "PayForNobilityViewController.h"
+#import "PayTool.h"
+#import "IAPurchaseTool.h"
+#import "UserDefaultsTool.h"
+#import "UserBaseInfoModel.h"
+
+@interface PayForNobilityViewController () <UITableViewDelegate>
+@property (nonatomic,   copy) NSString *orderNo;
+@end
+
+@implementation PayForNobilityViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"尤果VIP会员";
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool generateOrderNoWithGoodsType:@"NB" success:^(id result) {
+        weakself.orderNo = result;
+    } failure:nil];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 2;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return section == 0 ? 1 : 5;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 1) {
+        NSArray *mobilityPrice = @[@{@"month":@(1), @"price":@68},
+                                   @{@"month":@(3), @"price":@168},
+                                   @{@"month":@(6), @"price":@268},
+                                   @{@"month":@(12),@"price":@388},
+                                   @{@"month":@(0), @"price":@698}];
+        NSDictionary *infoDict = mobilityPrice[indexPath.row];
+        __weak typeof(self) weakself = self;
+        [PayTool payWithResult:^(NSString *payType) {
+            NSInteger price = [infoDict[@"price"] integerValue];
+            [NetworkTool createBuyNobilityOrderWithOrderNo:_orderNo money:@(price * 10) payMethod:payType month:infoDict[@"month"] success:^(id result, id payOrderNo) {
+                if ([payType isEqualToString:@"wallet"]) {
+                    [NetworkTool payForNobilityWithOrderNo:result paymth:payType success:^{
+                        [SVProgressHUD showSuccessWithStatus:@"支付成功"];
+                        [weakself paymentSuccess];
+                    } failure:^(NSError *error, NSString *msg){
+                        if (error) {
+                            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+                        } else if ([msg isEqualToString:@"金额不足"]) {
+                            [PayTool payFailureTranslateToViewController:self];
+                        } else {
+                            [SVProgressHUD showErrorWithStatus:@"支付失败"];
+                        }
+                    }];
+                } else {
+                    NSString *productID = [NSString stringWithFormat:@"youguoquan.nobility%zdu", price * 10];
+                    [[IAPurchaseTool sharedInstance] purchaseWithProductID:productID orderNo:result];
+                }
+            } failure:^{
+                [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+            }];
+        }];
+    }
+}
+
+- (void)paymentSuccess {
+    if (_modifyRecommandBlock) {
+        _modifyRecommandBlock();
+    }
+    [LoginData sharedLoginData].isRecommend = YES;
+    [UserDefaultsTool saveLoginData];
+    [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
+@end

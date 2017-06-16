@@ -1,0 +1,39 @@
+//
+//  ProductEvaluateModel.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/2/27.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "ProductEvaluateModel.h"
+#import <MJExtension.h>
+#import "NSString+StringSize.h"
+
+@implementation ProductEvaluateModel
+
++ (instancetype)productEvaluateModelWithDict:(NSDictionary *)dict {
+    return [[ProductEvaluateModel alloc] initProductEvaluateModelWithDict:dict];
+}
+
+- (instancetype)initProductEvaluateModelWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self = [ProductEvaluateModel mj_objectWithKeyValues:dict];
+        
+        CGFloat contentH = [NSString heightWithString:self.content
+                                              maxSize:CGSizeMake(WIDTH - 76, 0)
+                                              strFont:[UIFont systemFontOfSize:14]];
+        // 原来是178，后改为58，配合评论列表里的cell
+        self.cellHeight = contentH + 58;//178由来看xib里的控件，处理内容是变的其他高都是固定的
+    }
+    return self;
+}
+
+- (int)star {
+    if (_star > 6) {
+        return 6;
+    }
+    return _star;
+}
+
+@end

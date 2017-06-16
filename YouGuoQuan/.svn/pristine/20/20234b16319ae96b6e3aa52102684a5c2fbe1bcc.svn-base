@@ -1,0 +1,23 @@
+//
+//  LoginData.h
+//  ShakeAround
+//
+//  Created by YM on 15/11/20.
+//  Copyright © 2015年 erick. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+
+@interface LoginData : NSObject
+//用户Id
+@property (copy, nonatomic) NSString *userId;
+//用户昵称
+@property (copy, nonatomic) NSString *nickName;
+
++ (instancetype)sharedLoginData;
+
++ (instancetype)loginDataWithDict:(NSDictionary *)dict;
+- (instancetype)initLoginDataWithDict:(NSDictionary *)dict;
+
+@end

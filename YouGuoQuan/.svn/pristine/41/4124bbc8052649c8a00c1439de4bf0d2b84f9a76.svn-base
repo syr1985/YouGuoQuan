@@ -1,0 +1,34 @@
+//
+//  NearbyPersonViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "NearbyPersonViewCell.h"
+
+@interface NearbyPersonViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *userHeadImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *userLevelImageView;
+@property (weak, nonatomic) IBOutlet UILabel *userNickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *userSexLabel;
+@property (weak, nonatomic) IBOutlet UILabel *userFunsCountLabel;
+@property (weak, nonatomic) IBOutlet UILabel *userDistanceLabel;
+
+@end
+
+@implementation NearbyPersonViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state
+}
+
+@end

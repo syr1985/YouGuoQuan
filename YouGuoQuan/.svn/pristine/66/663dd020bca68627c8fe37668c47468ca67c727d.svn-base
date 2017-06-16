@@ -1,0 +1,53 @@
+//
+//  PrefixHeader_YGQ.pch
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/7.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#ifndef PrefixHeader_YGQ_pch
+#define PrefixHeader_YGQ_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+#ifdef __OBJC__
+#import <UIKit/UIKit.h>
+#import <SVProgressHUD.h>
+#import "NetworkTool.h"
+#import "LoginData.h"
+#endif
+
+#ifdef DEBUG
+
+#define YGQLog(...) NSLog(__VA_ARGS__)
+
+#else
+
+#define YGQLog(...)
+
+#endif
+
+#define WIDTH [UIScreen mainScreen].bounds.size.width
+
+#define HEIGHT [UIScreen mainScreen].bounds.size.height
+
+#define RGBA(r,g,b,a) [UIColor colorWithRed:r/255.0f green:g/255.0f blue:b/255.0f alpha:a]
+
+#define NavColor RGBA(255.0f, 216.0f, 152.0f, 1.0f)
+
+#define SCUserDefault [NSUserDefaults standardUserDefaults]
+
+#define ServerUrl  @"http://121.40.159.39:8080/YGQ"  //@"http://192.168.0.101:8080/YGQ"   //
+
+#define EncryptCode @"newtouch"
+
+#define KEY_USER_ACCOUNT @"ACCOUNT_YGQ"
+
+#define KEY_USER_PASSWORD @"PASSWORD_YGQ"
+
+#define USERID @"0f188a3d-4529-40a7-9d37-ffb288b19e5d"
+
+#define OtherID @"86d1051e-0cf6-4010-9f87-a660d67c7b3d"
+
+#endif /* PrefixHeader_YGQ_pch */

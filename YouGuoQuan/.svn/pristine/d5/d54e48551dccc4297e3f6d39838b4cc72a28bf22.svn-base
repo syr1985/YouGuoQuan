@@ -1,0 +1,123 @@
+//
+//  ConcemViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/8.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "ConcemViewController.h"
+
+#import "HomeConcemViewCell.h"
+#import "HomeTopTabbarView.h"
+
+#import "SYStickHeaderWaterFallLayout.h"
+
+@interface ConcemViewController () <SYStickHeaderWaterFallDelegate>
+
+@end
+
+static NSString * const collectionViewCellId_Concem = @"HomeConcemViewCell";
+static NSString * const collectionViewCellID_Header = @"HomeTopTabbarView";
+
+@implementation ConcemViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Uncomment the following line to preserve selection between presentations.
+    // self.clearsSelectionOnViewWillAppear = NO;
+    
+    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    SYStickHeaderWaterFallLayout *cvLayout = [[SYStickHeaderWaterFallLayout alloc] init];
+    cvLayout.delegate = self;
+    cvLayout.isStickyHeader = NO;
+    self.collectionView.collectionViewLayout = cvLayout;
+    
+    UINib *nib_concem = [UINib nibWithNibName:collectionViewCellId_Concem bundle:nil];
+    [self.collectionView registerNib:nib_concem forCellWithReuseIdentifier:collectionViewCellId_Concem];
+    
+    UINib *nib_header = [UINib nibWithNibName:collectionViewCellID_Header bundle:nil];
+    [self.collectionView registerNib:nib_header
+          forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+                 withReuseIdentifier:collectionViewCellID_Header];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+#pragma mark -
+#pragma mark - UICollectionView DataSource and Delegate
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return 4;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    HomeConcemViewCell *cell_banner = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellId_Concem forIndexPath:indexPath];
+    
+    return cell_banner;
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    UICollectionReusableView *reusableview = nil;
+    
+    if ([kind isEqualToString:UICollectionElementKindSectionHeader]) {
+        HomeTopTabbarView *headerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                           withReuseIdentifier:collectionViewCellID_Header
+                                                                                  forIndexPath:indexPath];
+        headerview.currentIndex = 1;
+        reusableview = headerview;
+    }
+    return reusableview;
+}
+
+//- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+//
+//}
+
+#pragma mark - SYStickHeaderWaterFallDelegate
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(SYStickHeaderWaterFallLayout *)collectionViewLayout heightForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return 190;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForHeaderAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    return 40;
+}
+
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForFooterAtIndexPath:(NSIndexPath *)indexPath {
+    return 0;
+}
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout widthForItemInSection:( NSInteger )section {
+    return WIDTH;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout topInSection:(NSInteger)section {
+    return 0;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout bottomInSection:(NSInteger)section {
+    return 0;
+}
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

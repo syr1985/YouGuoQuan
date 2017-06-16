@@ -1,0 +1,153 @@
+//
+//  RecentSessionCell.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/8.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "RecentSessionCell.h"
+#import "EaseConversationModel.h"
+#import "EMConversation.h"
+#import "NSDate+Category.h"
+#import "EaseLocalDefine.h"
+#import "EaseConvertToCommonEmoticonsHelper.h"
+#import <UIImageView+WebCache.h>
+#import "IConversationModel.h"
+#import <EMClient.h>
+
+@interface RecentSessionCell()
+@property (nonatomic, weak) IBOutlet UIImageView *headImgView;
+@property (nonatomic, weak) IBOutlet UILabel *nameLabel;
+@property (nonatomic, weak) IBOutlet UILabel *lastMsgLabel;
+@property (nonatomic, weak) IBOutlet UILabel *timeLabel;
+@property (nonatomic, weak) IBOutlet UIImageView *sexImgView;
+@property (nonatomic, weak) IBOutlet UIImageView *levelMarkView;
+@property (nonatomic, weak) IBOutlet UIImageView *vMarkView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UILabel *unreadMsgCountLabel;
+@end
+
+NSString * const Key_Conversation_Ext = @"userInfo";
+
+@implementation RecentSessionCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    _headImgView.layer.cornerRadius = _headImgView.bounds.size.height * 0.5;
+    _headImgView.layer.masksToBounds = YES;
+}
+
+- (void)setConversationModel:(EMConversation *)conversationModel {
+    _conversationModel = conversationModel;
+    
+    NSInteger unreadCount = [conversationModel unreadMessagesCount];
+    _unreadMsgCountLabel.hidden = unreadCount == 0;
+    if (unreadCount > 99) {
+        _unreadMsgCountLabel.text = @"99+";
+    } else {
+        _unreadMsgCountLabel.text = [NSString stringWithFormat:@"%zd",unreadCount];
+    }
+
+    __weak typeof(self) weakself = self;
+    [NetworkTool getUserInfoByHuanXinAccountWith:conversationModel.conversationId success:^(id result) {
+        NSDictionary *list = result[@"list"];
+        int star = [list[@"star"] intValue];
+        NSDictionary *info = @{@"userId"   : list[@"id"],
+                               @"nickName" : list[@"nickName"],
+                               @"headImg"  : list[@"headImg"],
+                               @"star"     : list[@"star"],
+                               @"sex"      : list[@"sex"],
+                               @"vip"      : list[@"audit"],
+                               @"nobility" : @(star == 6),
+                               @"isReward" : list[@"isAward"]};
+        conversationModel.ext = @{Key_Conversation_Ext:info};
+        [weakself updateUserInfo:info];
+        [weakself setMessageInfo];
+    } failure:nil];
+}
+
+- (NSString *)latestMessageTitleForConversation:(EMConversation *)conversation {
+    NSString *latestMessageTitle = @"";
+    EMMessage *lastMessage = [conversation latestMessage];
+    if (lastMessage) {
+        EMMessageBody *messageBody = lastMessage.body;
+        switch (messageBody.type) {
+            case EMMessageBodyTypeImage:{
+                latestMessageTitle = NSEaseLocalizedString(@"message.image1", @"[image]");
+            }
+                break;
+            case EMMessageBodyTypeText:{
+                NSString *didReceiveText = [EaseConvertToCommonEmoticonsHelper
+                                            convertToSystemEmoticons:((EMTextMessageBody *)messageBody).text];
+                latestMessageTitle = didReceiveText;
+            }
+                break;
+            case EMMessageBodyTypeVoice:{
+                latestMessageTitle = NSEaseLocalizedString(@"message.voice1", @"[voice]");
+            }
+                break;
+            case EMMessageBodyTypeLocation: {
+                latestMessageTitle = NSEaseLocalizedString(@"message.location1", @"[location]");
+            }
+                break;
+            case EMMessageBodyTypeVideo: {
+                latestMessageTitle = NSEaseLocalizedString(@"message.video1", @"[video]");
+            }
+                break;
+            case EMMessageBodyTypeFile: {
+                latestMessageTitle = NSEaseLocalizedString(@"message.file1", @"[file]");
+            }
+                break;
+            default: {
+            }
+                break;
+        }
+    }
+    if (lastMessage.ext) {
+        if ([lastMessage.ext[Flag_Snap] boolValue]) {
+            latestMessageTitle = @"[阅后即焚消息]";
+        } else if ([lastMessage.ext[Flag_Redpacket] boolValue]) {
+            if ([lastMessage.from isEqualToString:[LoginData sharedLoginData].hxu]) {
+                return [NSString stringWithFormat:@"您打赏了%@%@u币",self.nameLabel.text,latestMessageTitle];
+            } else {
+                return [NSString stringWithFormat:@"%@打赏了您%@u币",self.nameLabel.text,latestMessageTitle];
+            }
+        }
+    }
+    return latestMessageTitle;
+}
+
+- (void)updateUserInfo:(NSDictionary *)target {
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:target[@"headImg"]
+                                                                  width:_headImgView.bounds.size.width
+                                                                 height:_headImgView.bounds.size.height];
+    [_headImgView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                    placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    _nameLabel.text = target[@"nickName"];
+    _sexImgView.image = [UIImage imageNamed:target[@"sex"]];
+    
+    int star = [target[@"star"] intValue];
+    _levelMarkView.hidden = star == 0;
+    if (star != 0) {
+        _levelMarkView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d", star]];
+    }
+    int audit = [target[@"vip"] intValue];
+    _vMarkView.hidden = audit != 1 && audit != 3;
+    _vMarkView.image = audit == 3 ? [UIImage imageNamed:@"列表头像团体认证"] : [UIImage imageNamed:@"头像加V"];
+    
+    _crownImageView.hidden = (star != 6);
+}
+
+- (void)setMessageInfo {
+    EMMessage *lastMessage = [_conversationModel latestMessage];
+    if (lastMessage) {
+        NSString *latestMessageTime = [NSDate formattedTimeFromTimeInterval:lastMessage.timestamp];
+        self.timeLabel.text = latestMessageTime;
+    } else {
+        self.timeLabel.text = @"";
+    }
+    self.lastMsgLabel.text = [self latestMessageTitleForConversation:_conversationModel];
+}
+
+@end

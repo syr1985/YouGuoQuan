@@ -1,0 +1,378 @@
+/************************************************************
+ *  * Hyphenate CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of Hyphenate Inc.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Hyphenate Inc.
+ */
+
+#import "ConversionManager.h"
+
+#import "AppDelegate.h"
+#import "MBProgressHUD.h"
+
+#ifdef REDPACKET_AVALABLE
+#import "RedpacketOpenConst.h"
+#import "RedPacketUserConfig.h"
+#endif
+
+#import "EaseSDKHelper.h"
+
+#if DEMO_CALL == 1
+
+#import <UserNotifications/UserNotifications.h>
+
+@interface ConversionManager()<EMCallManagerDelegate>
+{
+    NSTimer *_callTimer;
+}
+
+@end
+
+#endif
+
+static ConversionManager *manager = nil;
+
+@implementation ConversionManager
+
++ (instancetype)shareManager
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        manager = [[ConversionManager alloc] init];
+    });
+    return manager;
+}
+
+- (void)dealloc
+{
+    [[EMClient sharedClient] removeDelegate:self];
+    [[EMClient sharedClient].groupManager removeDelegate:self];
+    [[EMClient sharedClient].contactManager removeDelegate:self];
+    [[EMClient sharedClient].roomManager removeDelegate:self];
+    [[EMClient sharedClient].chatManager removeDelegate:self];
+    
+#if DEMO_CALL == 1
+    [[EMClient sharedClient].callManager removeDelegate:self];
+#endif
+}
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        [self initHelper];
+    }
+    return self;
+}
+
+#pragma mark - getter
+
+#pragma mark - init
+
+- (void)initHelper
+{
+#ifdef REDPACKET_AVALABLE
+    [[RedPacketUserConfig sharedConfig] beginObserveMessage];
+#endif
+    
+    [[EMClient sharedClient] addDelegate:self delegateQueue:nil];
+    [[EMClient sharedClient].groupManager addDelegate:self delegateQueue:nil];
+    [[EMClient sharedClient].contactManager addDelegate:self delegateQueue:nil];
+    [[EMClient sharedClient].roomManager addDelegate:self delegateQueue:nil];
+    [[EMClient sharedClient].chatManager addDelegate:self delegateQueue:nil];
+}
+
+- (void)asyncPushOptions
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        EMError *error = nil;
+        [[EMClient sharedClient] getPushOptionsFromServerWithError:&error];
+    });
+}
+
+- (void)asyncGroupFromServer
+{
+    __weak typeof(self) weakself = self;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[EMClient sharedClient].groupManager getJoinedGroups];
+        EMError *error = nil;
+        [[EMClient sharedClient].groupManager getMyGroupsFromServerWithError:&error];
+        if (!error) {
+            
+        }
+    });
+}
+
+- (void)asyncConversationFromDB
+{
+    __weak typeof(self) weakself = self;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSArray *array = [[EMClient sharedClient].chatManager getAllConversations];
+        [array enumerateObjectsUsingBlock:^(EMConversation *conversation, NSUInteger idx, BOOL *stop){
+            if(conversation.latestMessage == nil){
+                [[EMClient sharedClient].chatManager deleteConversation:conversation.conversationId isDeleteMessages:NO completion:nil];
+            }
+        }];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakself.messageViewController requireData];
+        });
+    });
+}
+
+#pragma mark - EMClientDelegate
+
+// 网络状态变化回调
+- (void)didConnectionStateChanged:(EMConnectionState)connectionState
+{
+    
+}
+
+- (void)autoLoginDidCompleteWithError:(EMError *)error
+{
+    if (error) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil message:@"自动登录失败，请重新登录" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+        alertView.tag = 100;
+        [alertView show];
+    } else if([[EMClient sharedClient] isConnected]){
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            BOOL flag = [[EMClient sharedClient] migrateDatabaseToLatestSDK];
+            if (flag) {
+                [self asyncGroupFromServer];
+                [self asyncConversationFromDB];
+            }
+        });
+    }
+}
+
+- (void)userAccountDidLoginFromOtherDevice
+{
+    [self _clearHelper];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"loginAtOtherDevice", @"your login account has been in other places") delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    [alertView show];
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+}
+
+- (void)userAccountDidRemoveFromServer
+{
+    [self _clearHelper];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"loginUserRemoveFromServer", @"your account has been removed from the server side") delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    [alertView show];
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+}
+
+- (void)userDidForbidByServer
+{
+    [self _clearHelper];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"servingIsBanned", @"Serving is banned") delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    [alertView show];
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+}
+
+//- (void)didServersChanged
+//{
+//    [self _clearHelper];
+//    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+//}
+//
+//- (void)didAppkeyChanged
+//{
+//    [self _clearHelper];
+//    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+//}
+
+#pragma mark - EMChatManagerDelegate
+
+- (void)didUpdateConversationList:(NSArray *)aConversationList
+{
+    [self.messageViewController requireData];
+}
+
+- (void)didReceiveMessages:(NSArray *)aMessages
+{
+    BOOL isRefreshCons = YES;
+    for(EMMessage *message in aMessages){
+        
+        
+    }
+    if (isRefreshCons) {
+        [self.messageViewController refreshAndSortView];
+    }
+    
+}
+
+- (void)cmdMessagesDidReceive:(NSArray *)aCmdMessages
+{
+    for (EMMessage *message in aCmdMessages) {
+        EMCmdMessageBody *cmdBody = (EMCmdMessageBody *)message.body;
+        NSString *action = cmdBody.action;
+        if ([action isEqualToString:@"inviteToJoinConference"]) {
+//            NSString *callId = [message.ext objectForKey:@"callId"];
+        } else if ([action isEqualToString:@"__Call_ReqP2P_ConferencePattern"]) {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil message:@"已转为会议模式" delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+            [alertView show];
+        }
+    }
+}
+
+#pragma mark - EMGroupManagerDelegate
+
+- (void)didReceiveLeavedGroup:(EMGroup *)aGroup
+                       reason:(EMGroupLeaveReason)aReason
+{
+    
+}
+
+- (void)didReceiveJoinGroupApplication:(EMGroup *)aGroup
+                             applicant:(NSString *)aApplicant
+                                reason:(NSString *)aReason
+{
+    
+}
+
+- (void)didJoinedGroup:(EMGroup *)aGroup
+               inviter:(NSString *)aInviter
+               message:(NSString *)aMessage
+{
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:[NSString stringWithFormat:@"%@ invite you to group: %@ [%@]", aInviter, aGroup.subject, aGroup.groupId] delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    [alertView show];
+}
+
+- (void)didReceiveDeclinedJoinGroup:(NSString *)aGroupId
+                             reason:(NSString *)aReason
+{
+    if (!aReason || aReason.length == 0) {
+        aReason = [NSString stringWithFormat:NSLocalizedString(@"group.beRefusedToJoin", @"be refused to join the group\'%@\'"), aGroupId];
+    }
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:aReason delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    [alertView show];
+}
+
+- (void)didReceiveAcceptedJoinGroup:(EMGroup *)aGroup
+{
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"group.agreedAndJoined", @"agreed to join the group of \'%@\'"), aGroup.subject];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:message delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    [alertView show];
+}
+
+- (void)didReceiveGroupInvitation:(NSString *)aGroupId
+                          inviter:(NSString *)aInviter
+                          message:(NSString *)aMessage
+{
+    
+}
+
+#pragma mark - EMContactManagerDelegate
+- (void)didReceiveAgreedFromUsername:(NSString *)aUsername
+{
+    NSString *msgstr = [NSString stringWithFormat:@"%@同意了加好友申请", aUsername];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil message:msgstr delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+    [alertView show];
+}
+
+- (void)didReceiveDeclinedFromUsername:(NSString *)aUsername
+{
+    NSString *msgstr = [NSString stringWithFormat:@"%@拒绝了加好友申请", aUsername];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil message:msgstr delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+    [alertView show];
+}
+
+- (void)didReceiveDeletedFromUsername:(NSString *)aUsername
+{
+    
+}
+
+- (void)didReceiveAddedFromUsername:(NSString *)aUsername
+{
+    
+}
+
+- (void)didReceiveFriendInvitationFromUsername:(NSString *)aUsername
+                                       message:(NSString *)aMessage
+{
+    
+}
+
+#pragma mark - EMChatroomManagerDelegate
+
+- (void)didReceiveUserJoinedChatroom:(EMChatroom *)aChatroom
+                            username:(NSString *)aUsername
+{
+    
+}
+
+- (void)didReceiveUserLeavedChatroom:(EMChatroom *)aChatroom
+                            username:(NSString *)aUsername
+{
+
+}
+
+- (void)didReceiveKickedFromChatroom:(EMChatroom *)aChatroom
+                              reason:(EMChatroomBeKickedReason)aReason
+{
+    
+}
+
+#pragma mark - EMCallManagerDelegate
+
+
+
+
+#pragma mark - private
+- (BOOL)_needShowNotification:(NSString *)fromChatter
+{
+    BOOL ret = YES;
+    NSArray *igGroupIds = [[EMClient sharedClient].groupManager getGroupsWithoutPushNotification:nil];
+    for (NSString *str in igGroupIds) {
+        if ([str isEqualToString:fromChatter]) {
+            ret = NO;
+            break;
+        }
+    }
+    return ret;
+}
+
+
+
+- (void)_clearHelper
+{
+    [[EMClient sharedClient] logout:NO];
+}
+
+- (void)_handleReceivedAtMessage:(EMMessage*)aMessage
+{
+    if (aMessage.chatType != EMChatTypeGroupChat || aMessage.direction != EMMessageDirectionReceive) {
+        return;
+    }
+    
+    NSString *loginUser = [EMClient sharedClient].currentUsername;
+    NSDictionary *ext = aMessage.ext;
+    EMConversation *conversation = [[EMClient sharedClient].chatManager getConversation:aMessage.conversationId type:EMConversationTypeGroupChat createIfNotExist:NO];
+    if (loginUser && conversation && ext && [ext objectForKey:kGroupMessageAtList]) {
+        id target = [ext objectForKey:kGroupMessageAtList];
+        if ([target isKindOfClass:[NSString class]] && [(NSString*)target compare:kGroupMessageAtAll options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+            NSNumber *atAll = conversation.ext[kHaveUnreadAtMessage];
+            if ([atAll intValue] != kAtAllMessage) {
+                NSMutableDictionary *conversationExt = conversation.ext ? [conversation.ext mutableCopy] : [NSMutableDictionary dictionary];
+                [conversationExt removeObjectForKey:kHaveUnreadAtMessage];
+                [conversationExt setObject:@kAtAllMessage forKey:kHaveUnreadAtMessage];
+                conversation.ext = conversationExt;
+            }
+        }
+        else if ([target isKindOfClass:[NSArray class]]) {
+            if ([target containsObject:loginUser]) {
+                if (conversation.ext[kHaveUnreadAtMessage] == nil) {
+                    NSMutableDictionary *conversationExt = conversation.ext ? [conversation.ext mutableCopy] : [NSMutableDictionary dictionary];
+                    [conversationExt setObject:@kAtYouMessage forKey:kHaveUnreadAtMessage];
+                    conversation.ext = conversationExt;
+                }
+            }
+        }
+    }
+}
+
+@end

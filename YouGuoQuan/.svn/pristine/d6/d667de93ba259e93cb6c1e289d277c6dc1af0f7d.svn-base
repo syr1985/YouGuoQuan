@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="CrowdfundingViewCell" rowHeight="178" id="KGk-i7-Jjw" customClass="CrowdfundingViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="178"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="177"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Yosemite00" translatesAutoresizingMaskIntoConstraints="NO" id="3LK-hV-X8G">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="177"/>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b4J-9l-1BB">
+                        <rect key="frame" x="8" y="157" width="69" height="12"/>
+                        <attributedString key="attributedText">
+                            <fragment content="众筹还有3天">
+                                <attributes>
+                                    <color key="NSColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <font key="NSFont" size="12" name=".PingFangSC-Regular"/>
+                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                </attributes>
+                            </fragment>
+                        </attributedString>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="b4J-9l-1BB" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="Aj5-lB-lvT"/>
+                    <constraint firstAttribute="trailing" secondItem="3LK-hV-X8G" secondAttribute="trailing" id="Ezj-Px-xaP"/>
+                    <constraint firstItem="3LK-hV-X8G" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="S01-lN-NcR"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="b4J-9l-1BB" secondAttribute="bottom" constant="0.5" id="iuE-nh-fqh"/>
+                    <constraint firstAttribute="bottom" secondItem="3LK-hV-X8G" secondAttribute="bottom" id="kES-uU-cIg"/>
+                    <constraint firstItem="3LK-hV-X8G" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="pmp-BL-LLC"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="crownImageView" destination="3LK-hV-X8G" id="5gZ-iw-hh9"/>
+                <outlet property="lastTimeLabel" destination="b4J-9l-1BB" id="uhW-XP-XSh"/>
+            </connections>
+            <point key="canvasLocation" x="-88" y="175"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="Yosemite00" width="640" height="480"/>
+    </resources>
+</document>

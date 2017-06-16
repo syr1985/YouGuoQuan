@@ -1,0 +1,30 @@
+//
+//  VideoViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "VideoViewCell.h"
+
+@interface VideoViewCell ()
+@property (weak, nonatomic) IBOutlet UILabel *userNickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *userLocationLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *coverImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *userLevelImageView;
+@property (weak, nonatomic) IBOutlet UIButton *videoTotalTimeButton;
+
+@end
+
+@implementation VideoViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    self.coverImageView.layer.cornerRadius = 4;
+    self.coverImageView.layer.masksToBounds = YES;
+}
+
+@end

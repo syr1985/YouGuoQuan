@@ -1,0 +1,130 @@
+/************************************************************
+ *  * Hyphenate CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of Hyphenate Inc.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Hyphenate Inc.
+ */
+
+
+#import "EaseBubbleView+Image.h"
+#import <Masonry.h>
+#import "PhotoBrowserHelp.h"
+
+@implementation EaseBubbleView (Image)
+
+#pragma mark - private
+
+- (void)_setupImageBubbleMarginConstraints {
+    __weak typeof(self) weakself = self;
+    [self.imageView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(weakself.backgroundImageView.mas_top).with.offset(self.margin.top);
+        make.bottom.equalTo(weakself.backgroundImageView.mas_bottom).with.offset(-self.margin.bottom);
+        make.left.equalTo(weakself.backgroundImageView.mas_left).with.offset(self.margin.left);
+        make.right.equalTo(weakself.backgroundImageView.mas_right).with.offset(-self.margin.right);
+    }];
+}
+
+- (void)_setupImageBubbleConstraints {
+    [self _setupImageBubbleMarginConstraints];
+}
+
+#pragma mark - public
+
+- (void)setupImageSnapView:(NSString *)imageUrlStr {
+    self.imageUrl = imageUrlStr;
+    __weak typeof(self) weakself = self;
+    
+    [self.backgroundImageView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.width.mas_equalTo(138);
+        make.height.mas_equalTo(128);
+    }];
+    
+    self.backgroundImageView.userInteractionEnabled = YES;
+    self.snapBackView = [[UIView alloc] init];
+    self.snapBackView.userInteractionEnabled = YES;
+    self.snapBackView.backgroundColor = [UIColor whiteColor];
+    [self.backgroundImageView addSubview:self.snapBackView];
+    [self.snapBackView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(weakself.backgroundImageView.mas_right).with.offset(-2);
+        make.left.equalTo(weakself.backgroundImageView.mas_left).with.offset(12);
+        make.top.equalTo(weakself.backgroundImageView.mas_top).with.offset(2);
+        make.bottom.equalTo(weakself.backgroundImageView.mas_bottom).with.offset(-2);
+    }];
+    
+    self.snapImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"阅后即焚-图片示例"]];
+    [self.snapBackView addSubview:self.snapImageView];
+    [self.snapImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.equalTo(weakself.snapBackView.mas_centerX);
+        make.centerY.equalTo(weakself.snapBackView.mas_centerY).with.offset(-10);
+        make.width.mas_equalTo(48);
+        make.height.mas_equalTo(48);
+    }];
+    
+    self.snapLabel = [[UILabel alloc] init];
+    self.snapLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    self.snapLabel.backgroundColor = [UIColor whiteColor];
+    self.snapLabel.textAlignment = NSTextAlignmentCenter;
+    self.snapLabel.textColor = RGBA(224, 224, 224, 1);
+    self.snapLabel.text = @"点击查看";
+    [self.snapBackView addSubview:self.snapLabel];
+    [self.snapLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.equalTo(weakself.snapBackView.mas_centerX);
+        make.top.equalTo(weakself.snapImageView.mas_bottom).with.offset(10);
+        make.height.mas_equalTo(21);
+    }];
+    
+    // 添加右上角的锁
+    self.countDownButton = [[JKCountDownButton alloc] init];
+    self.countDownButton.enabled = NO;
+    self.countDownButton.titleLabel.font = [UIFont systemFontOfSize:10];
+    [self.countDownButton setBackgroundColor:RGBA(224, 224, 224, 1)];
+    [self.countDownButton setImage:[UIImage imageNamed:@"阅后即焚-锁"] forState:UIControlStateNormal];
+    self.countDownButton.layer.cornerRadius = 10;
+    self.countDownButton.layer.masksToBounds = YES;
+    [self.backgroundImageView addSubview:self.countDownButton];
+    [self.countDownButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.equalTo(weakself.backgroundImageView.mas_right);
+        make.centerY.equalTo(weakself.backgroundImageView.mas_top);
+        make.width.mas_equalTo(20);
+        make.height.mas_equalTo(20);
+    }];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                          action:@selector(tapBackSnapView)];
+    [self.snapBackView addGestureRecognizer:tap];
+}
+
+- (void)tapBackSnapView {
+    // 发送已读
+    
+    // 打开相册
+    [PhotoBrowserHelp openPhotoBrowserWithImages:@[self.imageUrl] currentIndex:0 snap:YES];
+}
+
+- (void)setupImageBubbleView {
+    self.imageView = [[UIImageView alloc] init];
+    self.imageView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.imageView.backgroundColor = [UIColor clearColor];
+    self.imageView.clipsToBounds = YES;
+    self.imageView.userInteractionEnabled = YES;
+    self.imageView.layer.cornerRadius = 4;
+    [self.backgroundImageView addSubview:self.imageView];
+    
+    [self _setupImageBubbleConstraints];
+}
+
+- (void)updateImageMargin:(UIEdgeInsets)margin {
+    if (_margin.top == margin.top && _margin.bottom == margin.bottom && _margin.left == margin.left && _margin.right == margin.right) {
+        return;
+    }
+    _margin = margin;
+    
+    [self _setupImageBubbleMarginConstraints];
+}
+
+@end

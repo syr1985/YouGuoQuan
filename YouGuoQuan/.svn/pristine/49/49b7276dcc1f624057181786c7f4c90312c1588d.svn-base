@@ -1,0 +1,153 @@
+//
+//  RecentSessionCell.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/8.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "RecentSessionCell.h"
+#import "Masonry.h"
+#import "UIScreen+Adapt.h"
+#import "HelperUtil.h"
+
+@interface RecentSessionCell() {
+    
+}
+@property(nonatomic, strong) UIImageView *headImgView;
+@property(nonatomic, strong) UILabel *nameLabel;
+@property(nonatomic, strong) UILabel *lastMsgLabel;
+@property(nonatomic, strong) UILabel *timeLabel;
+@property(nonatomic, strong) UIImageView *sexImgView;
+@property(nonatomic, strong) UIImageView *levelMarkView;
+@property(nonatomic, strong) UIImageView *vMarkView;
+@end
+
+@implementation RecentSessionCell
+
+- (instancetype) initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        [self.contentView addSubview:self.headImgView];
+        [self.contentView addSubview:self.nameLabel];
+        [self.contentView addSubview:self.lastMsgLabel];
+        [self.contentView addSubview:self.timeLabel];
+        [self.contentView addSubview:self.sexImgView];
+        [self.contentView addSubview:self.levelMarkView];
+        //        [self.contentView addSubview:self.vMarkView];
+        [self addAutoLayoutConstraint];
+        
+    }
+    return self;
+}
+
+
+- (void) addAutoLayoutConstraint {
+    __weak __typeof(self)weakSelf = self;
+    [self.headImgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.size.mas_equalTo(CGSizeMake([UIScreen adaptedLengthOf:36], [UIScreen adaptedLengthOf:36]));
+        make.left.mas_equalTo([UIScreen adaptedLengthOf:12]);
+        make.centerY.mas_equalTo(strongSelf.contentView);
+    }];
+    
+    
+    [self.nameLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.top.mas_equalTo([UIScreen adaptedLengthOf:16]);
+        make.left.mas_equalTo(strongSelf.headImgView.mas_right).with.offset(8);
+        
+        make.width.mas_lessThanOrEqualTo([UIScreen adaptedLengthOf:150]);
+    }];
+    
+    [self.lastMsgLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.top.mas_equalTo(strongSelf.nameLabel.mas_bottom).with.offset([UIScreen adaptedLengthOf:5]);
+        make.left.mas_equalTo(strongSelf.nameLabel.mas_left);
+        make.right.mas_equalTo([UIScreen adaptedLengthOf:-12]);
+    }];
+    
+    [self.sexImgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.left.mas_equalTo(strongSelf.nameLabel.mas_right).with.offset([UIScreen adaptedLengthOf:4]);
+        make.centerY.mas_equalTo(strongSelf.nameLabel.mas_centerY);
+    }];
+    
+    [self.levelMarkView mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.left.mas_equalTo(strongSelf.sexImgView.mas_right).with.offset(8);
+        make.centerY.mas_equalTo(strongSelf.nameLabel.mas_centerY);
+        make.right.mas_lessThanOrEqualTo(strongSelf.timeLabel.mas_left).with.offset(8);
+    }];
+    
+    [self.timeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.right.mas_equalTo([UIScreen adaptedLengthOf:-12]);
+        make.centerY.mas_equalTo(strongSelf.nameLabel);
+    }];
+}
+
+- (UIImageView *) headImgView {
+    if (_headImgView == nil) {
+        _headImgView = [[UIImageView alloc] init];
+        _headImgView.layer.cornerRadius = [UIScreen adaptedLengthOf:36 / 2];
+        _headImgView.clipsToBounds = YES;
+        _headImgView.image = [UIImage imageNamed:@"my_head_default"];
+    }
+    return _headImgView;
+}
+
+-(UILabel *) nameLabel {
+    if (!_nameLabel) {
+        _nameLabel = [[UILabel alloc] init];
+        _nameLabel.font = [UIFont systemFontOfSize:[UIScreen adaptedLengthOf:15]];
+        _nameLabel.textColor = [HelperUtil colorWithHexString:@"#352007"];
+        _nameLabel.text = @"极为收到反馈";
+    }
+    return _nameLabel;
+}
+
+- (UILabel *) lastMsgLabel {
+    if (!_lastMsgLabel) {
+        _lastMsgLabel = [[UILabel alloc] init];
+        _lastMsgLabel.font = [UIFont systemFontOfSize:[UIScreen adaptedLengthOf:15]];
+        _lastMsgLabel.textColor = [HelperUtil colorWithHexString:@"#ABABAB"];
+        _lastMsgLabel.text = @"什么时候去拍照？请叫上我";
+    }
+    return _lastMsgLabel;
+}
+
+
+- (UIImageView *) sexImgView {
+    if (!_sexImgView) {
+        _sexImgView = [[UIImageView alloc] init];
+        _sexImgView.image = [UIImage imageNamed:@"male"];
+    }
+    return _sexImgView;
+}
+
+- (UIImageView *) levelMarkView {
+    if (!_levelMarkView) {
+        _levelMarkView = [[UIImageView alloc] init];
+        _levelMarkView.image = [UIImage imageNamed:@"等级 3"];
+    }
+    return _levelMarkView;
+}
+
+
+- (UILabel *) timeLabel {
+    if (!_timeLabel) {
+        _timeLabel = [[UILabel alloc] init];
+        _timeLabel.font = [UIFont systemFontOfSize:[UIScreen adaptedLengthOf:13]];
+        _timeLabel.textColor = [HelperUtil colorWithHexString:@"#ABABAB"];
+        _timeLabel.text = @"24分钟前";
+    }
+    return _timeLabel;
+}
+
+
++ (NSString *) reuseIdentifier {
+    return @"RecentSessionCell";
+}
+
+@end

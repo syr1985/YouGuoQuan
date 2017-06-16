@@ -1,0 +1,1165 @@
+//
+//  NetworkTool.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/15.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <QNUploadOption.h>
+
+/**
+ *  获取验证码
+ */
+static NSString * const Login_GetAuthCode          = @"/iface/appuser/getVerifiCode";
+/**
+ *  注册账号
+ */
+static NSString * const Login_Register             = @"/iface/appuser/registermobile";
+/**
+ *  重置密码
+ */
+static NSString * const Login_ResetPwd             = @"/iface/appuser/resetpwd";
+/**
+ *  用户登录
+ */
+static NSString * const Login_UserLogin            = @"/iface/appuser/loginmobile";
+/**
+ *  上传图片
+ */
+static NSString * const Publish_UploadImages       = @"/iface/appuser/uploadImages";
+/**
+ *  七牛Token
+ */
+static NSString * const Publish_GetQiniuToken      = @"/iface/appuser/getQiNiuToken";
+/**
+ *  发布商品
+ */
+static NSString * const Publish_PublishProduct     = @"/iface/goods/create";
+/**
+ *  发布红包
+ */
+static NSString * const Publish_PublishRedpacket   = @"/iface/goodsRedBag/create";
+/**
+ *  发布动态
+ */
+static NSString * const Publish_PublishTrends      = @"/iface/feeds/create";
+/**
+ *  出售微信
+ */
+static NSString * const Publish_SellWeiXin         = @"/iface/goodsWX/create";
+/**
+ *  获取热搜关键词
+ */
+static NSString * const Home_HotSearchWords        = @"/iface/hotword/list";
+/**
+ *  热搜
+ */
+static NSString * const Home_SearchUsers           = @"/iface/appuser/search";
+/**
+ *  轮播图
+ */
+static NSString * const Home_GetBanners            = @"/iface/banner/list";
+/**
+ *  首页瀑布流
+ */
+static NSString * const Home_GetResoures           = @"/iface/appuser/homePageList";
+/**
+ *  首页关注列表
+ */
+static NSString * const Home_GetFocusTrends        = @"/iface/feeds/homepageFocuslist";
+/**
+ *  他人资料
+ */
+static NSString * const Others_UserBaseInfo        = @"/iface/appuser/getManInfoTopPart";
+/**
+ *  举报
+ */
+static NSString * const Others_Reporting           = @"/iface/tipoffs/add";
+/**
+ *  TA的照片墙
+ */
+static NSString * const Others_GetUserPhotos       = @"/iface/appuserphoto/getUserPhoto";
+/**
+ *  TA的关注
+ */
+static NSString * const Others_GetOthersFocus      = @"/iface/mindrelation/focuslist";
+/**
+ *  TA的粉丝
+ */
+static NSString * const Others_GetOthersFuns       = @"/iface/mindrelation/fanslist";
+/**
+ *  TA赞过的
+ */
+static NSString * const Others_GetOtherFavours     = @"/iface/zan/feedsZanList";
+/**
+ *  TA的动态
+ */
+static NSString * const Others_GetTrends           = @"/iface/feeds/otherManHomePage";
+/**
+ *  TA的贡献榜
+ */
+static NSString * const Others_GetContributers     = @"/iface/appuserpayhistory/list";
+/**
+ *  1、关注或粉丝，2、赞，3、拉黑 (人)
+ */
+static NSString * const Detail_DoOperation         = @"/iface/mindrelation/add";
+/**
+ *  更新播放次数
+ */
+static NSString * const Detail_UpdatePlayTimes     = @"/iface/feeds/updatePlayTimes";
+/**
+ *  取消赞 (动态)
+ */
+static NSString * const Detail_CancelFavour        = @"/iface/zan/delZan";
+/**
+ *  赞 (动态)
+ */
+static NSString * const Detail_DoFavour            = @"/iface/zan/add";
+/**
+ *  评论
+ */
+static NSString * const Detail_DoComment           = @"/iface/comment/create";
+/**
+ *  商品详情
+ */
+static NSString * const Detail_Product             = @"/iface/goods/getDetailInfo";
+/**
+ *  评论列表
+ */
+static NSString * const Detail_GetComments         = @"/iface/comment/list";
+/**
+ *  商品的评论列表
+ */
+static NSString * const Detail_GetGoodsComments    = @"/iface/goodscomment/list";
+/**
+ *  动态详情
+ */
+static NSString * const Detail_Trends              = @"/iface/feeds/getDetailInfo";
+/**
+ *  赞动态的人list
+ */
+static NSString * const Detail_GetFavorers         = @"/iface/zan/feedsZanUserList";
+/**
+ *  评论总数
+ */
+static NSString * const Detail_CommentTotalCount   = @"/iface/comment/commentListCount";
+/**
+ *  删除评论
+ */
+static NSString * const Detail_DeleteComment       = @"/iface/comment/delete";
+/**
+ *  发现模块动态list
+ */
+static NSString * const Discovery_TrendsList       = @"/iface/feeds/recommendFeedsList";
+/**
+ *  发现模块视频list
+ */
+static NSString * const Discovery_VideosList       = @"/iface/feeds/recommendVideoList";
+/**
+ *  发现模块众筹list
+ */
+static NSString * const Discovery_CrowdfundingList = @"/iface/crowdfunding/list";
+/**
+ *  发现模块附近的人list
+ */
+static NSString * const Discovery_NearbyUsersList  = @"/iface/appuser/getUserNearby";
+/**
+ *  发现模块众筹参与者list
+ */
+static NSString * const Discovery_ParticipatenList = @"/iface/crowdfunding/rankList";
+/**
+ *  支付-生成订单
+ */
+static NSString * const Pay_CreateOrder_Trends     = @"/iface/goods/addOrder";
+/**
+ *  支付-到中间账户
+ */
+static NSString * const Pay_ToMiddleAccount_Trends = @"/iface/goods/buyGoodsWithWalletMiddle";
+/**
+ *  支付-直接付款给用户
+ */
+static NSString * const Pay_ToUserDirectly_Trends  = @"/iface/goods/buyGoodsWithWalletImediately";
+/**
+ *  支付-从中间账户同意付款给卖家 确认收货
+ */
+static NSString * const Pay_ForConfirmOrder_Trends = @"/iface/goods/buyGoodsConfirm";
+/**
+ *  支付-众筹下订单
+ */
+static NSString * const Pay_CreateOrder_Crowdfunding = @"/iface/crowdfunding/addOrderCrowdFunding";
+/**
+ *  支付-直接支付众筹款项
+ */
+static NSString * const Pay_Imediately_Crowdfunding = @"/iface/crowdfunding/buyCrowdFundingWithWalletImediately";
+/**
+ *  支付-微信下订单
+ */
+static NSString * const Pay_CreateOrder_WeiXin     = @"/iface/goodsWX/addOrder";
+/**
+ *  支付-红包下订单
+ */
+static NSString * const Pay_CreateOrder_RedPacket  = @"/iface/goodsRedBag/addOrder";
+/**
+ *  支付-打赏下订单
+ */
+static NSString * const Pay_CreateOrder_Reward     = @"/iface/rewardorder/addOrder";
+/**
+ *  支付-打赏支付
+ */
+static NSString * const Pay_ToUserDirectly_Reward  = @"/iface/rewardorder/transWithWalletImediately";
+/**
+ *  支付-生成订单
+ */
+static NSString * const Pay_GenerateOrder_OrderNo  = @"/iface/goods/generateOrderNo";
+/**
+ *  支付-创建订单-约见
+ */
+static NSString * const Pay_CreateOrder_Date       = @"/iface/dating/addOrder";
+/**
+ *  支付-创建订单-充值
+ */
+static NSString * const Pay_CreateOrder_Recharge   = @"/iface/fillwalletorder/addOrder";
+/**
+ *  支付-创建订单-贵族购买
+ */
+static NSString * const Pay_CreateOrder_Nobility   = @"/iface/tobenobleorder/addOrder";
+/**
+ *  支付-付款给商家-贵族购买
+ */
+static NSString * const Pay_Imediately_Nobility    = @"/iface/tobenobleorder/buyNobleWithWalletImediately";
+/**
+ *  支付-支付成功后检查订单状态是否改变
+ */
+static NSString * const Pay_CheckOrderNo_Nobility  = @"/iface/goods/checkNotice";
+/**
+ *  动态-删除
+ */
+static NSString * const Profile_Trends_Delete      = @"/iface/feeds/delete";
+/**
+ *  普通商品-删除
+ */
+static NSString * const Profile_Product_Delete     = @"/iface/goods/delete";
+/**
+ *  红包-删除
+ */
+static NSString * const Profile_RedPacket_Delete   = @"/iface/goodsRedBag/delete";
+/**
+ *  微信-删除
+ */
+static NSString * const Profile_WeiXin_Delete      = @"/iface/goodsWX/delete";
+/**
+ *  我的-订单
+ */
+static NSString * const Profile_GetMyOrderList     = @"/iface/goodsOrder/myBuyList";
+/**
+ *  我的-单项修改我的资料
+ */
+static NSString * const Profile_ModifyPersonInfo   = @"/iface/appuser/modifyInfoSingle";
+/**
+ *  我的-意见反馈
+ */
+static NSString * const Profile_SubmitFeedback     = @"/iface/feedback/create";
+/**
+ *  我的-官方认证-获取验证码
+ */
+static NSString * const Profile_GetVerifyCode      = @"/iface/appuser/verifiMobileCode";
+/**
+ *  我的-官方认证
+ */
+static NSString * const Profile_OfficialCertified  = @"/iface/appuser/authention";
+/**
+ *  我的-我的钱包信息
+ */
+static NSString * const Profile_GetMyWalletInfo    = @"/iface/payvoucher/myWallet";
+/**
+ *  我的-收入支出明细
+ */
+static NSString * const Profile_GetMyIncomeInfo    = @"/iface/payvoucher/list";
+/**
+ *  我的-等级积分信息
+ */
+static NSString * const Profile_GetMyLevelScore    = @"/iface/appuser/getUserScoreInfo";
+/**
+ *  我的-每日任务-我的信息
+ */
+static NSString * const Profile_GetMyTaskDaily     = @"/iface/taskCompleteCondition/getInfo";
+/**
+ *  我的-每日任务-签到信息
+ */
+static NSString * const Profile_GetMySignInInfo    = @"/iface/appuser/getSignInfo";
+/**
+ *  我的-每日任务-签到
+ */
+static NSString * const Profile_DailyTask_SignIn   = @"/iface/appuser/pointSign";
+/**
+ *  我的-每日任务-领取经验值
+ */
+static NSString * const Profile_DailyTask_GetExp   = @"/iface/appuser/getExpriValue";
+/**
+ *  我的-照片墙添加照片
+ */
+static NSString * const Profile_AddPhotosToWall    = @"/iface/appuserphoto/add";
+/**
+ *  我的-订单-删除、取消
+ */
+static NSString * const Profile_Order_Delete       = @"/iface/goodsOrder/delete";
+/**
+ *  我的-订单-评论
+ */
+static NSString * const Profile_Order_Evaluate     = @"/iface/goodscomment/addOrderComment";
+/**
+ *  我的-订单-申请退款
+ */
+static NSString * const Profile_Order_ApplyRefund  = @"/iface/goodsOrder/applyReturnMoney";
+/**
+ *  我的-售出订单
+ */
+static NSString * const Profile_GetMySoldOrderList = @"/iface/goodsOrder/list";
+/**
+ *  我的-售出订单-拒绝服务
+ */
+static NSString * const Profile_SoldOrder_Refuse   = @"/iface/goodsOrder/refuseAcceptService";
+/**
+ *  我的-关注、粉丝、黑名单列表
+ */
+static NSString * const Profile_GetMyFunsFocuses   = @"/iface/mindrelation/myFocusFansBlacklist";
+/**
+ *  我的-赞列表
+ */
+static NSString * const Profile_GetMyFavoursList   = @"/iface/zan/myfeedsZanList";
+/**
+ *  消息-根据环信id获取用户资料
+ */
+static NSString * const Message_GetUserBaseInfo    = @"/iface/appuser/getManInfoHxid";
+/**
+ *  我的-更新用户经纬度
+ */
+static NSString * const Profile_UpdateUserLocation = @"/iface/appuser/refreshUserPosition";
+/**
+ *  消息-获取未读消息数
+ */
+static NSString * const Message_GetUnreadMsgNumber = @"/iface/appuser/messageCountNotify";
+/**
+ *  消息-获取未读系统消息
+ */
+static NSString * const Message_GetUnreadSystemMsg = @"/iface/appsysmessage/list";
+/**
+ *  消息-获取未读赞消息
+ */
+static NSString * const Message_GetUnreadFavourMsg = @"/iface/zan/myZanMessageList";
+/**
+ *  消息-获取未读评论消息
+ */
+static NSString * const Message_GetUnreadCommentMsg = @"/iface/comment/myCommentMessageList";
+/**
+ *  发现-获取我的众筹金额
+ */
+static NSString * const Discovery_GetMyContriMoney = @"/iface/crowdfunding/myContriMoney";
+//******------------------------------------------------------------------******//
+
+@class PHAsset;
+@interface NetworkTool : NSObject
+
+/**
+ *  获取我的众筹金额
+ *
+ *  @param cfId    众筹ID
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)getMyContriMoneyWithCFId:(NSString *)cfId Success:(void (^)(id result))success failure:(void (^)())failure;
+/**
+ *  获取评论消息列表
+ *
+ *  @param pageNo   页码
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getUnreadCommentMessageWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize Success:(void (^)(id result))success failure:(void (^)())failure;
+/**
+ *  获取赞消息列表
+ *
+ *  @param pageNo   页码
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getUnreadFavourMessageWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize Success:(void (^)(id result))success failure:(void (^)())failure;
+/**
+ *  获取系统消息列表
+ *
+ *  @param pageNo   页码
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getUnreadSystemMessageWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize Success:(void (^)(id result))success failure:(void (^)())failure;
+/**
+ *  获取未读消息数
+ *
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)getUnreadMessageNumberSuccess:(void (^)(id result))success failure:(void (^)())failure;
+/**
+ *  更新用户位置经纬度
+ *
+ *  @param city      城市
+ *  @param latitude  经度
+ *  @param longitude 纬度
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)updateUserLocationInfoWithCity:(NSString *)city latitude:(NSString *)latitude longitude:(NSString *)longitude success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  根据环信的账号获取用户信息
+ *
+ *  @param hxid    环信的账号
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)getUserInfoByHuanXinAccountWith:(NSString *)hxid success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取我的赞动态
+ *
+ *  @param pageNo   页号
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getMyFavoursListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取我的关注、粉丝、黑名单列表
+ *
+ *  @param type     1：关注列表，2：粉丝列表，3：黑名单列表
+ *  @param pageNo   页号
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getMyFunsFocusBlackListWithType:(NSNumber *)type pageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  拒绝或接受服务
+ *
+ *  @param type    0：拒绝服务；1：接受服务
+ *  @param orderNo 订单号
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)refuseOrAcceptServiceWithType:(NSNumber *)type orderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  获取我售出的订单
+ *
+ *  @param dealType  订单类型 2、未处理，1、已处理，3、全部
+ *  @param pageNo    页号
+ *  @param pageSize  每页数
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)getMySoldOrderListWithType:(NSNumber *)dealType pageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  申请退款
+ *
+ *  @param orderNo 订单号
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)applyForRefundWithOrderId:(NSString *)orderNo success:(void (^)())success failure:(void (^)())failure;
+/**
+ *  评论订单
+ *
+ *  @param orderId 订单号
+ *  @param goodsId 商品ID
+ *  @param content 评论内容
+ *  @param stars   星星数量
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)evaluateOrderWithOrderId:(NSString *)orderId goodsId:(NSString *)goodsId content:(NSString *)content stars:(NSNumber *)stars success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  删除、取消订单
+ *
+ *  @param orderNo 订单号
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)cancelOrDeleteOrder:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  照片墙添加照片
+ *
+ *  @param imageUrl 添加的imageURLString
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)addPhotosToPhotosWallWithImageUrl:(NSString *)imageUrl success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  获取完成每日任务的经验值（有问题）
+ *
+ *  @param exp     经验值
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)getExpValueWithExp:(NSString *)exp success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  签到（有问题）
+ *
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)signInForDailyTaskWithInfo:(NSDictionary *)infoDict success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  获取签到信息
+ *
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getMySignInInfoSuccess:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取每日任务信息
+ *
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getMyTaskDailyInfoSuccess:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取等级、积分信息
+ *
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getMyLevelScoreInfoSuccess:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取我的收入支出信息
+ *
+ *  @param type     1：收入明细；2：支出明细
+ *  @param pageNo   页号
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getIncomeOrExpenditureInfoWithType:(NSString *)type pageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize Success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取我的钱包
+ *
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)getMyWalletInfoSuccess:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  官方认证
+ *
+ *  @param auditResult 认证信息
+ *  @param verifiCode  手机验证码
+ *  @param idCardNo    身份证号
+ *  @param authentiUrl 认证图片地址
+ *  @param realName    真实姓名
+ *  @param mobile      手机号
+ *  @param success     成功block
+ *  @param failure     失败block
+ */
++ (void)officiallyCertifiedWithAuditResult:(NSString *)auditResult verifiCode:(NSString *)verifiCode cardNo:(NSString *)idCardNo imageUrl:(NSString *)authentiUrl realName:(NSString *)realName mobile:(NSString *)mobile success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  获取官方认证短信验证码
+ *
+ *  @param phone   电话号码
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)getVerifyCodeForOfficiallyCertifiedWithPhoneNumber:(NSString *)phone  success:(void (^)(id Result))success failure:(void(^)())failure;
+/**
+ *  意见反馈
+ *
+ *  @param tReasons 建议内容
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)submitFeedbackWithSuggestion:(NSString *)tReasons success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  单项修改我的资料
+ *
+ *  @param mType    修改属性 mtype取值headImg nickName sex city height weight constellatory work emotion coverImgUrl
+ *  @param newValue 新值
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)modifyPersonInfoWithType:(NSString *)mType value:(NSString *)newValue success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  获取我的订单
+ *
+ *  @param orderType 0全部,1待支付,2进行中,3已完成,4退款中
+ *  @param pageNo    页号
+ *  @param pageSize  每页数
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)getMyOrderListWithType:(NSNumber *)orderType pageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  删除微信
+ *
+ *  @param weixinId 微信ID
+ *  @param success  成功block
+ */
++ (void)deleteWeiXinWithWeixinID:(NSString *)weixinId success:(void (^)())success;
+/**
+ *  删除红包
+ *
+ *  @param redPacketId 红包ID
+ *  @param success     成功block
+ */
++ (void)deleteRedPacketWithRedPacketID:(NSString *)redPacketId success:(void (^)())success;
+/**
+ *  删除商品
+ *
+ *  @param productId 商品ID
+ *  @param success   成功block
+ */
++ (void)deleteProductWithProductID:(NSString *)productId success:(void (^)())success;
+/**
+ *  删除动态
+ *
+ *  @param trendsId 动态ID
+ *  @param success  成功block
+ */
++ (void)deleteTrendsWithTrendsID:(NSString *)trendsId success:(void (^)())success;
+/**
+ *  在支付成功之后检查订单状态
+ *
+ *  @param orderNo 订单号
+ *  @param payMethod 支付方式
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)checkOrderStatusOrderNo:(NSString *)orderNo payMethod:(NSString *)payMethod success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  支付贵族
+ *
+ *  @param orderNo 订单号
+ *  @param paymth  月数
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)payForNobilityWithOrderNo:(NSString *)orderNo paymth:(NSString *)paymth success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  购买贵族下单
+ *
+ *  @param orderNo   订单号
+ *  @param money     金额
+ *  @param payMethod 支付方式
+ *  @param nobleType 几个月
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)createBuyNobilityOrderWithOrderNo:(NSString *)orderNo money:(NSString *)money payMethod:(NSString *)payMethod month:(NSNumber *)nobleType success:(void (^)(id result))success failure:(void (^)())failure;
+/**
+ *  充值
+ *
+ *  @param orderNo   订单号
+ *  @param money     金额
+ *  @param payMethod 支付方式
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)createRechargeOrderWithOrderNo:(NSString *)orderNo money:(NSString *)money payMethod:(NSString *)payMethod success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  创建约见订单
+ *         buyerId	    本人的id
+ *  @param orderNo      订单号
+ *  @param serviceName  约见类型
+ *  @param payMethod    支付方式
+ *  @param salerId      约见对象ID
+ *  @param price        奖赏金额
+ *  @param dateTimeInfo 约见时间
+ *  @param dateAddress  约见地址
+ *  @param success      成功block
+ *  @param failure      失败block
+ */
++ (void)createDateOrderWithOrderNo:(NSString *)orderNo serviceName:(NSString *)serviceName payMethod:(NSString *)payMethod salerId:(NSString *)salerId price:(NSString *)price dateTimeInfo:(NSString *)dateTimeInfo dateAddress:(NSString *)dateAddress success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取订单号
+ *
+ *  @param goodsType RP(红包照片)NM(普通商品)WX(购买微信)CF(众筹)RB(红包)RE(打赏)DT(约见)FW(充值)
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)generateOrderNoWithGoodsType:(NSString *)goodsType success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  打赏支付
+ *
+ *  @param orderNo 订单号
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)payForRewardWithOrderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  创建打赏订单
+ *
+ *  @param toUserId  收红包人的id
+ *  @param money     打赏金额
+ *  @param payMethod 支付方式
+ *  @param rType     hb ds
+ *  @param memo      备注
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)createRewardOrderWithUserID:(NSString *)toUserId money:(NSString *)money payMethod:(NSString *)payMethod rType:(NSString *)rType memo:(NSString *)memo orderNo:(NSString *)orderNo success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  创建购买红包订单
+ *
+ *  @param goodsId   商品ID
+ *  @param feedsId   动态ID
+ *  @param payMethod 支付方式
+ *  @param phone     购买者电话
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)createRedPacketOrderWithGoodsId:(NSString *)goodsId feedsId:(NSString *)feedsId payMethod:(NSString *)payMethod phone:(NSString *)phone orderNo:(NSString *)orderNo success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  创建购买微信订单
+ *
+ *  @param salerId   卖者ID
+ *  @param payMethod 支付方式
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)createWeiXinOrderWithSalerId:(NSString *)salerId payMethod:(NSString *)payMethod orderNo:(NSString *)orderNo weixin:(NSString *)account success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  众筹支付
+ *
+ *  @param orderNo 订单号
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)payforCrowdfundingWithOrderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  创建众筹订单
+ *
+ *  @param cfid      众筹id
+ *  @param payMethod 支付方式
+ *  @param money     众筹金额
+ *  @param email     预留邮箱
+ *  @param success   成功block
+ */
++ (void)createCrowdfundingOrderWithCfId:(NSString *)cfid payMethod:(NSString *)payMethod money:(NSString *)money phone:(NSString *)phone email:(NSString *)email orderNo:(NSString *)orderNo success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  确认收货
+ *
+ *  @param orderNo 订单号
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)payForConfirmOrderWithOrderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  直接付款到用户
+ *
+ *  @param orderNo 订单号
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)payForTrendsToUserDirectlyWithOrderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  付款到中间账户
+ *
+ *  @param orderNo 订单号
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)payForTrendsToMiddleAccountWithOrderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure;
+/**
+ *  创建订单
+ *
+ *  @param goodsId   商品ID
+ *  @param feedsId   动态ID
+ *  @param payMethod 支付方式
+ *  @param email     购买时填写的邮箱
+ *  @param desc      购买时填写的描述
+ *  @param success   成功block
+ */
++ (void)createOrderWithGoodsId:(NSString *)goodsId feedsId:(NSString *)feedsId payMethod:(NSString *)payMethod phone:(NSString *)phone email:(NSString *)email desc:(NSString *)desc orderNo:(NSString *)orderNo success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取发现模块众筹参与者list
+ *
+ *  @param pageNo   页码
+ *  @param pageSize 每页数据量
+ *  @param cfId     众筹id
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getDiscoveryParticipatenListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize cfID:(NSString *)cfId  success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取发现模块附近的人list
+ *
+ *  @param pageNo    页码
+ *  @param pageSize  每页数据量
+ *  @param longitude 经度
+ *  @param latitude  纬度
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)getDiscoveryNearbyUsersListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize longitude:(NSString *)longitude latitude:(NSString *)latitude success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取发现模块众筹list
+ *
+ *  @param pageNo   页码
+ *  @param pageSize 每页数据量
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getDiscoveryCrowdfundingListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取发现模块视频list
+ *
+ *  @param pageNo   页码
+ *  @param pageSize 每页数据量
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getDiscoveryVideosListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取发现模块动态list
+ *
+ *  @param pageNo   页码
+ *  @param pageSize 每页数据量
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getDiscoveryTrendsListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取赞动态的人list
+ *
+ *  @param pageNo   页码
+ *  @param pageSize 每页数据量
+ *  @param feedsId  动态ID
+ *  @param success  成功block
+ */
++ (void)getTrendsFavorerListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize feedsId:(NSString *)feedsId success:(void (^)(id result))success;
+/**
+ *  删除评论
+ *
+ *  @param feedsId   动态ID
+ *  @param commentId 评论ID
+ *  @param success   成功block
+ */
++ (void)deleteCommentWithFeedsID:(NSString *)feedsId commentID:(NSString *)commentId success:(void (^)())success;
+/**
+ *  获取评论总数
+ *
+ *  @param trendsId 动态ID
+ *  @param success  成功block
+ */
++ (void)getTotalCommentCountWithTrendsID:(NSString *)trendsId success:(void (^)(id result))success;
+/**
+ *  查询动态详情
+ *
+ *  @param trendsId 动态ID
+ *  @param success  成功block
+ */
++ (void)getTrendsDetailWithTreendsID:(NSString *)trendsId success:(void (^)(id result))success;
+/**
+ *  获取动态评论列表
+ *
+ *  @param pageNo   页号
+ *  @param pageSize 每页数
+ *  @param trendsId 动态ID
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getCommentListWithPageNO:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize trendsId:(NSString *)trendsId success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取商品评价列表
+ *
+ *  @param pageNo   页号
+ *  @param pageSize 每页数
+ *  @param trendsId 商品ID
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getGoodsCommentListWithPageNO:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize trendsId:(NSString *)trendsId success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取商品详情
+ *
+ *  @param productId 商品id
+ *  @param success   成功block
+ */
++ (void)getProductDetailWithProductID:(NSString *)productId success:(void (^)(id result))success;
+/**
+ *  获取他人赞过的动态
+ *
+ *  @param pageNo   页号
+ *  @param pageSize 每页数
+ *  @param toUserId 他人id
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getOtherFavoursWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize userID:(NSString *)toUserId success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取他人贡献榜
+ *
+ *  @param pageNo   页号
+ *  @param pageSize 每页数
+ *  @param userId   他人id
+ *  @param success  成功block
+ */
++ (void)getOtherContributerWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize userID:(NSString *)userId success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取他人的动态
+ *
+ *  @param pageNo   页号
+ *  @param pageSize 每页数
+ *  @param userId   他人id
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getOtherTrendsWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize userID:(NSString *)userId success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  评论
+ *
+ *  @param commentContent 评论内容
+ *  @param aboutUserId    对某人
+ *  @param aboutCommentId 对某评论
+ *  @param aboutId        对某商品或动态
+ *  @param success        成功block
+ */
++ (void)doCommentWithContent:(NSString *)commentContent toUser:(NSString *)aboutUserId toComment:(NSString *)aboutCommentId toProduct:(NSString *)aboutId success:(void (^)())success;
+/**
+ *  赞（动态）
+ *
+ *  @param feedsId  动态id
+ *  @param toUserId 发布动态人的id
+ *  @param success  成功block
+ */
++ (void)doFavourWithFeedsID:(NSString *)feedsId userId:(NSString *)toUserId success:(void (^)())success;
+/**
+ *  取消赞（动态）
+ *
+ *  @param feedsId  动态id
+ *  @param toUserId 发布动态人的id
+ *  @param success  成功block
+ */
++ (void)cancelFavourWithFeedsID:(NSString *)feedsId userID:(NSString *)toUserId success:(void (^)())success;
+/**
+ *  更新视频播放次数
+ *
+ *  @param trendsID 视频动态ID
+ *  @param success  成功block
+ */
++ (void)updatePlayTimesWithVideoTrendsID:(NSString *)trendsID success:(void (^)())success;
+/**
+ *  获取他人粉丝列表
+ *
+ *  @param pageNo     页号
+ *  @param pageSize   每页数
+ *  @param searchedId 被搜索用户的id
+ *  @param success    成功block
+ *  @param failure    失败block
+ */
++ (void)getOthersFunsListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize userID:(NSString *)searchedId success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  获取他人关注列表
+ *
+ *  @param pageNo     页号
+ *  @param pageSize   每页数
+ *  @param searchedId 被搜索用户的id
+ *  @param success    成功block
+ *  @param failure    失败block
+ */
++ (void)getOthersFocusListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize userID:(NSString *)searchedId success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  拉黑、赞、关注
+ *
+ *  @param relType  1、关注或粉丝，2、赞，3、拉黑 （人）
+ *  @param toUserId 举报人
+ *  @param type     0:取消关注;1:关注
+ *  @param success  成功block
+ */
++ (void)doOperationWithType:(NSString *)relType userId:(NSString *)toUserId operationType:(NSString *)type success:(void (^)())success;
+/**
+ *  获取他人照片墙
+ *
+ *  @param userId  他人ID
+ *  @param success 成功block
+ */
++ (void)getOtherPhotosWithUserID:(NSString *)userId success:(void (^)(id result))success;
+/**
+ *  获取首页关注数据
+ *
+ *  @param pagetNO  页号
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getHomeFocusListWithPageNo:(NSNumber *)pagetNO pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure;
+/**
+ *  举报
+ *
+ *  @param type     类型:0,人;1,动态;2,评论
+ *  @param tReasons 原因
+ *  @param aboutId  被举报人id、动态id或评论id
+ *  @param success  成功block
+ */
++ (void)reportOthersWithType:(NSNumber *)type reason:(NSString *)tReasons aboutID:(NSString *)aboutId success:(void (^)())success;
+/**
+ *  获取他人资料
+ *
+ *  @param userId  用户id
+ *  @param success 成功block
+ */
++ (void)getOthersInfoWithUserId:(NSString *)userId success:(void (^)(id result))success;
+/**
+ *  获取验证码
+ *
+ *  @param phoneNumber  手机号
+ *  @param reset        是否是重设密码
+ *  @param returnResult 回调block
+ */
++ (void)getMsgAuthCode:(NSString *)phoneNumber RetsetPassword:(BOOL)reset Result:(void (^)(NSString *code))returnResult;
+/**
+ *  用户注册
+ *
+ *  @param phoneNumber 手机号
+ *  @param password    密码
+ *  @param nickName    昵称
+ *  @param sex         性别
+ *  @param city        城市
+ *  @param success     成功block
+ *  @param fail        失败block
+ */
++ (void)registerWithPhone:(NSString *)phoneNumber Password:(NSString *)password NickName:(NSString *)nickName Sex:(NSString *)sex City:(NSString *)city success:(void (^)(id result))success failed:(void (^)())fail;
+/**
+ *  重置密码
+ *
+ *  @param phoneNumber 手机号
+ *  @param newPassword 新密码
+ *  @param returnResult 回调block
+ */
++ (void)resetPasswordWithPhone:(NSString *)phoneNumber Password:(NSString *)newPassword Result:(void (^)())returnResult;
+/**
+ *  用户登录
+ *
+ *  @param phoneNumber 手机号
+ *  @param password    密码
+ *  @param success     回调block
+ */
++ (void)loginWithPhone:(NSString *)phoneNumber Password:(NSString *)password Success:(void (^)(id result))success;
+/**
+ *  上传图片到自己的服务器
+ *
+ *  @param imagesDict 图片字典
+ *  @param success    回调block
+ */
++ (void)uploadImagesToServer:(NSDictionary *)imagesDict success:(void (^)(id result))success;
+/**
+ *  上传单张图到七牛云
+ *
+ *  @param imageData 图片数据
+ *  @param progress  进度block
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)uploadImage:(NSData *)imageData progress:(QNUpProgressHandler)progress success:(void(^)(NSString *url))success failure:(void(^)())failure;
+/**
+ *  上传多张图到七牛云
+ *
+ *  @param imageDataArray 多图数据数组
+ *  @param progress  进度block
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)uploadImages:(NSArray *)imageDataArray progress:(void(^)(CGFloat percent))progress success:(void(^)(NSArray *urlArray))success failure:(void(^)())failure;
+/**
+ *  上传视频
+ *
+ *  @param videoData 视频数据
+ *  @param progress  进度值
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
+//+ (void)uploadVideoToQiniu:(NSData *)videoData progress:(QNUpProgressHandler)progress success:(void(^)(NSString *videoUrl))success failure:(void(^)())failure;
+
++ (void)uploadVideoPHAssetToQiniu:(PHAsset *)asset progress:(QNUpProgressHandler)progress success:(void(^)(NSString *videoUrl))success failure:(void(^)())failure;
+
+//+ (void)uploadVideoALAssetToQiniu:(ALAsset *)asset progress:(QNUpProgressHandler)progress success:(void(^)(NSString *videoUrl))success failure:(void(^)())failure;
+/**
+ *  发布商品
+ *
+ *  @param goodsName    多图数据数组
+ *  @param goodsPrice   商品价格
+ *  @param coverUrl     封面路径
+ *  @param imagesUrl    商品图片路径
+ *  @param goodsIntro   商品介绍
+ *  @param success      成功block
+ *  @param failure      失败block
+ */
++ (void)publishProduct:(NSString *)goodsName price:(NSString *)goodsPrice cover:(NSString *)coverUrl image:(NSString *)imagesUrl intro:(NSString *)goodsIntro success:(void(^)())success failure:(void(^)())failure;
+/**
+ *  发布红包
+ *
+ *  @param goodsPrice   商品价格
+ *  @param imagesUrl    商品图片路径
+ *  @param goodsTitle   商品标题
+ *  @param success      成功block
+ *  @param failure      失败block
+ */
++ (void)publishRedEnvelope:(NSString *)goodsPrice image:(NSString *)imagesUrl intro:(NSString *)goodsTitle success:(void(^)())success failure:(void(^)())failure;
+/**
+ *  发布动态
+ *
+ *  @param imagesUrl     图片URL
+ *  @param goodsIntro    动态描述（标题）
+ *  @param videoUrl      视频URL
+ *  @param videoCoverUrl 视频封面URL
+ *  @param feedsType     动态类型 1，视频，2、图文
+ *  @param success       成功block
+ *  @param failure       失败block
+ */
++ (void)publishTrends:(NSString *)imagesUrl intro:(NSString *)goodsIntro video:(NSString *)videoUrl cover:(NSString *)videoCoverUrl trendsType:(NSString *)feedsType success:(void(^)())success failure:(void(^)())failure;
+/**
+ *  出售微信
+ *
+ *  @param price   价格
+ *  @param wxId    微信id
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)sellWeixin:(NSString *)price weixinID:(NSString *)wxId success:(void(^)())success failure:(void(^)())failure;
+/**
+ *  获取热搜词
+ *
+ *  @param pageNo   页号
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getHotSearchWords:(NSString *)pageNo pageSize:(NSString *)pageSize success:(void(^)(NSArray *hotWords))success failure:(void(^)())failure;
+/**
+ *  搜索
+ *
+ *  @param content  搜索内容
+ *  @param pageNo   页数
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)searchWithContent:(NSString *)content pageNO:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void(^)(NSArray *searchResult))success failure:(void(^)())failure;
+/**
+ *  获取首页轮播图
+ *
+ *  @param pageNo   页数
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getBannerListWithPageNo:(NSString *)pageNo pageSize:(NSString *)pageSize success:(void(^)(NSArray *dataArray))success failure:(void(^)())failure;
+/**
+ *  获取首页瀑布流数据
+ *
+ *  @param pageNo   页数
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getHomeListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void(^)(NSArray *dataArray))success failure:(void(^)())failure;
+
+@end

@@ -1,0 +1,27 @@
+//
+//  FocusViewController.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/5.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+//#import <UIKit/UIKit.h>
+#import "BaseViewController.h"
+
+@interface FocusViewController : BaseViewController
+
+@end
+
+
+//- (ZMLKeyboardView *)keyBoard {
+//    if (!_keyBoard) {
+//        _keyBoard = [ZMLKeyboardView showKeyboardViewWithContainerHeight:self.view.frame.size.height sendTextBlock:^(NSString *text) {
+//            
+//            NSLog(@"%@",text);
+//            
+//        }];
+//        [self.view addSubview:_keyBoard];
+//    }
+//    return _keyBoard;
+//}

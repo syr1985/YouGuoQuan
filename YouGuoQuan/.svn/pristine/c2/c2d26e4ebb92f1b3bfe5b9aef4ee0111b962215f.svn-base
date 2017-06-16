@@ -1,0 +1,58 @@
+//
+//  UserCenterModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/14.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ buyCommentGoodCount = 0;
+ buyCount = 0;
+ commentCount = 0;
+ createTime = 1481686613000;
+ dateString = 20161214
+ feedsType = 4;
+ goodsId = "79c81393-d5dc-4d7a-8f35-853bcbdd4321";
+ id = "78da7bdf-a1b2-4e85-9d68-e9bc526a21e0";
+ imageUrl = "http://7xtk9y.com1.z0.glb.clouddn.com/5ba890ac94559128d99bacdf2d5caf2f.jpg;http://7xtk9y.com1.z0.glb.clouddn.com/5dde9fb00359960a3b740f1d835b4be8.jpg;http://7xtk9y.com1.z0.glb.clouddn.com/41570be075b31887d2a8e1d86eaab7b2.jpg;http://7xtk9y.com1.z0.glb.clouddn.com/90ef96d483120c7190b2bbf82226e993.jpg;http://7xtk9y.com1.z0.glb.clouddn.com/8d341be2dd3940df1d564ccee7074fa0.jpg;http://7xtk9y.com1.z0.glb.clouddn.com/5d04a21f30af2ef4b26b1d813b23e064.jpg;http://7xtk9y.com1.z0.glb.clouddn.com/d3afadf0b4c28b5b31fa2b32debe6fe0.jpg;http://7xtk9y.com1.z0.glb.clouddn.com/e7d9017bd8962cfc2855977fdb1ff54c.jpg;http://7xtk9y.com1.z0.glb.clouddn.com/8c5bb75be16660dffec8965bf75c06b9.jpg";
+ instro = "\U7ea2\U5305\U4e86";
+ isBuy = 0;
+ isDelete = "";
+ playTimes = "";
+ recommendCount = 0;
+ updateTime = 1481686613000;
+ userId = "86d1051e-0cf6-4010-9f87-a660d67c7b3d";
+ videoEvelope = "";
+ videoUrl = "";
+ */
+
+@interface UserCenterModel : NSObject
+@property (nonatomic,   copy) NSString *trendsId;
+@property (nonatomic,   copy) NSString *goodsId;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *imageUrl;
+@property (nonatomic,   copy) NSString *goodsName;
+@property (nonatomic,   copy) NSString *price;
+@property (nonatomic,   copy) NSString *instro;
+@property (nonatomic,   copy) NSString *playTimes;
+@property (nonatomic,   copy) NSString *recommendCount;
+@property (nonatomic,   copy) NSString *commentCount;
+@property (nonatomic,   copy) NSString *buyCommentGoodCount;
+@property (nonatomic,   copy) NSString *buyCount;
+@property (nonatomic,   copy) NSString *videoEvelope;
+@property (nonatomic,   copy) NSString *videoUrl;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *updateTime;
+@property (nonatomic,   copy) NSString *dateString;
+@property (nonatomic, assign) BOOL isBuy;
+@property (nonatomic, assign) BOOL isDelete;
+@property (nonatomic, assign) int  feedsType;
+// Cell的高（自己根据数据计算的，不在返回字段里）
+@property (nonatomic, assign) CGFloat cellHeight;
+
++ (instancetype)userCenterModelWithDict:(NSDictionary *)dict;
+- (instancetype)initUserCenterModelWithDict:(NSDictionary *)dict;
+@end

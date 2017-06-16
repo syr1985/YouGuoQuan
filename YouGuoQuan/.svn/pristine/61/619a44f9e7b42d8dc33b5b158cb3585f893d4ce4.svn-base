@@ -1,0 +1,58 @@
+//
+//  MySoldOrderViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/9.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "MySoldOrderViewController.h"
+#import "SCNavTabBarController.h"
+
+@interface MySoldOrderViewController ()
+
+@end
+
+@implementation MySoldOrderViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"我售出的";
+    
+    UIStoryboard *soldSB = [UIStoryboard storyboardWithName:@"Sold" bundle:nil];
+    UITableViewController *allOrderVC = [soldSB instantiateViewControllerWithIdentifier:@"AllSoldOrderListVC"];
+    allOrderVC.title = @"全部";
+    
+    UITableViewController *undoSoldListVC = [soldSB instantiateViewControllerWithIdentifier:@"UndoSoldOrderListVC"];
+    undoSoldListVC.title = @"未处理";
+    
+    UITableViewController *doneSoldListVC = [soldSB instantiateViewControllerWithIdentifier:@"DoneSoldOrderListVC"];
+    doneSoldListVC.title = @"已处理";
+    
+    
+    SCNavTabBarController *navTabBarController = [[SCNavTabBarController alloc] init];
+    navTabBarController.subViewControllers = @[allOrderVC, undoSoldListVC, doneSoldListVC];
+    navTabBarController.navTabBarColor     = [UIColor whiteColor];
+    navTabBarController.navTabBarLineColor = [UIColor whiteColor];
+    navTabBarController.titleFont = [UIFont systemFontOfSize:14];
+    navTabBarController.navType = NavType_Custom;
+    [navTabBarController addParentController:self];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

@@ -1,0 +1,31 @@
+//
+//  UserDefaultsTool.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/5/5.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "UserDefaultsTool.h"
+
+@implementation UserDefaultsTool
+
++ (void)saveLoginData {
+    NSDictionary *userInfoDict = @{@"id"            : [LoginData sharedLoginData].userId,
+                                   @"nickName"      : [LoginData sharedLoginData].nickName,
+                                   @"headImg"       : [LoginData sharedLoginData].headImg,
+                                   @"hxp"           : [LoginData sharedLoginData].hxp,
+                                   @"hxu"           : [LoginData sharedLoginData].hxu,
+                                   @"star"          : @([LoginData sharedLoginData].star),
+                                   @"audit"         : @([LoginData sharedLoginData].audit),
+                                   @"auditResult"   : [LoginData sharedLoginData].auditResult,
+                                   @"isRecommend"   : @([LoginData sharedLoginData].isRecommend),
+                                   @"zfb"           : [LoginData sharedLoginData].zfbAccount,
+                                   @"zfbRealName"   : [LoginData sharedLoginData].realName,
+                                   @"havePublishWX" : @([LoginData sharedLoginData].havePublishWX),
+                                   @"ope"           : @([LoginData sharedLoginData].ope)};
+    [SCUserDefault setObject:userInfoDict forKey:KEY_USER_ACCOUNT];
+    [SCUserDefault synchronize];
+}
+
+@end

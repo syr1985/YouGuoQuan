@@ -1,0 +1,61 @@
+//
+//  LocationCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/7.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "LocationCell.h"
+
+@implementation LocationCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state
+}
+
+- (void)setCities:(NSArray *)cities {
+    _cities = cities;
+    
+    NSUInteger row = ceil(cities.count / 4.0);
+    NSUInteger col = 4;
+    CGFloat marginX = 20;
+    CGFloat marginY = 10;
+    CGFloat btnW = (WIDTH - marginX * (col + 1)) / col;
+    CGFloat btnH = 25;
+    
+    for (NSUInteger i = 0; i < row; i++) {
+        CGFloat btnY = btnH * i + marginY * (i + 1);
+        for (NSUInteger j = 0; j <  col; j++) {
+            CGFloat btnX = btnW * j + marginX * (j + 1);
+            NSUInteger index = i * col + j;
+            if (index < cities.count) {
+                NSString *city = cities[index];
+                UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+                btn.frame = CGRectMake(btnX, btnY, btnW, btnH);
+                btn.layer.cornerRadius = 5;
+                btn.layer.borderColor = [UIColor blackColor].CGColor;
+                btn.layer.borderWidth = 1;
+                btn.titleLabel.font = [UIFont systemFontOfSize:14];
+                [btn setTitle:city forState:UIControlStateNormal];
+                [btn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+                [btn setBackgroundColor:[UIColor whiteColor]];
+                [btn addTarget:self action:@selector(buttonClicked:) forControlEvents:UIControlEventTouchUpInside];
+                [self addSubview:btn];
+            }
+        }
+    }
+}
+
+- (void)buttonClicked:(UIButton *)button {
+    self.selectedCityBlock(button.titleLabel.text);
+}
+
+@end

@@ -1,0 +1,68 @@
+//
+//  MyWalletViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/5.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "MyWalletViewController.h"
+#import "WithdrawCashViewController.h"
+#import "RechargeRecordViewController.h"
+#import "AlertViewTool.h"
+#import "UserBaseInfoModel.h"
+
+@interface MyWalletViewController ()
+@property (weak, nonatomic) IBOutlet UILabel *rechargeBalanceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *incomeBalanceLabel;
+@end
+
+@implementation MyWalletViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"我的钱包";
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool getMyWalletInfoSuccess:^(id result){
+        weakself.rechargeBalanceLabel.text = [result[@"totalMoney"] stringValue];
+        weakself.incomeBalanceLabel.text = [result[@"incomeMoney"] stringValue];
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"获取我的钱包数据失败"];
+    }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+    UIViewController *destVC = segue.destinationViewController;
+    if ([segue.identifier isEqualToString:@"IncomeRecordSegue"]) {
+        RechargeRecordViewController *rechargeVC = (RechargeRecordViewController *)destVC;
+        rechargeVC.titleString = @"收入明细";
+    } else if ([segue.identifier isEqualToString:@"RechargeRecordSegue"]) {
+        RechargeRecordViewController *rechargeVC = (RechargeRecordViewController *)destVC;
+        rechargeVC.titleString = @"账单明细";
+    } else if ([segue.identifier isEqualToString:@"WithdrawCashSegue"]) {
+        WithdrawCashViewController *withdrawCashVC = (WithdrawCashViewController *)destVC;
+        withdrawCashVC.totalIncome = self.incomeBalanceLabel.text;
+    }
+}
+
+@end

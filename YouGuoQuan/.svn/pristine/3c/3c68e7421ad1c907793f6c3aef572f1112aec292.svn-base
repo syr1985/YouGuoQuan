@@ -1,0 +1,452 @@
+//
+//  PublishDateViewController.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 2017/1/2.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "PublishDateViewController.h"
+#import "HelperUtil.h"
+#import "Masonry.h"
+#import "ChooseLocationViewController.h"
+#import "YGDatePickerView.h"
+
+@interface PublishDateViewController ()<UITableViewDelegate, UITableViewDataSource, YGDatePickerViewDelegate> {
+    CGFloat _screenWidth;
+    NSInteger _currentPayType;
+}
+@property(nonatomic, strong) NSArray *payTypeImgArray;
+@property(nonatomic, strong) NSArray *payTypeNameArray;
+@property(nonatomic, strong) UITextField *payAmountField;
+@property(nonatomic, strong) UIView *payView;
+@property(nonatomic, strong) UIButton *payBtn;
+@property(nonatomic, strong) NSString *address;
+@property(nonatomic) double latitude;
+@property(nonatomic) double longitude;
+@property(nonatomic, strong) NSString *date;
+@property(nonatomic) DateType dateType;
+@property(nonatomic, strong) UITableView *tableView;
+@property(nonatomic, strong) YGDatePickerView *datePicker;
+@property (nonatomic,  copy) NSString *orderNo;
+@property (nonatomic,  copy) NSString *serviceName;
+@property (nonatomic,  copy) NSString *userId;
+@end
+
+@implementation PublishDateViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (instancetype)initWithDateType:(DateType)dateType {
+    if (self = [super init]) {
+        self.dateType = dateType;
+        switch (dateType) {
+            case 0:
+            {
+                self.serviceName = @"吃饭";
+            }
+                break;
+            case 1:
+            {
+                self.serviceName = @"发呆";
+            }
+                break;
+            case 2:
+            {
+                self.serviceName = @"看电影";
+            }
+                break;
+            case 3:
+            {
+                self.serviceName = @"下午茶";
+            }
+                break;
+            case 4:
+            {
+                self.serviceName = @"私摄";
+            }
+                break;
+            case 5:
+            {
+                self.serviceName = @"旅行活动";
+            }
+                break;
+        }
+    }
+    return self;
+}
+
+- (instancetype)initWithDateType:(DateType)dateType userID:(NSString *)userId {
+    if (self = [super init]) {
+        _dateType = dateType;
+        _userId = userId;
+        switch (dateType) {
+            case 0:
+            {
+                self.serviceName = @"吃饭";
+            }
+                break;
+            case 1:
+            {
+                self.serviceName = @"发呆";
+            }
+                break;
+            case 2:
+            {
+                self.serviceName = @"看电影";
+            }
+                break;
+            case 3:
+            {
+                self.serviceName = @"下午茶";
+            }
+                break;
+            case 4:
+            {
+                self.serviceName = @"私摄";
+            }
+                break;
+            case 5:
+            {
+                self.serviceName = @"旅行活动";
+            }
+                break;
+        }
+    }
+    return self;
+}
+
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.titleString = @"提交预约";
+    
+    _screenWidth = [UIScreen mainScreen].bounds.size.width;
+    self.datePicker = [[YGDatePickerView alloc] init];
+    self.datePicker.delegate = self;
+    [self.view addSubview:self.tableView];
+    UIView *v = [[UIView alloc] initWithFrame:CGRectZero];
+    [self.tableView setTableFooterView:v];
+    
+    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _screenWidth, 55)];
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, _screenWidth - 20, 55)];
+    label.font = [UIFont systemFontOfSize:10];
+    label.textColor = [HelperUtil colorWithHexString:@"#FF0200"];
+    label.text = @"*预约如未成功，资金将返还，如有违法及不道德行为，平台将有权将该款项划拨给对方";
+    label.numberOfLines = 0;
+    label.lineBreakMode = NSLineBreakByWordWrapping;
+    [headerView addSubview:label];
+    
+    UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(0, 54.5, _screenWidth, 0.5)];
+    lineView.backgroundColor = self.tableView.separatorColor;
+    [headerView addSubview:lineView];
+    headerView.backgroundColor = [UIColor whiteColor];
+    self.tableView.tableHeaderView = headerView;
+    
+    UIView *footerView = nil;
+    if (_screenWidth == 320) {
+        footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _screenWidth, 50)];
+    } else {
+        footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _screenWidth, 75)];
+    }
+    [footerView addSubview:self.payBtn];
+    self.tableView.tableFooterView = footerView;
+    
+    self.payTypeImgArray = @[@"支付宝支付", @"微信支付", @"钱包支付"];
+    self.payTypeNameArray = @[@"支付宝支付", @"微信支付", @"钱包零钱支付"];
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool generateOrderNoWithGoodsType:@"DT" success:^(id result) {
+        weakself.orderNo = result;
+    } failure:nil];
+}
+
+
+- (UITableView *)tableView {
+    if (!_tableView) {
+        _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, _screenWidth, self.view.frame.size.height) style:UITableViewStylePlain];
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+    }
+    return _tableView;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 2;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (section == 0) {
+        return 4;
+    } else {
+        return 3;
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"PublishDateViewCell"];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"PublishDateViewCell"];
+        
+        UIView *rightView = [[UIView alloc] init];
+        rightView.tag = 10;
+        
+        [cell.contentView addSubview:rightView];
+        
+        [rightView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(cell.textLabel.mas_right).with.offset(2);
+            make.right.mas_equalTo(cell.contentView.mas_right).with.offset(-15);
+            make.top.mas_equalTo(cell.contentView.mas_top);
+            make.bottom.mas_equalTo(cell.contentView.mas_bottom);
+        }];
+    }
+    
+    if (indexPath.section == 0) {
+        UIView *rightView = [cell.contentView viewWithTag:10];
+        for (UIView *view in [rightView subviews]) {
+            [view removeFromSuperview];
+        }
+        
+        if (indexPath.row == 0) {
+            switch (self.dateType) {
+                case 0:
+                {
+                    cell.textLabel.text = @"吃饭活动";
+                    cell.imageView.image = [UIImage imageNamed:@"购买订单-约见-吃饭"];
+                }
+                    break;
+                case 1:
+                {
+                    cell.textLabel.text = @"发呆活动";
+                    cell.imageView.image = [UIImage imageNamed:@"购买订单-约见-发呆"];
+                }
+                    break;
+                case 2:
+                {
+                    cell.textLabel.text = @"看电影活动";
+                    cell.imageView.image = [UIImage imageNamed:@"购买订单-约见-看电影"];
+                }
+                    break;
+                case 3:
+                {
+                    cell.textLabel.text = @"下午茶活动";
+                    cell.imageView.image = [UIImage imageNamed:@"购买订单-约见-下午茶"];
+                }
+                    break;
+                case 4:
+                {
+                    cell.textLabel.text = @"私摄活动";
+                    cell.imageView.image = [UIImage imageNamed:@"购买订单-约见-私摄"];
+                }
+                    break;
+                case 5:
+                {
+                    cell.textLabel.text = @"旅行活动";
+                    cell.imageView.image = [UIImage imageNamed:@"购买订单-约见-旅行"];
+                }
+                    break;
+                default:
+                    break;
+            }
+        } else if (indexPath.row == 1) {
+            cell.textLabel.text = @"日期：";
+            UILabel *label = [self createLabel];
+            [rightView addSubview:label];
+            label.text = self.date ? self.date : @"选择约见日期";
+        } else if (indexPath.row == 2) {
+            cell.textLabel.text = @"地址：";
+            UILabel *label = [self createLabel];
+            [rightView addSubview:label];
+            if (self.address && ![self.address isEqualToString:@""]) {
+                label.text = self.address;
+            } else {
+                label.text = @"请选择公众场合";
+            }
+            
+        } else if (indexPath.row == 3) {
+            cell.textLabel.text = @"赏金：";
+            [rightView addSubview:self.payView];
+        }
+        cell.accessoryView = nil;
+    } else {
+        cell.textLabel.text = self.payTypeNameArray[indexPath.row];
+        cell.imageView.image = [UIImage imageNamed:self.payTypeImgArray[indexPath.row]];
+        
+        if (_currentPayType == indexPath.row) {
+            cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"图片选中"]];
+        } else {
+            cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"支付未选中"]];
+        }
+        
+    }
+    cell.separatorInset = UIEdgeInsetsMake(0, 15, 0, 0);
+    return cell;
+}
+
+
+- (UILabel *)createLabel {
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, _screenWidth - 100, 48)];
+    label.font = [UIFont systemFontOfSize:14];
+    label.textColor = [HelperUtil colorWithHexString:@"#ABABAB"];
+    label.textAlignment = NSTextAlignmentLeft;
+    return label;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    if (section == 0) {
+        return 0;
+    } else {
+        return 10;
+    }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        if (indexPath.row == 0) {
+            return 60;
+        } else {
+            return 48;
+        }
+    } else {
+        return 58;
+    }
+}
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (indexPath.section == 1) {
+        _currentPayType = indexPath.row;
+        [self.tableView reloadData];
+    } else {
+        if (indexPath.row == 1) {
+            [UIView animateWithDuration:0.8 animations:^{
+                [self.datePicker show];
+            }];
+        } else if (indexPath.row == 2) {
+            //            ChooseLocationViewController *vc = [[ChooseLocationViewController alloc] init];
+            //            vc.delegate = self;
+            UIStoryboard *messageSB = [UIStoryboard storyboardWithName:@"Message" bundle:nil];
+            ChooseLocationViewController *chooseVC = [messageSB instantiateViewControllerWithIdentifier:@"ChooseLocationVC"];
+            __weak typeof(self) weakself = self;
+            chooseVC.sendLocationInfo = ^(double latitude, double longitude, NSString *address) {
+                weakself.latitude = latitude;
+                weakself.longitude = longitude;
+                weakself.address = address;
+                [weakself.tableView reloadData];
+            };
+            
+            [self.navigationController pushViewController:chooseVC animated:YES];
+        }
+    }
+}
+
+- (void)didPickDate:(NSDate *)date pickerView:(YGDatePickerView *)pickerView {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm"];
+    self.date = [dateFormatter stringFromDate:date];
+    [self.tableView reloadData];
+}
+
+- (UIView *)payView {
+    if (!_payView) {
+        _payView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _screenWidth - 100, 48)];
+        [_payView addSubview:self.payAmountField];
+        
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 48)];
+        label.font = [UIFont systemFontOfSize:14];
+        label.textColor = [HelperUtil colorWithHexString:@"#F59323"];
+        label.text = @"¥";
+        [label sizeToFit];
+        label.frame = CGRectMake(0, 0, label.bounds.size.width, 48);
+        [_payView addSubview:label];
+        self.payAmountField.frame = CGRectMake(label.bounds.size.width + 5, 0, 200, 48);
+    }
+    return _payView;
+}
+
+- (UITextField *)payAmountField {
+    if (!_payAmountField) {
+        _payAmountField = [[UITextField alloc] init];
+    }
+    return _payAmountField;
+}
+
+- (UIButton *)payBtn {
+    if (!_payBtn) {
+        if (_screenWidth == 320) {
+            _payBtn = [[UIButton alloc] initWithFrame:CGRectMake(31, 12, _screenWidth - 36 * 2, 36)];
+        } else {
+            _payBtn = [[UIButton alloc] initWithFrame:CGRectMake(31, 36, _screenWidth - 36 * 2, 36)];
+        }
+        
+        _payBtn.backgroundColor = [HelperUtil colorWithHexString:@"#FED98F"];
+        _payBtn.titleLabel.font = [UIFont systemFontOfSize:14];
+        [_payBtn setTitleColor:[UIColor darkTextColor] forState:UIControlStateNormal];
+        [_payBtn setTitle:@"立即支付" forState:UIControlStateNormal];
+        _payBtn.layer.cornerRadius = 4;
+        _payBtn.clipsToBounds = YES;
+        [_payBtn addTarget:self action:@selector(actionPay) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _payBtn;
+}
+
+- (void)actionBack {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)actionPay {
+    NSInteger amount = [_payAmountField.text integerValue];
+    if (amount < 100) {
+        [SVProgressHUD showInfoWithStatus:@"赏金不能低于100元"];
+        return;
+    }
+    
+    if (!self.date) {
+        [SVProgressHUD showInfoWithStatus:@"请选择约见时间"];
+        return;
+    }
+    
+    if (!self.address || self.address.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请选择约见地址"];
+        return;
+    }
+    
+    NSString *payMethod = @"zfb";
+    switch (_currentPayType) {
+        case 0:
+            payMethod = @"zfb";
+            break;
+        case 1:
+            payMethod = @"wx";
+            break;
+        case 2:
+            payMethod = @"wallet";
+            break;
+    }
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool createDateOrderWithOrderNo:_orderNo serviceName:_serviceName payMethod:payMethod salerId:_userId price:_payAmountField.text dateTimeInfo:_date dateAddress:_address success:^(id result) {
+        [NetworkTool payForTrendsToMiddleAccountWithOrderNo:result success:^{
+            [SVProgressHUD showSuccessWithStatus:@"您的约见请求已送出，请耐心等待"];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakself dismissViewControllerAnimated:YES completion:nil];
+            });
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"支付失败"];
+        }];
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+    }];
+}
+
+@end

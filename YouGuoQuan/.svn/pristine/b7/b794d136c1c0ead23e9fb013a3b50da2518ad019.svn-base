@@ -1,0 +1,50 @@
+//
+//  DetailCommentModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ aboutCommentId = 0;
+ aboutUserId = "86d1051e-0cf6-4010-9f87-a660d67c7b3d";
+ commentContent = pinglun2;
+ createTime = 1482225271000;
+ fromUserId = "86d1051e-0cf6-4010-9f87-a660d67c7b3d";
+ headImg = "http://7xtk9y.com1.z0.glb.clouddn.com/d68698c4d735d20bfd90233444acc6c6.png";
+ id = "191b4a4b-df69-485e-8f30-55b31ae6df41";
+ nickName = an;
+ star = 1;
+ 
+ aboutCommentId = "ccf7897e-e3f4-407c-9866-ad2f89deef32";
+ aboutUserId = "86d1051e-0cf6-4010-9f87-a660d67c7b3d";
+ aboutUserIdNickName = an;
+ commentContent = "\U56de\U590d6";
+ createTime = 1482305913000;
+ fromUserId = "86d1051e-0cf6-4010-9f87-a660d67c7b3d";
+ fromUserNickName = an;
+ headImg = "http://7xtk9y.com1.z0.glb.clouddn.com/d68698c4d735d20bfd90233444acc6c6.png";
+ id = "704a0490-ba99-4e4e-9408-c51692fac14d";
+ star = 1;
+ */
+
+@interface DetailCommentModel : NSObject
+@property (nonatomic,   copy) NSString *aboutCommentId;
+@property (nonatomic,   copy) NSString *aboutUserId;
+@property (nonatomic,   copy) NSString *aboutUserIdNickName;
+@property (nonatomic,   copy) NSString *commentContent;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *fromUserId;
+@property (nonatomic,   copy) NSString *fromUserNickName;
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *commentId;
+@property (nonatomic, assign) int star;
+
+@property (nonatomic, assign) CGFloat cellHeight;
+
++ (instancetype)detailCommentModelWithDict:(NSDictionary *)dict;
+- (instancetype)initDetailCommentModelWithDict:(NSDictionary *)dict;
+@end

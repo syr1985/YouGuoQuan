@@ -1,0 +1,341 @@
+//
+//  PersonDataViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "PersonDataViewController.h"
+#import "LocationViewController.h"
+#import "ModifyNameViewController.h"
+#import <UIImageView+WebCache.h>
+#import "TakePhotoHelp.h"
+#import "UserBaseInfoModel.h"
+#import <LCActionSheet.h>
+#import <Masonry.h>
+
+@interface PersonDataViewController () <UIPickerViewDelegate, UIPickerViewDataSource>
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sexLabel;
+@property (weak, nonatomic) IBOutlet UILabel *cityLabel;
+@property (weak, nonatomic) IBOutlet UILabel *heightLabel;
+@property (weak, nonatomic) IBOutlet UILabel *weightLabel;
+@property (weak, nonatomic) IBOutlet UITextField *zodiacTextField;
+@property (weak, nonatomic) IBOutlet UILabel *workLabel;
+@property (weak, nonatomic) IBOutlet UILabel *motionLabel;
+@property (nonatomic, strong) UIPickerView *pickerView;
+@property (nonatomic, strong) NSArray *dataArray;
+@property (nonatomic, assign) NSInteger currentRow;
+@end
+
+@implementation PersonDataViewController
+
+- (NSArray *)dataArray {
+    if (!_dataArray) {
+        _dataArray = @[@"白羊座 3.21-4.19",
+                       @"金牛座 4.20-5.20",
+                       @"双子座 5.21-6.21",
+                       @"巨蟹座 6.22-7.22",
+                       @"狮子座 7.23-8.22",
+                       @"处女座 8.23-9.22",
+                       @"天秤座 9.23-10.23",
+                       @"天蝎座 10.24-11.22",
+                       @"射手座 11.23-12.21",
+                       @"魔蝎座 12.22-1.19",
+                       @"水瓶座 1.20-2.18",
+                       @"双鱼座 2.19-3.20"];
+    }
+    return _dataArray;
+}
+
+- (UIPickerView *)pickerView {
+    if (!_pickerView) {
+        _pickerView = [[UIPickerView alloc] init];
+        _pickerView.delegate = self;
+        _pickerView.dataSource = self;
+        _pickerView.showsSelectionIndicator = YES;
+        _pickerView.backgroundColor = [UIColor whiteColor];
+    }
+    return _pickerView;
+}
+
+- (UIView *)createAccessoryView {
+    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, 40)];
+    v.backgroundColor = [UIColor whiteColor];
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, WIDTH, 40)];
+    label.text = [NSString stringWithFormat:@"请选择"];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.backgroundColor = [UIColor clearColor];
+    label.font = [UIFont systemFontOfSize:17];
+    [v addSubview:label];
+    
+    UIButton *cancelBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    cancelBtn.frame = CGRectMake(10, 5, 50, 30);
+    [cancelBtn setTitle:@"取消" forState:UIControlStateNormal];
+    [cancelBtn.titleLabel setFont:[UIFont systemFontOfSize:16]];
+    [cancelBtn setTitleColor:NavTabBarColor forState:UIControlStateNormal];
+    [cancelBtn addTarget:self action:@selector(cancel) forControlEvents:UIControlEventTouchUpInside];
+    [v addSubview:cancelBtn];
+    
+    UIButton *sureBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    sureBtn.frame = CGRectMake(WIDTH - 60, 5, 50, 30);
+    [sureBtn setTitle:@"确认" forState:UIControlStateNormal];
+    [sureBtn.titleLabel setFont:[UIFont systemFontOfSize:16]];
+    [sureBtn setTitleColor:NavTabBarColor forState:UIControlStateNormal];
+    [sureBtn addTarget:self action:@selector(sure) forControlEvents:UIControlEventTouchUpInside];
+    [v addSubview:sureBtn];
+    return v;
+}
+
+- (void)sure {
+    [_zodiacTextField endEditing:YES];
+    
+    NSString *text = nil;
+    if (_currentRow == self.dataArray.count - 1) {
+        text = self.dataArray[_currentRow];
+    } else {
+        NSString *zodica = self.dataArray[_currentRow];
+        NSArray *infoArray = [zodica componentsSeparatedByString:@" "];
+        text = infoArray[0];
+    }
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool modifyPersonInfoWithType:@"constellatory" value:text success:^{
+        [SVProgressHUD showSuccessWithStatus:@"修改星座成功"];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            weakself.zodiacTextField.text = text;
+            weakself.userBaseInfoModel.constellatory = text;
+        });
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"修改星座失败"];
+    }];
+}
+
+- (void)cancel {
+    [_zodiacTextField endEditing:YES];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.titleString = @"个人资料";    
+    self.headerImageView.layer.cornerRadius = self.headerImageView.frame.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+    
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:_userBaseInfoModel.headImg
+                                                                  width:_headerImageView.bounds.size.width
+                                                                 height:_headerImageView.bounds.size.height];
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    if (_userBaseInfoModel.nickName) {
+        self.nickNameLabel.text = _userBaseInfoModel.nickName;
+    }
+    if (_userBaseInfoModel.sex) {
+        self.sexLabel.text = _userBaseInfoModel.sex;
+    }
+    if (_userBaseInfoModel.city) {
+        self.cityLabel.text = _userBaseInfoModel.city;
+    }
+    if (_userBaseInfoModel.height) {
+        self.heightLabel.text = _userBaseInfoModel.height;
+    }
+    if (_userBaseInfoModel.weight) {
+        self.weightLabel.text = _userBaseInfoModel.weight;
+    }
+    if (_userBaseInfoModel.work) {
+        self.workLabel.text = _userBaseInfoModel.work;
+    }
+    if (_userBaseInfoModel.emotion) {
+        self.motionLabel.text = _userBaseInfoModel.emotion;
+    }
+    if (_userBaseInfoModel.constellatory) {
+        self.zodiacTextField.text = _userBaseInfoModel.constellatory;
+    }
+    
+    self.zodiacTextField.inputView = self.pickerView;
+    self.zodiacTextField.inputAccessoryView = [self createAccessoryView];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 4;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (section == 0) {
+        return 1;
+    } else if (section == 3) {
+        return 2;
+    } else  {
+        return 3;
+    }
+}
+
+//我的-单项修改我的资料 mtype取值headImg nickName sex city height weight constellatory work emotion coverImgUrl
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    __weak typeof(self) weakself = self;
+    if (indexPath.section == 0) {
+        [[TakePhotoHelp sharedInstance] showActionSheetWithTitle:@"修改头像" viewController:self returnBlock:^(BOOL isCover, NSArray<UIImage *> *photos) {
+            if (photos.count) {
+                NSData *imageDate = UIImageJPEGRepresentation(photos[0], 0.1);
+                [NetworkTool uploadImage:imageDate progress:^(NSString *key, float percent) {
+                    [SVProgressHUD showProgress:percent];
+                } success:^(NSString *url) {
+                    [SVProgressHUD dismiss];
+                    [NetworkTool modifyPersonInfoWithType:@"headImg" value:url success:^{
+                        [SVProgressHUD showSuccessWithStatus:@"修改头像成功"];
+                        weakself.userBaseInfoModel.headImg = url;
+                        [LoginData sharedLoginData].headImg = url;
+                        
+                        NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:url
+                                                                                      width:_headerImageView.bounds.size.width
+                                                                                     height:_headerImageView.bounds.size.height];
+                        [weakself.headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                                                    placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+                    } failure:^{
+                        [SVProgressHUD showErrorWithStatus:@"修改头像失败"];
+                    }];
+                } failure:^{
+                    [SVProgressHUD showErrorWithStatus:@"上传图片失败"];
+                }];
+            }
+        }];
+    } else if (indexPath.section == 1) {
+        if (indexPath.row == 1) {
+            LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:@"修改性别" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+                if (buttonIndex != 0) {
+                    NSString *sex = buttonIndex == 1 ? @"男" : @"女";
+                    [NetworkTool modifyPersonInfoWithType:@"sex" value:sex success:^{
+                        [SVProgressHUD showSuccessWithStatus:@"修改性别成功"];
+                        weakself.userBaseInfoModel.sex = sex;
+                        weakself.sexLabel.text = sex;
+                    } failure:^{
+                        [SVProgressHUD showErrorWithStatus:@"修改性别失败"];
+                    }];
+                }
+            } otherButtonTitles:@"男",@"女", nil];
+            [actionSheet show];
+        } else if (indexPath.row == 2) {
+            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+            LocationViewController *locationVC = [storyboard instantiateViewControllerWithIdentifier:@"LocationVC"];
+            locationVC.hidesBottomBarWhenPushed = YES;
+            __weak typeof(self) weakself = self;
+            locationVC.cityBlock = ^(NSString *city) {
+                [NetworkTool modifyPersonInfoWithType:@"city" value:city success:^{
+                    [SVProgressHUD showSuccessWithStatus:@"修改城市成功"];
+                    weakself.userBaseInfoModel.city = city;
+                    weakself.cityLabel.text = city;
+                } failure:^{
+                    [SVProgressHUD showErrorWithStatus:@"修改城市失败"];
+                }];
+            };
+            [self.navigationController pushViewController:locationVC animated:YES];
+        } else {
+            [self popToModifyViewController:@"昵称"];
+        }
+    } else if (indexPath.section == 3) {
+        if (indexPath.row == 1) {
+            LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:@"修改情感状态" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+                if (buttonIndex != 0) {
+                    NSString *emotion = @"";
+                    switch (buttonIndex) {
+                        case 1:
+                            emotion = @"单身";
+                            break;
+                        case 2:
+                            emotion = @"恋爱";
+                            break;
+                        case 3:
+                            emotion = @"保密";
+                            break;
+                    }
+                    [NetworkTool modifyPersonInfoWithType:@"emotion" value:emotion success:^{
+                        [SVProgressHUD showSuccessWithStatus:@"修改情感状态成功"];
+                        weakself.userBaseInfoModel.emotion = emotion;
+                        
+                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                            weakself.motionLabel.text = emotion;
+                        });
+                    } failure:^{
+                        [SVProgressHUD showErrorWithStatus:@"修改情感状态失败"];
+                    }];
+                }
+            } otherButtonTitles:@"单身",@"恋爱",@"保密", nil];
+            [actionSheet show];
+        } else {
+            [self popToModifyViewController:@"职业"];
+        }
+    } else {
+        if (indexPath.row == 0) {
+            [self popToModifyViewController:@"身高"];
+        } else if (indexPath.row == 1) {
+            [self popToModifyViewController:@"体重"];
+        } else {
+            [_zodiacTextField becomeFirstResponder];
+        }
+    }
+}
+
+- (void)popToModifyViewController:(NSString *)name {
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Center" bundle:nil];
+    ModifyNameViewController *modifyVC = [storyboard instantiateViewControllerWithIdentifier:@"ModifyNameVC"];
+    modifyVC.name = name;
+    modifyVC.hidesBottomBarWhenPushed = YES;
+    __weak typeof(self) weakself = self;
+    modifyVC.saveNewValueSuccess = ^(NSString *newValue, NSString *key) {
+        if ([key isEqualToString:@"nickName"]) {
+            weakself.userBaseInfoModel.nickName = newValue;
+            [LoginData sharedLoginData].nickName = newValue;
+            weakself.nickNameLabel.text = newValue;
+        } else if ([key isEqualToString:@"work"]) {
+            weakself.userBaseInfoModel.work = newValue;
+            weakself.workLabel.text = newValue;
+        } else if ([key isEqualToString:@"height"]) {
+            weakself.userBaseInfoModel.height = newValue;
+            weakself.heightLabel.text = newValue;
+        } else if ([key isEqualToString:@"weight"]) {
+            weakself.userBaseInfoModel.weight = newValue;
+            weakself.weightLabel.text = newValue;
+        }
+    };
+    [self.navigationController pushViewController:modifyVC animated:YES];
+}
+
+#pragma mark -- UIPickView
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+    return 1;
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+    return self.dataArray.count;
+}
+
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+    return self.dataArray[row];
+}
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+    _currentRow = row;
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

@@ -1,0 +1,131 @@
+//
+//  BaseTabBarController.h
+//  ShakeAround
+//
+//  Created by erick on 15/11/18.
+//  Copyright © 2015年 erick. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+//#import <CoreLocation/CoreLocation.h>
+//#import <BaiduMapAPI_Location/BMKLocationComponent.h>
+
+
+@interface BaseTabBarController : UITabBarController
+//@property (strong, nonatomic) CLLocationManager *locationManager;
+//@property (nonatomic, strong) BMKLocationService *locService;
+//@property (nonatomic, assign) BOOL bTechnician;
+@end
+
+
+//#pragma mark - 开始定位
+//- (void)startLocation {
+//    if([CLLocationManager locationServicesEnabled]) {
+//        //NSLog(@"location enabled");
+//        if (!_locationManager) {
+//            _locationManager = [[CLLocationManager alloc] init];
+//            _locationManager.delegate = self;
+//            _locationManager.distanceFilter = kCLDistanceFilterNone;
+//            _locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
+//
+//            //该模式是抵抗程序在后台被杀，申明不能够被暂停
+//            _locationManager.pausesLocationUpdatesAutomatically = NO;
+//
+//            if ([[UIDevice currentDevice].systemVersion floatValue] > 8) {
+//                /** 请求用户权限：分为：只在前台开启定位  /在后台也可定位， */
+//                [self.locationManager requestAlwaysAuthorization];
+//            }
+//
+//            if ([[UIDevice currentDevice].systemVersion floatValue] > 9) {
+//                /** iOS9新特性：将允许出现这种场景：同一app中多个location manager：一些只能在前台定位，另一些可在后台定位（并可随时禁止其后台定位）。 */
+//                [self.locationManager setAllowsBackgroundLocationUpdates:YES];
+//            }
+//        }
+//
+//        // 开始时时定位
+//        [_locationManager startUpdatingLocation];
+//    } else {
+//        //提示用户无法进行定位操作
+//        UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+//                                                           message:@"请确认开启定位功能"
+//                                                          delegate:nil
+//                                                 cancelButtonTitle:@"确定"
+//                                                 otherButtonTitles:nil];
+//
+//        [alertView show];
+//    }
+//}
+
+//#pragma mark - CLLocationManagerDelegate
+//- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+//    NSLog(@"error %@",error);
+//
+//    //    UIAlertView *tempA = [[UIAlertView alloc]initWithTitle:@"出错"
+//    //                                                   message:error.localizedDescription
+//    //                                                  delegate:nil
+//    //                                         cancelButtonTitle:@"确定"
+//    //                                         otherButtonTitles:nil, nil];
+//    //    [tempA show];
+//}
+//
+//- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
+//    CLLocation *currentLocation = [locations lastObject];
+//
+//    NSLog(@"%f,%f",currentLocation.coordinate.longitude + 0.0117f,currentLocation.coordinate.latitude + 0.00378f);
+//
+//    self.latitude = @(currentLocation.coordinate.latitude + 0.00378f);
+//    self.longitude = @(currentLocation.coordinate.longitude + 0.0118f);
+//
+//    //------------------位置反编码---5.0之后使用-----------------
+//    __weak typeof(self) weakself = self;
+//    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
+//    [geocoder reverseGeocodeLocation:currentLocation
+//                   completionHandler:^(NSArray *placemarks, NSError *error) {
+//                       for (CLPlacemark *place in placemarks) {
+//                           NSDictionary *test = [place addressDictionary];
+//                           NSString *province = [test objectForKey:@"State"];
+//                           NSString *city     = [test objectForKey:@"City"];
+//                           NSString *area     = [test objectForKey:@"SubLocality"];
+//                           NSString *street   = [test objectForKey:@"Street"];
+//                           NSString *addressString = [NSString stringWithFormat:@"%@%@%@%@",province,city,area,street];
+//                           weakself.location = addressString;
+//
+//                           RSLog(@"位置反编码 - %@",addressString);
+//                       }
+//                   }];
+//    //[manager stopUpdatingLocation];
+//}
+//
+//- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+//    switch (status) {
+//        case kCLAuthorizationStatusDenied :
+//        {
+//            // 提示用户出错原因，可按住Option键点击 KCLErrorDenied的查看更多出错信息，可打印error.code值查找原因所在
+//            UIAlertView *tempA = [[UIAlertView alloc]initWithTitle:@"提醒"
+//                                                           message:@"请在设置-隐私-定位服务中开启定位功能！"
+//                                                          delegate:nil
+//                                                 cancelButtonTitle:@"确定"
+//                                                 otherButtonTitles:nil, nil];
+//            [tempA show];
+//        }
+//            break;
+//        case kCLAuthorizationStatusNotDetermined:
+//            // Note: Xcode6才有的方法，所以会有警告
+//            if ([manager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
+//                [manager requestAlwaysAuthorization];
+//            }
+//            break;
+//        case kCLAuthorizationStatusRestricted:
+//        {
+//            // 提示用户出错原因，可按住Option键点击 KCLErrorDenied的查看更多出错信息，可打印error.code值查找原因所在
+//            UIAlertView *tempA = [[UIAlertView alloc]initWithTitle:@"提醒"
+//                                                           message:@"定位服务无法使用！"
+//                                                          delegate:nil
+//                                                 cancelButtonTitle:@"确定"
+//                                                 otherButtonTitles:nil, nil];
+//            [tempA show];
+//        }
+//        default:
+//            break;
+//    }
+//}

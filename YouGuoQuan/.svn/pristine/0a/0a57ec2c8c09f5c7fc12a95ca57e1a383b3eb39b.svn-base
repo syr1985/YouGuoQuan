@@ -1,0 +1,56 @@
+//
+//  AuthorityTool.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/5/5.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "AuthorityTool.h"
+#import "AlertViewTool.h"
+#import "MyLevelViewController.h"
+
+@implementation AuthorityTool
+
++ (void)permissionDeniedTranslateToViewController:(UIViewController *)vc {
+    if ([vc isKindOfClass:[UITabBarController class]]) {
+        [AlertViewTool showAlertViewWithTitle:nil Message:@"您的权限不够，请升级权限!" cancelTitle:@"确定" sureTitle:@"查看权限" sureBlock:^{
+            UIStoryboard *centerSB = [UIStoryboard storyboardWithName:@"Center" bundle:nil];
+            MyLevelViewController *levelVC = [centerSB instantiateViewControllerWithIdentifier:@"MyLevelVC"];
+            levelVC.present = YES;
+            UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:levelVC];
+            [vc presentViewController:nav animated:YES completion:nil];
+        } cancelBlock:^{
+            UITabBarController *tabbarVC = (UITabBarController *)vc;
+            tabbarVC.selectedIndex = 0;
+        }];
+    } else {
+        [AlertViewTool showAlertViewWithTitle:nil Message:@"您的权限不够，请升级权限!" cancelTitle:@"确定" sureTitle:@"查看权限" sureBlock:^{
+            UIStoryboard *centerSB = [UIStoryboard storyboardWithName:@"Center" bundle:nil];
+            MyLevelViewController *levelVC = [centerSB instantiateViewControllerWithIdentifier:@"MyLevelVC"];
+            levelVC.present = YES;
+            UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:levelVC];
+            [vc presentViewController:nav animated:YES completion:nil];
+        } cancelBlock:nil];
+    }
+}
+
++ (void)permissionDeniedForChatInViewController:(UIViewController *)vc returnBlock:(void (^)())handle {
+    [AlertViewTool showAlertViewWithTitle:nil Message:@"您需要打赏TA或提升您的等级，即可与TA私聊!" cancelTitle:@"打赏" sureTitle:@"查看权限" sureBlock:^{
+        UIStoryboard *centerSB = [UIStoryboard storyboardWithName:@"Center" bundle:nil];
+        MyLevelViewController *levelVC = [centerSB instantiateViewControllerWithIdentifier:@"MyLevelVC"];
+        levelVC.present = YES;
+        UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:levelVC];
+        [vc presentViewController:nav animated:YES completion:nil];
+    } cancelBlock:^{
+        if (handle) {
+            handle();
+        }
+    }];
+    
+//   [AlertViewTool showAlertViewWithTitle:nil Message:@"您需要打赏TA或提升您的等级，即可与TA私聊!" clickBlock:^(NSInteger index){
+//       
+//   } buttons:@{@(0):@"打赏",@(0):@"查看权限", @(1):@"取消"},nil];
+}
+
+@end

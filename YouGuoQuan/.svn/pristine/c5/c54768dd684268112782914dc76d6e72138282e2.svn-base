@@ -1,0 +1,128 @@
+//
+//  PersonOrderListViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "AllOrderListViewController.h"
+
+#import "WaitingForPayTrendsViewCell.h"
+#import "WaitingForPayMeetingViewCell.h"
+#import "OngoingForPayTrendsViewCell.h"
+#import "OngoingForPayMeetingViewCell.h"
+#import "CompletedForPayTrendsViewCell.h"
+#import "CompletedForPayMeetingViewCell.h"
+#import "RefundingForPayTrendsViewCell.h"
+#import "RefundingForPayMeetingViewCell.h"
+
+@interface AllOrderListViewController ()
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UIView *noResultView;
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@property (nonatomic, assign) int pageNo;
+@property (nonatomic, assign) int pageSize;
+@end
+
+@implementation AllOrderListViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray array];
+    }
+    return _modelArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.tableView.rowHeight = 223;
+    self.tableView.estimatedRowHeight = 50;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 8;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (indexPath.row == 0) {
+        WaitingForPayTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"WaitingForPayTrendsViewCell" forIndexPath:indexPath];
+        
+        // Configure the cell...
+        
+        return cell;
+    } else if (indexPath.row == 1)  {
+        WaitingForPayMeetingViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"WaitingForPayMeetingViewCell" forIndexPath:indexPath];
+        
+        // Configure the cell...
+        
+        return cell;
+    } else if (indexPath.row == 2) {
+        OngoingForPayTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"OngoingForPayTrendsViewCell" forIndexPath:indexPath];
+        
+        // Configure the cell...
+        
+        return cell;
+    } else if (indexPath.row == 3) {
+        OngoingForPayMeetingViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"OngoingForPayMeetingViewCell" forIndexPath:indexPath];
+        
+        // Configure the cell...
+        
+        return cell;
+    } else if (indexPath.row == 4) {
+        CompletedForPayTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CompletedForPayTrendsViewCell" forIndexPath:indexPath];
+        
+        // Configure the cell...
+        
+        return cell;
+    } else if (indexPath.row == 5) {
+        CompletedForPayMeetingViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CompletedForPayMeetingViewCell" forIndexPath:indexPath];
+        
+        // Configure the cell...
+        
+        return cell;
+    } else if (indexPath.row == 6) {
+        RefundingForPayTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RefundingForPayTrendsViewCell" forIndexPath:indexPath];
+        
+        // Configure the cell...
+        
+        return cell;
+    } else {
+        RefundingForPayMeetingViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RefundingForPayMeetingViewCell" forIndexPath:indexPath];
+        
+        // Configure the cell...
+        
+        return cell;
+    }
+}
+
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

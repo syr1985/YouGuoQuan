@@ -1,0 +1,15 @@
+//
+//  RecentSessionCell.h
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/8.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface RecentSessionCell : UITableViewCell
+
++ (NSString *) reuseIdentifier;
+
+@end

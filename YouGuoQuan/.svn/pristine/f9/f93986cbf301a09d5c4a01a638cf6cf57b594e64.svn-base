@@ -1,0 +1,193 @@
+//
+//  MessageViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/11.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "MessageViewController.h"
+#import "HelperUtil.h"
+#import "UIImage+Color.h"
+#import "FollowMessageViewController.h"
+#import "CommentMessageViewController.h"
+#import "PraiseMessageViewController.h"
+#import "SystemMessageViewController.h"
+#import "RecentSessionCell.h"
+#import "MessageViewCell.h"
+
+#import "EaseConversationModel.h"
+#import <Hyphenate_CN/EMSDKFull.h>
+#import "ConversionManager.h"
+#import "ChatViewController.h"
+
+@interface MessageViewController ()
+@property (nonatomic) CGFloat screenWidth;
+@property (nonatomic, strong) NSArray *dictArray;
+@property (nonatomic, strong) NSArray *controllerArray;
+@property (nonatomic, strong) NSMutableArray *dataArray;
+@end
+
+static NSString * const tableViewCellID_Notification = @"Notification";
+
+@implementation MessageViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSArray *)controllerArray {
+    if (!_controllerArray) {
+        _controllerArray = @[@"SystemMessageVC",
+                             @"FollowMessageVC",
+                             @"PraiseMessageVC",
+                             @"CommentMessageVC"];
+    }
+    return _controllerArray;
+}
+
+- (NSArray *)dictArray {
+    if (!_dictArray) {
+        _dictArray = @[@{@"icon":@"message_main_system",@"title":@"系统消息",@"count":@"35"},
+                       @{@"icon":@"message_main_follow",@"title":@"关注",@"count":@"2"},
+                       @{@"icon":@"message_main_praise",@"title":@"赞",@"count":@"25"},
+                       @{@"icon":@"message_main_comment",@"title":@"评论",@"count":@"15"}];
+    }
+    return _dictArray;
+}
+
+- (NSMutableArray *)dataArray {
+    if (!_dataArray) {
+        _dataArray = [NSMutableArray array];
+    }
+    return _dataArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [ConversionManager shareManager].messageViewController = self;
+    self.tableView.rowHeight = 66;
+    self.tableView.tableHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, CGFLOAT_MIN)];
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, CGFLOAT_MIN)];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self requireData];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 2;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (section == 0) {
+        return self.dictArray.count;
+    } else {
+        return self.dataArray.count;
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        MessageViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MessageViewCell" forIndexPath:indexPath];
+        cell.infoDict = self.dictArray[indexPath.row];
+        return cell;
+    } else {
+        RecentSessionCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RecentSessionCell" forIndexPath:indexPath];
+        cell.easeConversationModel = self.dataArray[indexPath.row];
+        return cell;
+    }
+}
+
+#pragma mark UITableView Delegate
+- (nullable UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, 36)];
+    view.backgroundColor = RGBA(250, 250, 250, 1);
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(12, 0, WIDTH - 16 * 2, 36)];
+    label.font = [UIFont systemFontOfSize:13];
+    label.textColor = [UIColor darkTextColor];
+    label.text = @"最近联系人";
+    [view addSubview:label];
+    return view;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    if (section == 1) {
+        return 36;
+    } else {
+        return 0;
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (indexPath.section == 0) {
+        UIStoryboard *messageSB = [UIStoryboard storyboardWithName:@"Message" bundle:nil];
+        UIViewController *mesageVC = [messageSB instantiateViewControllerWithIdentifier:self.controllerArray[indexPath.row]];
+        mesageVC.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:mesageVC animated:YES];
+    } else {
+        EaseConversationModel *conversationModel = self.dataArray[indexPath.row];
+        EMConversation *conversation = conversationModel.conversation;
+        ChatViewController *chatController = [[ChatViewController alloc] initWithConversationChatter:conversation.conversationId conversationType:EMConversationTypeChat];
+        chatController.title = conversation.conversationId;
+        chatController.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:chatController animated:YES];
+    }
+}
+
+- (void)refreshAndSortView {
+    if (self.dataArray.count > 1) {
+        if ([self.dataArray[0] isKindOfClass:[EaseConversationModel class]]) {
+            NSArray* sorted = [self.dataArray sortedArrayUsingComparator:
+                               ^(EaseConversationModel *obj1, EaseConversationModel* obj2){
+                                   EMMessage *message1 = [obj1.conversation latestMessage];
+                                   EMMessage *message2 = [obj2.conversation latestMessage];
+                                   if(message1.timestamp > message2.timestamp) {
+                                       return (NSComparisonResult)NSOrderedAscending;
+                                   } else {
+                                       return (NSComparisonResult)NSOrderedDescending;
+                                   }
+                               }];
+            [self.dataArray removeAllObjects];
+            [self.dataArray addObjectsFromArray:sorted];
+        }
+        [self.tableView reloadData];
+    }
+}
+
+- (void)requireData {
+    NSArray *conversations = [[EMClient sharedClient].chatManager getAllConversations];
+    NSArray *sorted = [conversations sortedArrayUsingComparator:
+                       ^(EMConversation *obj1, EMConversation* obj2){
+                           EMMessage *message1 = [obj1 latestMessage];
+                           EMMessage *message2 = [obj2 latestMessage];
+                           if(message1.timestamp > message2.timestamp) {
+                               return (NSComparisonResult) NSOrderedAscending;
+                           } else {
+                               return (NSComparisonResult) NSOrderedDescending;
+                           }
+                       }];
+    [self.dataArray removeAllObjects];
+    for (EMConversation *converstion in sorted) {
+        EaseConversationModel *model = [[EaseConversationModel alloc] initWithConversation:converstion];
+        [self.dataArray addObject:model];
+    }
+    [self.tableView reloadData];
+}
+
+@end

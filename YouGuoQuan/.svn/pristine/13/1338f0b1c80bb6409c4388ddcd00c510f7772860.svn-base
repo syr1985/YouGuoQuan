@@ -1,0 +1,49 @@
+//
+//  TrendsDetailModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/20.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ detailInfo =     {
+ audit = 1;
+ buyCommentGoodCount = "";
+ buyCount = "";
+ commentCount = 1;
+ createTime = 1481947400000;
+ dateString = 20161216;
+ feedsType = 2;
+ goodsId = "";
+ headImg = "http://7xtk9y.com1.z0.glb.clouddn.com/ff66285ddfdf6ba9254558c176373d33.jpg";
+ id = "7d088c8a-7cdd-4449-b17d-4cd770faa91e";
+ imageUrl = "";
+ instro = "\U89c6\U9891";
+ isDelete = "";
+ isRecommend = 1;
+ isRecommendFeeds = "";
+ isRecommendVideo = 1;
+ nickName = an;
+ playTimes = "";
+ recommendCount = 1;
+ sex = "\U7537";
+ star = 1;
+ updateTime = 1481876861000;
+ userId = "86d1051e-0cf6-4010-9f87-a660d67c7b3d";
+ videoEvelope = "http://7xtk9y.com1.z0.glb.clouddn.com/2016-12-16_AtiwleW4_cover";
+ videoUrl = "http://7xtk9y.com1.z0.glb.clouddn.com/2016-12-16_4qJ6X74u_video";
+ };
+ feedZanList =     (
+ {
+ headImg = "http://7xtk9y.com1.z0.glb.clouddn.com/d68698c4d735d20bfd90233444acc6c6.png";
+ id = "86d1051e-0cf6-4010-9f87-a660d67c7b3d";
+ }
+ );
+ isMyZan = 0;
+ */
+@interface TrendsDetailModel : NSObject
+
+@end

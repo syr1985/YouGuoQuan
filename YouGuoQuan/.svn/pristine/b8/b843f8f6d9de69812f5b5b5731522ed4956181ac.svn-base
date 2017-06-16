@@ -1,0 +1,37 @@
+//
+//  ProductEvaluateModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/2/27.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ content = "\U8fd9\U4e48\U6837\U4e86\U2026\U2026\U8fd9\U4e48";
+ createTime = 1488189447000;
+ goodsId = "92a33fc2-7bb9-4138-9faa-f11e01fa9c8c";
+ headImg = "http://7xtk9y.com1.z0.glb.clouddn.com/2017-02-24PPwsm";
+ nickName = omygod;
+ orderId = NM447281487736363573;
+ star = 7;
+ stars = 4;
+ userId = "140ec9d8-f016-49ca-99e7-00d5fb9b56e2";
+ */
+@interface ProductEvaluateModel : NSObject
+@property (nonatomic,   copy) NSString *goodsId;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *orderId;
+@property (nonatomic,   copy) NSString *content;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic, assign) int  star;
+@property (nonatomic, assign) int  stars;
+
+@property (nonatomic, assign) CGFloat cellHeight;
+
++ (instancetype)productEvaluateModelWithDict:(NSDictionary *)dict;
+- (instancetype)initProductEvaluateModelWithDict:(NSDictionary *)dict;
+@end

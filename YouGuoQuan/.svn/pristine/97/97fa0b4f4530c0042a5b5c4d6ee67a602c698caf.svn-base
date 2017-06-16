@@ -1,0 +1,323 @@
+//
+//  AppDelegate.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "AppDelegate.h"
+#import "EaseSDKHelper.h"
+#import "BaseTabBarController.h"
+#import <SDWebImage/SDWebImageManager.h>
+#import <UserNotifications/UserNotifications.h>
+#import <UMSocialCore/UMSocialCore.h>
+#import "UMessage.h"
+#import "CityLocation.h"
+#import "AlertViewTool.h"
+#import "IAPurchaseTool.h"
+
+// 环信
+//#ifdef DEBUG
+//#define EaseMob_App_KEY     @"1198161114178843#ygq"
+//#else
+//#define EaseMob_App_KEY     @"1139161122178530#youguo"
+//#endif
+
+#define EaseMob_App_Key     @"1198161114178843#ygq"
+// Umeng
+#define Umeng_App_Key       @"58350033ae1bf8148f0020f6"//@"58fd6c4bb27b0a5b3d00116b"
+#define Umeng_App_Secret    @"gaqr0ej1wpntudhfftvkvdxswlqufeoj"//@"kgzou0ut4qdbfrojggzygsqrdmz5vyl2"
+// Weixin
+#define Weixin_APP_ID       @"wx243db0836e67f31f"
+#define Weixin_App_Secret   @"76c2234738717a363038206d1bf65307"
+// Weibo
+#define Weibo_APP_ID        @"526827266"
+#define Weibo_APP_Secret    @"e68ffa942e1e5f77b478650c5f55c9bd"
+// QQ
+#define QQ_APP_ID           @"1105964721"
+#define QQ_APP_Secret       @"pSZFjSkRhUmZ1rC2"
+// 分享重定向
+#define Share_RedirectURL   @"http://www.ygquan.com"
+
+
+@interface AppDelegate () <UNUserNotificationCenterDelegate, EMClientDelegate>
+    
+@end
+
+@implementation AppDelegate
+    
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // Override point for customization after application launch.
+    
+    [self configRootViewController];
+    
+    [self configSVProgressHUD];
+    
+    [self configEaseMobWithApplication:application options:launchOptions];
+    
+    [self configUmengNotitficationWithOptions:launchOptions];
+    
+    [self configUmengShare];
+    
+    [self congfigUmengTrack];
+    
+    [self verifyReceiptForPurchaseFailed];
+    
+    return YES;
+}
+
+#pragma mark - 设置根控制器
+- (void)configRootViewController {
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    self.window.backgroundColor = [UIColor whiteColor];
+    [self.window makeKeyAndVisible];
+    
+    BaseTabBarController *tabBarController = [[BaseTabBarController alloc] init];
+    self.window.rootViewController = tabBarController;
+}
+
+#pragma mark - 设置HUD
+- (void)configSVProgressHUD {
+    [SVProgressHUD setMinimumDismissTimeInterval:HUD_SHOW_TIME];
+    [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+}
+    
+#pragma mark - 设置环信
+- (void)configEaseMobWithApplication:(UIApplication *)application options:(NSDictionary *)launchOptions {    
+    [[EaseSDKHelper shareHelper] hyphenateApplication:application
+                        didFinishLaunchingWithOptions:launchOptions
+                                               appkey:EaseMob_App_Key
+                                         apnsCertName:nil];
+    
+    [[EMClient sharedClient] addDelegate:self delegateQueue:nil];
+}
+
+#pragma mark - 设置推送
+- (void)configUmengNotitficationWithOptions:(NSDictionary *)launchOptions {
+    [UMessage startWithAppkey:Umeng_App_Key launchOptions:launchOptions];
+    
+    //注册通知，如果要使用category的自定义策略，可以参考demo中的代码。或者1.4.0的文档
+    [UMessage registerForRemoteNotifications];
+    
+    //iOS10必须加下面这段代码。
+    if (NSClassFromString(@"UNUserNotificationCenter")) {
+        //[UNUserNotificationCenter currentNotificationCenter].delegate = self;
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        center.delegate = self;
+        UNAuthorizationOptions types10 = UNAuthorizationOptionBadge|UNAuthorizationOptionAlert|UNAuthorizationOptionSound;
+        [center requestAuthorizationWithOptions:types10 completionHandler:^(BOOL granted, NSError * _Nullable error) {
+            if (granted) {
+                //点击允许
+                //这里可以添加一些自己的逻辑
+            } else {
+                //点击不允许
+                //这里可以添加一些自己的逻辑
+            }
+        }];
+    }
+    
+    //打开日志，方便调试
+    [UMessage setLogEnabled:YES];
+}
+
+#pragma mark - 设置分享
+- (void)configUmengShare {
+    [[UMSocialManager defaultManager] openLog:YES];
+    
+    /* 设置友盟appkey */
+    [[UMSocialManager defaultManager] setUmSocialAppkey:Umeng_App_Key];
+    
+    /* 设置微信的appKey和appSecret */
+    [[UMSocialManager defaultManager] setPlaform:UMSocialPlatformType_WechatSession
+                                          appKey:Weixin_APP_ID
+                                       appSecret:Weixin_App_Secret
+                                     redirectURL:Share_RedirectURL];
+    
+    [[UMSocialManager defaultManager] setPlaform:UMSocialPlatformType_WechatTimeLine
+                                          appKey:Weixin_APP_ID
+                                       appSecret:Weixin_App_Secret
+                                     redirectURL:Share_RedirectURL];
+    
+    /* 设置分享到QQ互联的appID
+     * U-Share SDK为了兼容大部分平台命名，统一用appKey和appSecret进行参数设置，而QQ平台仅需将appID作为U-Share的appKey参数传进即可。
+     */
+    [[UMSocialManager defaultManager] setPlaform:UMSocialPlatformType_QQ
+                                          appKey:QQ_APP_ID/*设置QQ平台的appID*/
+                                       appSecret:nil
+                                     redirectURL:Share_RedirectURL];
+    
+    /* 设置新浪的appKey和appSecret */
+    [[UMSocialManager defaultManager] setPlaform:UMSocialPlatformType_Sina
+                                          appKey:Weibo_APP_ID
+                                       appSecret:Weibo_APP_Secret
+                                     redirectURL:Share_RedirectURL];
+}
+
+#pragma mark - 设置统计
+- (void)congfigUmengTrack {
+    [MobClick setLogEnabled:YES];
+    UMConfigInstance.appKey = Umeng_App_Key;
+    UMConfigInstance.secret = Umeng_App_Secret;
+    [MobClick startWithConfigure:UMConfigInstance];
+}
+
+- (void)verifyReceiptForPurchaseFailed {
+    [[SKPaymentQueue defaultQueue] addTransactionObserver:[APStoreObserver sharedInstance]];
+    
+    //从服务器验证receipt失败之后，在程序再次启动的时候，使用保存的receipt再次到服务器验证
+    //如果在改路下不存在文件，说明就没有保存验证失败后的购买凭证，也就是说发送凭证成功。
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:AppStoreInfoLocalFilePath]) {
+        //创建目录
+        [fileManager createDirectoryAtPath:AppStoreInfoLocalFilePath
+               withIntermediateDirectories:YES
+                                attributes:nil
+                                     error:nil];
+    } else {
+        //存在购买凭证，说明发送凭证失败，再次发起验证
+        [[IAPurchaseTool sharedInstance] sendFailedIapFiles];
+    }
+}
+    
+#pragma mark - app life
+- (void)applicationWillResignActive:(UIApplication *)application {
+    
+}
+    
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+}
+
+    
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+    // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+    
+    // 从后台进前台，需要重新定位，及更新用户位置信息
+    [[CityLocation sharedInstance] startLocation];
+}
+    
+    
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+}
+    
+    
+- (void)applicationWillTerminate:(UIApplication *)application {
+    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    [[SKPaymentQueue defaultQueue] removeTransactionObserver:[APStoreObserver sharedInstance]];
+}
+    
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
+    NSLog(@"%s",__func__);
+    
+    // 停止下载所有图片
+    [[SDWebImageManager sharedManager] cancelAll];
+    // 清除内存中的图片
+    [[SDWebImageManager sharedManager].imageCache clearMemory];
+}
+    
+#pragma mark - Notification
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[EMClient sharedClient] bindDeviceToken:deviceToken];
+    });
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    NSLog(@"%s",__func__);
+    NSLog(@"userInfo : %@",userInfo);
+}
+    
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    
+}
+    
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    NSDictionary * userInfo = notification.request.content.userInfo;
+    if ([notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
+        //应用处于前台时的远程推送接受
+        //关闭友盟自带的弹出框
+        [UMessage setAutoAlert:NO];
+        //必须加这句代码
+        NSLog(@"willPresentNotification : %@",userInfo);
+        
+        [UMessage didReceiveRemoteNotification:userInfo];
+        
+    } else {
+        //应用处于前台时的本地推送接受
+    }
+    //当应用处于前台时提示设置，需要哪个可以设置哪一个
+    completionHandler(UNNotificationPresentationOptionSound|UNNotificationPresentationOptionBadge|UNNotificationPresentationOptionAlert);
+}
+    
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler {
+    NSDictionary *userInfo = response.notification.request.content.userInfo;
+    if([response.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
+        //应用处于后台时的远程推送接受
+        //必须加这句代码
+        [UMessage didReceiveRemoteNotification:userInfo];
+        
+    }else{
+        //应用处于后台时的本地推送接受
+    }
+}
+    
+#pragma mark - pay
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    BOOL result = [[UMSocialManager defaultManager] handleOpenURL:url sourceApplication:sourceApplication annotation:annotation];
+    if (!result) {
+        // 其他如支付等SDK的回调
+        //[FuqianlaPay handlePayCallBackUrl:url];
+    }
+    return result;
+}
+    
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options {
+    //NSLog(@"%@,%@",url, options);
+    /*{
+     UIApplicationOpenURLOptionsOpenInPlaceKey = 0;
+     UIApplicationOpenURLOptionsSourceApplicationKey = "com.alipay.iphoneclient";
+     } wx243db0836e67f31f://pay/?returnKey=(null)&ret=-2,{
+     UIApplicationOpenURLOptionsOpenInPlaceKey = 0;
+     UIApplicationOpenURLOptionsSourceApplicationKey = "com.tencent.xin";
+     }*/
+    BOOL result = [[UMSocialManager defaultManager]  handleOpenURL:url options:options];
+    if (!result) {
+        // 其他如支付等SDK的回调
+        //[FuqianlaPay handlePayCallBackUrl:url];
+    }
+    return result;
+}
+    
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+    BOOL result = [[UMSocialManager defaultManager] handleOpenURL:url];
+    if (!result) {
+        // 其他如支付等SDK的回调
+        //[FuqianlaPay handlePayCallBackUrl:url];
+    }
+    return result;
+}
+
+#pragma mark - EMClientDelegate
+- (void)userAccountDidLoginFromOtherDevice {
+    if ([LoginData sharedLoginData].userId) {
+        [[EMClient sharedClient] logout:NO completion:^(EMError *aError) {
+            if (!aError) {
+                [LoginData sharedLoginData].userId = nil;
+                [AlertViewTool showAlertViewWithTitle:nil Message:@"你的账号已在其他地方登录" buttonTitle:@"确定" sureBlock:^{
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        UIStoryboard *loginSB = [UIStoryboard storyboardWithName:@"Login" bundle:nil];
+                        UIViewController *loginVC = [loginSB instantiateViewControllerWithIdentifier:@"LoginVC"];
+                        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:loginVC
+                                                                                                     animated:YES
+                                                                                                   completion:nil];
+                    });
+                }];
+            }
+        }];
+    }
+}
+    
+@end

@@ -1,0 +1,33 @@
+//
+//  NSString+ImageCompress.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/3/20.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "NSString+ImageCompress.h"
+
+#define IS_IPHONE (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+#define __kScreenHeight ([[UIScreen mainScreen]bounds].size.height)
+#define __kScreenWidth ([[UIScreen mainScreen]bounds].size.width)
+#define SCREEN_MAX_LENGTH (MAX(__kScreenWidth, __kScreenHeight))
+#define SCREEN_MIN_LENGTH (MIN(__kScreenWidth, __kScreenHeight))
+#define IS_IPHONE_6P_7P (IS_IPHONE && SCREEN_MAX_LENGTH == 736.0)
+
+@implementation NSString (ImageCompress)
+
++ (NSString *)compressImageUrlWithUrlString:(NSString *)imageUrl width:(CGFloat)imageW height:(CGFloat)imageH {
+    return [NSString stringWithFormat:@"%@?imageMogr2/format/jpg/interlace/1/imageView2/0/w/%.0f/h/%.0f", imageUrl, imageW, imageH];
+}
+
++ (NSString *)thumbnialTotalPointImageUrlWithUrlString:(NSString *)imageUrl width:(CGFloat)imageW height:(CGFloat)imageH {
+    NSInteger scale = IS_IPHONE_6P_7P ? 9 : 4;
+    return [NSString stringWithFormat:@"%@?imageMogr2/format/jpg/interlace/1/thumbnail/%.0f@", imageUrl, imageW*imageH*scale];
+}
+
++ (NSString *)cropImageUrlWithUrlString:(NSString *)imageUrl width:(CGFloat)imageW height:(CGFloat)imageH {
+    return [NSString stringWithFormat:@"%@?imageView2/1/w/%.0f/h/%.0f", imageUrl, imageW, imageH];//imageMogr2/format/jpg/interlace/1/
+}
+
+@end

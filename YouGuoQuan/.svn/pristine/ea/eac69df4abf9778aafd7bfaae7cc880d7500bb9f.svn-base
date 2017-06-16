@@ -1,0 +1,28 @@
+//
+//  UserBaseInfoModel.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "UserBaseInfoModel.h"
+#import <MJExtension/MJExtension.h>
+
+@implementation UserBaseInfoModel
+
++ (instancetype)userBaseInfoModelWithDict:(NSDictionary *)dict {
+    [UserBaseInfoModel mj_setupReplacedKeyFromPropertyName:^NSDictionary *{
+        return @{@"userId" : @"id"};
+    }];
+    return [[UserBaseInfoModel alloc] initUserBaseInfoModelWithDict:dict];
+}
+
+- (instancetype)initUserBaseInfoModelWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self =  [UserBaseInfoModel mj_objectWithKeyValues:dict];
+    }
+    return self;
+}
+
+@end

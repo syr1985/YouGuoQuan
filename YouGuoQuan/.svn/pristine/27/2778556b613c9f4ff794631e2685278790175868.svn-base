@@ -1,0 +1,116 @@
+//
+//  VideoDetailTableViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/30.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "VideoDetailTableViewController.h"
+//#import "VideoDetailHeaderView.h"
+
+#import "DetailCommentViewCell.h"
+#import "DetailReplyCommentViewCell.h"
+
+#import "ShareView.h"
+#import "AlertViewTool.h"
+
+@interface VideoDetailTableViewController ()
+
+@end
+
+static NSString * const tableViewCellID_comment = @"DetailCommentViewCell";
+static NSString * const tableViewCellID_reply   = @"DetailReplyCommentViewCell";
+
+@implementation VideoDetailTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.title = @"详情";
+    
+    self.tableView.rowHeight = 66;
+    self.tableView.estimatedRowHeight = 100;
+    
+    //    __weak typeof(self) weakself = self;
+    //    VideoDetailHeaderView *headerView = [VideoDetailHeaderView videoDetailHeaderView];
+    //    headerView.actionSheetItemClicked = ^(NSUInteger buttonIndex) {
+    //        if (buttonIndex == 1) {
+    //            // 拉黑警告
+    //            [AlertViewTool showAlertViewWithTitle:nil Message:@"拉黑对方后，对方将无法与您聊天，您也无法查看对方动态，是否继续？" sureBlock:^{
+    //                // 拉黑操作
+    //            }];
+    //        } else if (buttonIndex == 2) {
+    //            // 举报操作
+    //            UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+    //            UIViewController *reportVC = [discoverySB instantiateViewControllerWithIdentifier:@"Report"];
+    //            [weakself presentViewController:reportVC animated:YES completion:nil];
+    //        }
+    //    };
+    //    self.tableView.tableHeaderView = headerView;
+    
+    UINib *nib_comment = [UINib nibWithNibName:tableViewCellID_comment bundle:nil];
+    [self.tableView registerNib:nib_comment forCellReuseIdentifier:tableViewCellID_comment];
+    
+    UINib *nib_reply = [UINib nibWithNibName:tableViewCellID_reply bundle:nil];
+    [self.tableView registerNib:nib_reply forCellReuseIdentifier:tableViewCellID_reply];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)dissmissViewController:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)shareVideo:(id)sender {
+    ShareView *shareView = [ShareView shareView];
+    shareView.tapShareItem = ^(NSUInteger index) {
+        YGQLog(@"tapShareItem%ld",(unsigned long)index);
+    };
+    [self.navigationController.view addSubview:shareView];
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 2;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (indexPath.row == 0) {
+        DetailCommentViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_comment forIndexPath:indexPath];
+        
+        // Configure the cell...
+        
+        return cell;
+    } else {
+        DetailReplyCommentViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_reply forIndexPath:indexPath];
+        
+        // Configure the cell...
+        
+        return cell;
+    }
+}
+
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

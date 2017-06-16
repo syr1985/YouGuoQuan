@@ -1,0 +1,66 @@
+//
+//  SearchResultViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "SearchResultViewCell.h"
+#import "SearchReaultModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+
+@interface SearchResultViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *funsCountLabel;
+@property (weak, nonatomic) IBOutlet UIButton *concemButton;
+
+@end
+
+@implementation SearchResultViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    _headerImageView.layer.cornerRadius = _headerImageView.frame.size.width * 0.5;
+    _headerImageView.layer.masksToBounds = YES;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state
+}
+
+- (void)setSearchResultModel:(SearchReaultModel *)searchResultModel {
+    _searchResultModel = searchResultModel;
+    
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:searchResultModel.headImg]];
+    
+    _nickNameLabel.text = searchResultModel.nickName;
+    
+    _levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",searchResultModel.star]];
+    
+    _vipImageView.hidden = (searchResultModel.audit != 1);
+    
+    _concemButton.selected = searchResultModel.isMyFans;
+    
+    _funsCountLabel.text = [NSString stringWithFormat:@"%@粉丝",searchResultModel.fanscount ? searchResultModel.fanscount : @"0"];
+}
+
+- (IBAction)focusButtonClicked:(UIButton *)sender {
+    NSString *type = [NSString stringWithFormat:@"%d",!sender.isSelected];
+    [NetworkTool doOperationWithType:@"1" userId:_searchResultModel.userId operationType:type success:^{
+        if (sender.isSelected) {
+            [SVProgressHUD showSuccessWithStatus:@"已取消关注TA"];
+        } else {
+            [SVProgressHUD showSuccessWithStatus:@"已关注TA"];
+        }
+    }];
+}
+
+@end

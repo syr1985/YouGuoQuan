@@ -1,0 +1,88 @@
+//
+//  FollowMessageCell.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "FollowMessageCell.h"
+#import "OthersFocusModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "NSDate+LXExtension.h"
+#import "AlertViewTool.h"
+
+@interface FollowMessageCell()
+@property(nonatomic, weak) IBOutlet UIImageView *headImgView;
+@property(nonatomic, weak) IBOutlet UIImageView *vipImgView;
+@property(nonatomic, weak) IBOutlet UIImageView *crownImgView;
+@property(nonatomic, weak) IBOutlet UILabel *nameLabel;
+@property(nonatomic, weak) IBOutlet UILabel *timeLabel;
+@property(nonatomic, weak) IBOutlet UIButton *followBtn;
+@property (nonatomic, strong) NSDateFormatter *dateFormatter;
+@end
+
+@implementation FollowMessageCell
+
+- (NSDateFormatter *)dateFormatter {
+    if (!_dateFormatter) {
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        _dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_GB"];
+        _dateFormatter.timeZone = [NSTimeZone timeZoneWithName:@"GMT"];
+        _dateFormatter.dateFormat = @"yyyy年MM月dd日";
+    }
+    return _dateFormatter;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    _headImgView.layer.cornerRadius = _headImgView.bounds.size.height * 0.5;
+    _headImgView.layer.masksToBounds = YES;
+}
+
+- (IBAction)followBtnClicked:(UIButton *)sender {
+    __weak typeof(self) weakself = self;
+    if (sender.isSelected) {
+        [AlertViewTool showAlertViewWithTitle:nil Message:@"是否取消关注？" sureBlock:^{
+            // 取消关注
+            [NetworkTool doOperationWithType:@"1" userId:weakself.otherFocusModel.userId operationType:@"0" success:^{
+                [SVProgressHUD showSuccessWithStatus:@"已取消关注TA"];
+                sender.selected = NO;
+                weakself.otherFocusModel.isMyFans = NO;
+            }];
+        }];
+    } else {
+        // 关注
+        [NetworkTool doOperationWithType:@"1" userId:weakself.otherFocusModel.userId operationType:@"1" success:^{
+            [SVProgressHUD showSuccessWithStatus:@"已关注TA"];
+            sender.selected = YES;
+            weakself.otherFocusModel.isMyFans = YES;
+        }];
+    }
+}
+
+- (void)setOtherFocusModel:(OthersFocusModel *)otherFocusModel {
+    _otherFocusModel = otherFocusModel;
+    
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:otherFocusModel.headImg
+                                                                  width:self.headImgView.bounds.size.width
+                                                                 height:self.headImgView.bounds.size.height];
+    [self.headImgView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.vipImgView.hidden = otherFocusModel.audit != 1;
+    self.crownImgView.hidden = !otherFocusModel.isRecommend;
+    self.nameLabel.text = otherFocusModel.nickName;
+    self.followBtn.selected = otherFocusModel.isMyFans;
+    
+    NSTimeInterval timeInterval = [otherFocusModel.createTime doubleValue];
+    NSDate *createDate = [NSDate dateWithTimeIntervalSince1970:timeInterval / 1000];
+    LXDateItem *item = [[NSDate date] lx_timeIntervalSinceDate:createDate];
+    if (item.day == 0) {
+        self.timeLabel.text = [NSString stringWithFormat:@"%@前",item.description];
+    } else {
+        self.timeLabel.text = [self.dateFormatter stringFromDate:createDate];
+    }
+}
+
+@end

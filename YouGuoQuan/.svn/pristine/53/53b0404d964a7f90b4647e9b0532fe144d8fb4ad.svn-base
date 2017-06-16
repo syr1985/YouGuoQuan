@@ -1,0 +1,15 @@
+//
+//  BuyWeiXinViewController.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/23.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface BuyWeiXinViewController : UIViewController
+@property (nonatomic,   copy) NSString *price;
+@property (nonatomic,   copy) NSString *salerID;
+@property (nonatomic,   copy) void (^payRewardSucess)();
+@end

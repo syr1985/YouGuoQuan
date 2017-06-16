@@ -1,0 +1,44 @@
+//
+//  CrowdfundingInfoViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/30.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CrowdfundingInfoViewCell.h"
+#import "HomeFocusModel.h"
+#import "DiscoveryCrowdfundingModel.h"
+#import <UIImageView+WebCache.h>
+
+@interface CrowdfundingInfoViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *cfImageView;
+@property (weak, nonatomic) IBOutlet UILabel *cfTitleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *cfDescLabel;
+
+@end
+
+@implementation CrowdfundingInfoViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setHomeFocusModel:(HomeFocusModel *)homeFocusModel {
+    _homeFocusModel = homeFocusModel;
+    
+    [self.cfImageView sd_setImageWithURL:[NSURL URLWithString:homeFocusModel.imageUrl]];
+    self.cfTitleLabel.text = homeFocusModel.goodsName;
+    self.cfDescLabel.text = homeFocusModel.instro;
+}
+
+- (void)setCrowdfundingModel:(DiscoveryCrowdfundingModel *)crowdfundingModel {
+    _crowdfundingModel = crowdfundingModel;
+    
+    [self.cfImageView sd_setImageWithURL:[NSURL URLWithString:crowdfundingModel.coverImgUrl]];
+    self.cfTitleLabel.text = crowdfundingModel.cTitle;
+    self.cfDescLabel.text = crowdfundingModel.descs;
+}
+
+@end

@@ -1,0 +1,45 @@
+//
+//  SearchReaultModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+//{
+//    headImg = "http://7xtk9y.com1.z0.glb.clouddn.com/ff66285ddfdf6ba9254558c176373d33.jpg";
+//    id = "86d1051e-0cf6-4010-9f87-a660d67c7b3d";
+//    isMyFans = 0;
+//    isRecommend = 1;
+//    nickName = an;
+//    star = 1;
+//}
+
+//1	createTime	String
+//2	updateTime	String
+//3	id          String
+//4	headImg     String		头像URL
+//5	isRecommend	String		0：不推荐，1：推荐
+//6	star        String		等级
+//7	nickName	String		昵称
+//8	audit       String		0：加v认证，1：不加v认证
+//9	fromuserid	String		查询者
+//10 fanscount	String		粉丝数
+
+@interface SearchReaultModel : NSObject
+
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *fansCount;
+@property (nonatomic, assign) BOOL isMyFans;
+@property (nonatomic, assign) BOOL isRecommend;
+@property (nonatomic, assign) int  audit;
+@property (nonatomic, assign) int  star;
+
++ (instancetype)searchReaultModelWithDict:(NSDictionary *)dict;
+- (instancetype)initSearchReaultModelWithDict:(NSDictionary *)dict;
+
+@end

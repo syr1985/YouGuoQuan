@@ -1,0 +1,43 @@
+//
+//  CommentMessageModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/2/24.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ aboutCommentId = 0;
+ audit = 1;
+ content = "\U521a\U597d\U54c8\U54c8";
+ 
+ headImg = "http://7xtk9y.com1.z0.glb.clouddn.com/2017-02-24PPwsm";
+ imageUrl = "";
+ isRecommend = 1;
+ nickName = omygod;
+ relationId = "ec3c388c-83b8-43fe-a440-813ce4a8135f";
+ searcherId = "140ec9d8-f016-49ca-99e7-00d5fb9b56e2";
+ type = 1;
+ userId = "140ec9d8-f016-49ca-99e7-00d5fb9b56e2";
+ */
+@interface CommentMessageModel : NSObject
+@property (nonatomic,   copy) NSString *relationId;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *searcherId;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *imageUrl;
+@property (nonatomic,   copy) NSString *content;
+@property (nonatomic,   copy) NSString *aboutCommentId;
+@property (nonatomic,   copy) NSString *createtime;
+@property (nonatomic, assign) int  type;
+@property (nonatomic, assign) int  audit;
+@property (nonatomic, assign) BOOL isRecommend;
+
+@property (nonatomic, assign) CGFloat cellHeight;
+
++ (instancetype)commentMessageModelWithDict:(NSDictionary *)dict;
+- (instancetype)initCommentMessageModelWithDict:(NSDictionary *)dict;
+@end

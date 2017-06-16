@@ -1,0 +1,91 @@
+//
+//  YGQLocationService.m
+//  YouGuoQuan
+//
+//  Created by jqoo on 2016/12/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "YGQLocationService.h"
+#import <UIKit/UIKit.h>
+
+@interface YGQLocationService () <CLLocationManagerDelegate>
+{
+    CLLocationManager *_locationManager;
+    BOOL _started;
+}
+
+@property (nonatomic, assign) BOOL authorized;
+@property (nonatomic, assign) CLLocationCoordinate2D coordinate;
+
+@end
+
+@implementation YGQLocationService
+
+@synthesize coordinateValid = _coordinateValid;
+
++ (instancetype)sharedInstance {
+    static dispatch_once_t onceToken;
+    static YGQLocationService *instance;
+    dispatch_once(&onceToken, ^{
+        instance = [[YGQLocationService alloc] init];
+    });
+    return instance;
+}
+
+-(void)startUserLocationService {
+    if (_locationManager == nil) {
+        _locationManager = [[CLLocationManager alloc] init];
+        
+        [self setAuthorizeWithStatus:[CLLocationManager authorizationStatus]];
+        [self setCoordinateWithLocation:_locationManager.location];
+        
+        _locationManager.delegate = self;
+        
+        if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0) {
+            [_locationManager requestWhenInUseAuthorization];
+        }
+        [_locationManager startUpdatingLocation];
+    }
+}
+
+- (BOOL)isStarted {
+    return _locationManager != nil;
+}
+
+- (void)setAuthorizeWithStatus:(CLAuthorizationStatus)status {
+    BOOL authorized = (status == kCLAuthorizationStatusAuthorizedAlways
+                       || status == kCLAuthorizationStatusAuthorizedWhenInUse
+                       || status == kCLAuthorizationStatusAuthorized);
+    if (self.authorized != authorized) {
+        self.authorized = authorized;
+    }
+}
+
+- (void)setCoordinateWithLocation:(CLLocation *)location {
+    if (location) {
+        CLLocationCoordinate2D newCoordinate = location.coordinate;
+        if (!_coordinateValid) {
+            self.coordinate = newCoordinate;
+            _coordinateValid = YES;
+        }
+        else {
+            if (newCoordinate.latitude != self.coordinate.latitude || newCoordinate.longitude != self.coordinate.longitude) {
+                self.coordinate = newCoordinate;
+            }
+        }
+    }
+}
+
+#pragma mark - CLLocationManagerDelegate
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    [self setAuthorizeWithStatus:status];
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations{
+    CLLocation *location = [locations lastObject];
+    [self setCoordinateWithLocation:location];
+}
+
+@end

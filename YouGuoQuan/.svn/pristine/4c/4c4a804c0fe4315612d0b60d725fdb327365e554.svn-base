@@ -1,0 +1,218 @@
+//
+//  YouguoViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/8.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "YouguoViewController.h"
+#import "HomeBannerViewCell.h"
+#import "HomeActivityView.h"
+#import "HomeResourceViewCell.h"
+#import "HomeTopTabbarView.h"
+
+#import "SYStickHeaderWaterFallLayout.h"
+#import "HomeResourceModel.h"
+#import "UserCenterViewController.h"
+
+//#import <MJRefresh/MJRefresh.h>
+
+@interface YouguoViewController () <SYStickHeaderWaterFallDelegate>
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@end
+
+static NSString * const collectionViewCellID_Banner   = @"HomeBannerViewCell";
+static NSString * const collectionViewCellID_Footer   = @"HomeActivityView";
+static NSString * const collectionViewCellID_Resource = @"HomeResourceViewCell";
+static NSString * const collectionViewCellID_Header   = @"HomeTopTabbarView";
+
+@implementation YouguoViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray array];
+    }
+    return _modelArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    self.title = @"尤果";
+    
+    // Register cell classes
+    [self configCollectionView];
+    
+    [self loadHomePageData];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - 配置视图
+
+- (void)configCollectionView {
+    SYStickHeaderWaterFallLayout *cvLayout = [[SYStickHeaderWaterFallLayout alloc] init];
+    cvLayout.delegate = self;
+    cvLayout.isStickyHeader = NO;
+    self.collectionView.collectionViewLayout = cvLayout;
+    
+    UINib *nib_banner = [UINib nibWithNibName:collectionViewCellID_Banner bundle:nil];
+    [self.collectionView registerNib:nib_banner forCellWithReuseIdentifier:collectionViewCellID_Banner];
+    
+    UINib *nib_resource = [UINib nibWithNibName:collectionViewCellID_Resource bundle:nil];
+    [self.collectionView registerNib:nib_resource forCellWithReuseIdentifier:collectionViewCellID_Resource];
+    
+    UINib *nib_footer = [UINib nibWithNibName:collectionViewCellID_Footer bundle:nil];
+    [self.collectionView registerNib:nib_footer
+          forSupplementaryViewOfKind:UICollectionElementKindSectionFooter
+                 withReuseIdentifier:collectionViewCellID_Footer];
+    
+    UINib *nib_header = [UINib nibWithNibName:collectionViewCellID_Header bundle:nil];
+    [self.collectionView registerNib:nib_header
+          forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+                 withReuseIdentifier:collectionViewCellID_Header];
+    
+}
+
+#pragma mark -
+#pragma mark - 调接口加载数据
+
+- (void)loadHomePageData {
+    __weak typeof(self) weakself = self;
+    [NetworkTool getHomeListWithPageNo:@1 pageSize:@10 success:^(NSArray *dataArray) {
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in dataArray) {
+            HomeResourceModel *homeResourceModel = [HomeResourceModel homeResourceModelWithDict:dict];
+            [muArray addObject:homeResourceModel];
+        }
+        weakself.modelArray = muArray;
+        [weakself.collectionView reloadData];
+    } failure:^{
+        
+    }];
+}
+
+#pragma mark -
+#pragma mark - UICollectionView DataSource and Delegate
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 2;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    if (section == 0) {
+        return 1;
+    } else {
+        return self.modelArray.count;
+    }
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        HomeBannerViewCell *cell_banner = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Banner forIndexPath:indexPath];
+        
+        return cell_banner;
+    } else {
+        HomeResourceViewCell *cell_recource = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Resource forIndexPath:indexPath];
+        cell_recource.homeResourceModel = self.modelArray[indexPath.row];
+        
+        return cell_recource;
+    }
+}
+
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    UICollectionReusableView *reusableview = nil;
+    
+    if ([kind isEqualToString:UICollectionElementKindSectionFooter]) {
+        HomeActivityView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                          withReuseIdentifier:collectionViewCellID_Footer
+                                                                                 forIndexPath:indexPath];
+        reusableview = footerview;
+    } else {
+        HomeTopTabbarView *headerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                           withReuseIdentifier:collectionViewCellID_Header
+                                                                                  forIndexPath:indexPath];
+        if (indexPath.section == 0) {
+            headerview.currentIndex = 0;
+        }
+        reusableview = headerview;
+    }
+    
+    return reusableview;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section != 0) {
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        UserCenterViewController *userCenterVC = [homeSB instantiateViewControllerWithIdentifier:@"UserCenter"];
+        HomeResourceModel *homeResourceModel = self.modelArray[indexPath.row];
+        userCenterVC.userId = homeResourceModel.userId;
+        UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:userCenterVC];
+        //[self.navigationController pushViewController:userCenterVC animated:YES];
+        [self presentViewController:navController animated:YES completion:nil];
+    }
+}
+
+#pragma mark - SYStickHeaderWaterFallDelegate
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(SYStickHeaderWaterFallLayout *)collectionViewLayout heightForItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        return WIDTH * 198 / 322;
+    } else {
+        return (WIDTH - 20) * 0.5f;
+    }
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForHeaderAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        return 40;
+    } else {
+        return 0;
+    }
+}
+
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForFooterAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        return 0;
+    } else {
+        return 220.0f;
+    }
+}
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout widthForItemInSection:( NSInteger )section {
+    if (section ==0) {
+        return WIDTH;
+    } else  {
+        return (WIDTH - 20) * 0.5f;
+    }
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout topInSection:(NSInteger)section {
+    return 0;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout bottomInSection:(NSInteger)section {
+    return 0;
+}
+
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+//- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+//    // Get the new view controller using [segue destinationViewController].
+//    // Pass the selected object to the new view controller.   
+//    
+//}
+
+
+@end

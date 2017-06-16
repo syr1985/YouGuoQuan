@@ -1,0 +1,251 @@
+//
+//  OfficiallyCertifiedViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/6.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "OfficiallyCertifiedViewController.h"
+#import "ProductPhotoViewCell.h"
+#import "TakePhotoHelp.h"
+#import <JKCountDownButton.h>
+#import "HelperUtil.h"
+#import "UserBaseInfoModel.h"
+#import "AlertViewTool.h"
+
+@interface OfficiallyCertifiedViewController () 
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
+@property (weak, nonatomic) IBOutlet JKCountDownButton *getCodeButton;
+@property (weak, nonatomic) IBOutlet UITextField *realNameTextField;
+@property (weak, nonatomic) IBOutlet UITextField *phoneNumTextField;
+@property (weak, nonatomic) IBOutlet UITextField *authCodeTextField;
+@property (weak, nonatomic) IBOutlet UITextField *idCardNoTextField;
+@property (weak, nonatomic) IBOutlet UITextField *authInfoTextField;
+@property (nonatomic, strong) NSMutableArray *photoArray;
+@property (nonatomic,   copy) NSString *authCode;
+@property (nonatomic,   copy) NSString *imageUrl;
+
+@end
+
+static NSString * const collectionViewCellID_Photo  = @"ProductPhotoViewCell";
+
+@implementation OfficiallyCertifiedViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)photoArray {
+    if (!_photoArray) {
+        _photoArray = [NSMutableArray array];
+        [_photoArray addObject:[UIImage imageNamed:@"发布-添加"]];
+    }
+    return _photoArray;
+}
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"官方认证";
+    
+    UINib *nib_photo  = [UINib nibWithNibName:collectionViewCellID_Photo bundle:nil];
+    [self.collectionView registerNib:nib_photo forCellWithReuseIdentifier:collectionViewCellID_Photo];
+    
+    __weak typeof(self) weakself = self;
+    [_getCodeButton countDownButtonHandler:^(JKCountDownButton*sender, NSInteger tag) {
+        NSString *phoneNum = _phoneNumTextField.text;
+        if (phoneNum.length == 0) {
+            [SVProgressHUD showInfoWithStatus:@"请输入手机号码"];
+            return;
+        } else {
+            if (![HelperUtil checkTelNumber:phoneNum]) {
+                [SVProgressHUD showInfoWithStatus:@"请输入有效的手机号码"];
+                return;
+            } else {
+                sender.enabled = NO;
+                
+                [NetworkTool getVerifyCodeForOfficiallyCertifiedWithPhoneNumber:phoneNum success:^(id Result) {
+                    weakself.authCode = Result;
+                } failure:nil];
+                
+                [sender startCountDownWithSecond:60];
+                
+                [sender countDownChanging:^NSString *(JKCountDownButton *countDownButton,NSUInteger second) {
+                    NSString *title = [NSString stringWithFormat:@"验证(%zd)",second];
+                    return title;
+                }];
+                [sender countDownFinished:^NSString *(JKCountDownButton *countDownButton, NSUInteger second) {
+                    countDownButton.enabled = YES;
+                    return @"验证";
+                }];
+            }
+        }
+    }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)submitCertifiedButtonClicked:(id)sender {
+    NSString *realName = _realNameTextField.text;
+    if (realName.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请输入真实姓名"];
+        return;
+    }
+    
+    NSString *phoneNum = _phoneNumTextField.text;
+    if (phoneNum.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请输入手机号码"];
+        return;
+    } else {
+        if (![HelperUtil checkTelNumber:phoneNum]) {
+            [SVProgressHUD showInfoWithStatus:@"请输入有效的手机号码"];
+            return;
+        }
+    }
+    
+    NSString *authCode = _authCodeTextField.text;
+    if (![_authCode isEqualToString:authCode]) {
+        [SVProgressHUD showInfoWithStatus:@"验证码不正确"];
+        return;
+    }
+    
+    NSString *idCardNo = _idCardNoTextField.text;
+    if (idCardNo.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请输入身份证号码"];
+        return;
+    } else {
+        if (![HelperUtil checkUserIdCard:idCardNo]) {
+            [SVProgressHUD showInfoWithStatus:@"请输入有效的身份证号码"];
+            return;
+        }
+    }
+    
+    NSString *authInfo = _authInfoTextField.text;
+    if (authInfo.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请输入认证信息"];
+        return;
+    }
+    
+    if (self.photoArray.count < 3) {
+        [SVProgressHUD showInfoWithStatus:@"请上传至少3张认证照片"];
+        return;
+    }
+    
+    NSMutableArray *muArray = [NSMutableArray array];
+    for (NSUInteger i = 0 ; i < self.photoArray.count - 1; i++) {
+        UIImage *image = self.photoArray[i];
+        [muArray addObject:UIImageJPEGRepresentation(image,0.1)];
+    }
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool uploadImages:muArray progress:^(CGFloat percent) {
+        [SVProgressHUD showProgress:percent status:@"上传图片..."];
+    } success:^(NSArray *urlArray) {
+        [SVProgressHUD dismiss];
+        NSMutableString *urlString = [NSMutableString string];
+        for (NSString *url in urlArray) {
+            [urlString appendString:url];
+            [urlString appendString:@";"];
+        }
+        NSUInteger maxRange = NSMaxRange([urlString rangeOfComposedCharacterSequenceAtIndex:urlString.length - 2]);
+        weakself.imageUrl = [urlString substringToIndex:maxRange];
+        
+        [NetworkTool officiallyCertifiedWithAuditResult:authInfo verifiCode:weakself.authCode cardNo:idCardNo imageUrl:weakself.imageUrl realName:realName mobile:phoneNum success:^{
+            [AlertViewTool showAlertViewWithTitle:nil Message:@"您的认证已提交，请耐心等待" buttonTitle:@"我知道了" sureBlock:^{
+                weakself.userBaseInfoModel.audit = 2;
+                [weakself.navigationController popViewControllerAnimated:YES];
+            }];
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"认证提交失败"];
+        }];
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"上传图片失败"];
+    }];
+}
+
+#pragma mark -
+#pragma mark - UITableViewDelegate & DataSource
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 7;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row == 5) {
+        NSUInteger count = self.photoArray.count;
+        NSUInteger row = count % 3 == 0 ? (count / 3) : (count / 3 + 1);
+        CGFloat cellH = row * (WIDTH - 40) / 3 + (row - 1) * 10 + 58;
+        return cellH;
+    } else if (indexPath.row == 6) {
+        return 108;
+    } else {
+        return 66;
+    }
+}
+
+#pragma mark -
+#pragma mark - UICollectionViewDelegate & DataSource 
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.photoArray.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    ProductPhotoViewCell *cell_photo = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Photo forIndexPath:indexPath];
+    cell_photo.photo = self.photoArray[indexPath.row];
+    cell_photo.index = indexPath.row;
+    cell_photo.isShowDeleteButton = (indexPath.row == (self.photoArray.count - 1));
+    
+    __weak typeof(self) weakself = self;
+    cell_photo.deletePhotoBlock = ^(NSUInteger index) {
+        [weakself.photoArray removeObjectAtIndex:index];
+        [weakself.collectionView reloadData];
+        [weakself.tableView reloadData];
+    };
+    return cell_photo;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    CGFloat itemW = (WIDTH - 40) / 3;
+    return CGSizeMake(itemW, itemW);
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row == self.photoArray.count - 1) {
+        __weak typeof(self) weakself = self;
+        [[TakePhotoHelp sharedInstance] showActionSheetWithTitle:@"选择图片" photosCount:self.photoArray.count viewController:self returnBlock:^(BOOL isCover, NSArray<UIImage *> *photos) {
+            NSArray *oldArray = weakself.photoArray;
+            NSMutableArray *muArray = [NSMutableArray array];
+            [muArray addObjectsFromArray:photos];
+            [muArray addObjectsFromArray:oldArray];
+            weakself.photoArray = muArray;
+            [weakself.collectionView reloadData];
+            [weakself.tableView reloadData];
+        }];
+    }
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

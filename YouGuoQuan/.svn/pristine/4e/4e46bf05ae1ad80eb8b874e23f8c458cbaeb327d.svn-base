@@ -1,0 +1,160 @@
+//
+//  UserCenterHeaderView.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "UserCenterHeaderView.h"
+#import "UserBaseInfoModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "MoreMenuHelp.h"
+
+@interface UserCenterHeaderView ()
+@property (weak, nonatomic) IBOutlet UIImageView  *headerBackgroundImageView;   // 头像背景
+@property (weak, nonatomic) IBOutlet UIImageView  *headerImageView;             // 头像
+@property (weak, nonatomic) IBOutlet UIImageView  *crownImageView;              // 皇冠
+@property (weak, nonatomic) IBOutlet UIImageView  *vipImageView;                // vip
+
+@property (weak, nonatomic) IBOutlet UIScrollView *contributionScrollView;      // 贡献人
+@property (weak, nonatomic) IBOutlet UIButton     *contributionButton;          // 贡献数
+@property (weak, nonatomic) IBOutlet UIButton     *distanceButton;              // 距离
+
+@property (weak, nonatomic) IBOutlet UILabel      *nickNameLabel;               // 昵称
+@property (weak, nonatomic) IBOutlet UIImageView  *sexImageView;                // 性别
+@property (weak, nonatomic) IBOutlet UIImageView  *levelImageView;              // 等级
+
+@property (weak, nonatomic) IBOutlet UILabel      *indentificationLabel;        // 尤果认证
+@property (weak, nonatomic) IBOutlet UILabel      *positiveRateLabel;           // 好评率
+
+@property (weak, nonatomic) IBOutlet UIButton     *concemButton;                // 关注
+@property (weak, nonatomic) IBOutlet UIButton     *fansButton;                  // 粉丝
+@property (weak, nonatomic) IBOutlet UIButton     *favourButton;                // 赞
+
+@property (weak, nonatomic) IBOutlet UIScrollView *photoWallScrollView;         // 照片墙
+
+@end
+
+@implementation UserCenterHeaderView
+
+/**
+ *  创建实例对象
+ *
+ *  @return 实例对象
+ */
++ (instancetype)loadUserCenterHeaderView {
+    CGFloat headerH = WIDTH * 230 / 375 + 256.5;// 32 + 12 + 20.5 + 8 + 16 + 8 + 50 + 8 + 90 + 12;
+    NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"UserCenterHeaderView" owner:self options:nil];
+    UserCenterHeaderView *headerView = [nib objectAtIndex:0];
+    headerView.frame = CGRectMake(0, 0, WIDTH, headerH);
+    return headerView;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    self.headerImageView.layer.cornerRadius = self.headerImageView.frame.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+    
+    
+}
+
+/**
+ *  更多按钮点击
+ */
+- (IBAction)moreButtonClicked {
+    [[MoreMenuHelp sharedInstance] showMoreMenu:^(NSUInteger index) {
+        if (_actionSheetItemClicked) {
+            _actionSheetItemClicked(index);
+        }
+    }];
+}
+
+/**
+ *  分享按钮点击
+ */
+- (IBAction)shareButtonClicked {
+    if (_shareButtonClickedBlock) {
+        _shareButtonClickedBlock();
+    }
+}
+
+/**
+ *  点击头像查看个人信息
+ */
+- (IBAction)tapUserHeaderImageView:(id)sender {
+    if (_tapHeaderImageView) {
+        _tapHeaderImageView(nil);
+    }
+}
+
+/**
+ *  他人关注
+ */
+- (IBAction)lookOthersConcems {
+    if (_concemButtonClickedBlock) {
+        _concemButtonClickedBlock();
+    }
+}
+
+/**
+ *  他人粉丝
+ */
+- (IBAction)lookOthersFuns {
+    if (_funsButtonClickedBlock) {
+        _funsButtonClickedBlock();
+    }
+}
+
+/**
+ *  他赞过的
+ */
+- (IBAction)lookOthersFavours {
+    if (_favourButtonClickedBlock) {
+        _favourButtonClickedBlock();
+    }
+}
+
+- (void)setUserBaseInfoModel:(UserBaseInfoModel *)userBaseInfoModel {
+    _userBaseInfoModel = userBaseInfoModel;
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:userBaseInfoModel.headImg] placeholderImage:nil];
+    
+    self.crownImageView.hidden = !userBaseInfoModel.isRecommend;
+    self.vipImageView.hidden = !userBaseInfoModel.audit;
+    
+    self.nickNameLabel.text = userBaseInfoModel.nickName;
+    self.sexImageView.image = [UIImage imageNamed:userBaseInfoModel.sex];
+    self.levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",userBaseInfoModel.star]];
+    
+    self.indentificationLabel.text = [NSString stringWithFormat:@"尤果认证：%@", userBaseInfoModel.auditResult];
+    self.positiveRateLabel.text = [NSString stringWithFormat:@"好评率：%@%%",userBaseInfoModel.rateOfPraise];
+    
+    [self.concemButton setTitle:[NSString stringWithFormat:@"%@关注",userBaseInfoModel.focusCount] forState:UIControlStateNormal];
+    [self.fansButton setTitle:[NSString stringWithFormat:@"%@粉丝",userBaseInfoModel.fansCount] forState:UIControlStateNormal];
+    [self.favourButton setTitle:[NSString stringWithFormat:@"%@赞",userBaseInfoModel.zanCount] forState:UIControlStateNormal];
+    
+    //[self.distanceButton setTitle:@"" forState:UIControlStateNormal];
+}
+
+- (void)setPhotoArray:(NSArray *)photoArray {
+    _photoArray = photoArray;
+    
+    NSUInteger photoCount = photoArray.count;
+    CGFloat imageViewH = _photoWallScrollView.frame.size.height;
+    for (NSUInteger i = 0; i < photoCount; i++) {
+        CGFloat imageViewX = (imageViewH + 5) * i;
+        NSString *imageUrl = photoArray[i];
+        UIImageView *imageView = [[UIImageView alloc] init];
+        imageView.layer.cornerRadius = 5;
+        imageView.layer.masksToBounds = YES;
+        imageView.frame = CGRectMake(imageViewX, 0, imageViewH, imageViewH);
+        [imageView sd_setImageWithURL:[NSURL URLWithString:imageUrl]
+                     placeholderImage:nil];
+        [self.photoWallScrollView addSubview:imageView];
+    }
+    self.photoWallScrollView.contentSize = CGSizeMake(imageViewH * photoCount + 5 * (photoCount - 1), imageViewH);
+}
+
+@end

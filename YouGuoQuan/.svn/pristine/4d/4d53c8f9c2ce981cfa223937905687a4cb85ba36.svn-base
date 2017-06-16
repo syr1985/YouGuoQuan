@@ -1,0 +1,193 @@
+//
+//  CrowdfundingDetailViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/29.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CrowdfundingDetailViewController.h"
+#import "SYStickHeaderWaterFallLayout.h"
+
+#import "CrowdfundingDetailHeaderView.h"
+#import "CrowdfundingDetailViewCell.h"
+#import "ParticipatenListViewController.h"
+
+@interface CrowdfundingDetailViewController () <SYStickHeaderWaterFallDelegate, UIScrollViewDelegate>
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
+@property (weak, nonatomic) IBOutlet UIButton *participateButton;
+@property (nonatomic, strong) NSArray *photosArray;
+
+@end
+
+static NSString * const collectionViewCellID_Header = @"CrowdfundingDetailHeaderView";
+static NSString * const collectionViewCellID_Photo  = @"CrowdfundingDetailViewCell";
+
+@implementation CrowdfundingDetailViewController
+
+- (NSArray *)photosArray {
+    if (!_photosArray) {
+        _photosArray = [NSArray array];
+    }
+    return _photosArray;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.title = @"南斯拉夫潜水写真集";
+    
+    UIBarButtonItem *tempBarButtonItem = [[UIBarButtonItem alloc] init];
+    tempBarButtonItem.title = @"";
+    self.navigationItem.backBarButtonItem = tempBarButtonItem;
+    self.navigationController.navigationBar.backgroundColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.tintColor = [UIColor darkGrayColor];
+    
+    
+    UIButton *backButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    backButton.frame = CGRectMake(12, 33, 20, 20);
+    [backButton setBackgroundImage:[UIImage imageNamed:@"返回-白"] forState:UIControlStateNormal];
+    [backButton addTarget:self action:@selector(dismissViewController) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:backButton];
+    
+    SYStickHeaderWaterFallLayout *cvLayout = [[SYStickHeaderWaterFallLayout alloc] init];
+    cvLayout.delegate = self;
+    cvLayout.isStickyHeader = NO;
+    self.collectionView.collectionViewLayout = cvLayout;
+    
+    UINib *nib_photo  = [UINib nibWithNibName:collectionViewCellID_Photo bundle:nil];
+    [self.collectionView registerNib:nib_photo forCellWithReuseIdentifier:collectionViewCellID_Photo];
+    
+    UINib *nib_header = [UINib nibWithNibName:collectionViewCellID_Header bundle:nil];
+    [self.collectionView registerNib:nib_header forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:collectionViewCellID_Header];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    self.navigationController.navigationBar.hidden = YES;
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)dismissViewController {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)backItemClicked:(id)sender {
+    [self dismissViewController];
+}
+
+
+- (IBAction)participateButtonClicked {
+    UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+    UIViewController *crowdfundingOrderVC = [discoverySB instantiateViewControllerWithIdentifier:@"CrowdfundingOrder"];
+    [self.navigationController pushViewController:crowdfundingOrderVC animated:YES];
+}
+
+#pragma mark -
+#pragma mark - <UICollectionViewDataSource>
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return 1;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    CrowdfundingDetailViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Photo forIndexPath:indexPath];
+    
+    // Configure the cell
+    
+    return cell;
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    UICollectionReusableView *reusableview = nil;
+    
+    if ([kind isEqualToString:UICollectionElementKindSectionHeader]) {
+        CrowdfundingDetailHeaderView *headerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                                      withReuseIdentifier:collectionViewCellID_Header
+                                                                                             forIndexPath:indexPath];
+        __weak typeof(self) weakself = self;
+        headerview.pushViewControllerBlock = ^{
+            ParticipatenListViewController *participatenListVC = [[ParticipatenListViewController alloc] init];
+            [weakself.navigationController pushViewController:participatenListVC animated:YES];
+        };
+        reusableview = headerview;
+    }
+    
+    return reusableview;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    CGFloat sizeW = (WIDTH - 24) * 0.5;
+    return CGSizeMake(sizeW, sizeW);
+}
+
+#pragma mark -
+#pragma mark - SYStickHeaderWaterFallDelegate
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(SYStickHeaderWaterFallLayout *)collectionViewLayout heightForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return WIDTH * 46 / 75;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForHeaderAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    return WIDTH * 46 / 75 + 256;
+}
+
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForFooterAtIndexPath:(NSIndexPath *)indexPath {
+    return 0;
+}
+
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout widthForItemInSection:( NSInteger )section {
+    return WIDTH;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout topInSection:(NSInteger)section {
+    return 0;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout bottomInSection:(NSInteger)section {
+    return 0;
+}
+
+#pragma mark - 
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    CGFloat offsetY = scrollView.contentOffset.y + _collectionView.contentInset.top;//注意
+    CGFloat panTranslationY = [scrollView.panGestureRecognizer translationInView:self.collectionView].y;
+    
+    YGQLog(@"scrollViewDidScroll %f, %f, %f", scrollView.contentOffset.y,offsetY,panTranslationY);
+    if (offsetY > 64) {
+        if (panTranslationY > 0) { //下滑趋势，显示
+            [self.navigationController setNavigationBarHidden:NO animated:YES];
+        }
+        else {  //上滑趋势，隐藏
+            [self.navigationController setNavigationBarHidden:YES animated:YES];
+        }
+    }
+    else {
+        [self.navigationController setNavigationBarHidden:NO animated:YES];
+    }
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

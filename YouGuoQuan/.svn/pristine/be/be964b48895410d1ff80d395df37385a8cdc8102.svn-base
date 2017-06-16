@@ -1,0 +1,97 @@
+//
+//  OthersFocusViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/2.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "OthersFocusViewController.h"
+#import "OthersFocusViewCell.h"
+#import "OthersFocusModel.h"
+
+@interface OthersFocusViewController ()
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UIView *noResultView;
+@property (nonatomic, strong) NSMutableArray *modelArray;
+
+@end
+
+static NSString * const tableViewCellID_OthersFocus = @"OthersFocusViewCell";
+
+@implementation OthersFocusViewController
+
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray array];
+    }
+    return _modelArray;
+}
+
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.title = @"TA的关注";
+    
+    self.tableView.rowHeight = 56;
+    
+    UINib *nib = [UINib nibWithNibName:tableViewCellID_OthersFocus bundle:nil];
+    [self.tableView registerNib:nib forCellReuseIdentifier:tableViewCellID_OthersFocus];
+    
+    [self loadDataFromServer];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)loadDataFromServer {
+    [NetworkTool getOthersFocusListWithPageNo:@"1" pageSize:@"20" userID:_userId success:^(id result){
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in result) {
+            OthersFocusModel *model = [OthersFocusModel othersFocusModelWithDict:dict];
+            [muArray addObject:model];
+        }
+        self.modelArray = muArray;
+        [self.tableView reloadData];
+        
+        self.noResultView.hidden = self.modelArray.count;
+    }];
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.modelArray.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    OthersFocusViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_OthersFocus forIndexPath:indexPath];
+    
+    // Configure the cell...
+    
+    cell.othersFocusModel = self.modelArray[indexPath.row];
+    
+    return cell;
+}
+
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

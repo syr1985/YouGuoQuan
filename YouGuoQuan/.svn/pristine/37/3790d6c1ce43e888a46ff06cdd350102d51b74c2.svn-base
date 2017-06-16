@@ -1,0 +1,45 @@
+//
+//  PersonInfoViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "PersonInfoViewCell.h"
+#import "UserBaseInfoModel.h"
+#import <UIImageView+WebCache.h>
+
+@interface PersonInfoViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nicknameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *sexImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+
+@end
+
+@implementation PersonInfoViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.headerImageView.layer.cornerRadius = self.headerImageView.frame.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+}
+
+- (void)setUserBaseInfoModel:(UserBaseInfoModel *)userBaseInfoModel {
+    _userBaseInfoModel = userBaseInfoModel;
+    
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:userBaseInfoModel.headImg]];
+    
+    _crownImageView.hidden = !userBaseInfoModel.isRecommend;
+    _vipImageView.hidden = !userBaseInfoModel.audit;
+    
+    _nicknameLabel.text = userBaseInfoModel.nickName;
+    _sexImageView.image = [UIImage imageNamed:userBaseInfoModel.sex];
+    _levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d", userBaseInfoModel.star]];
+}
+
+@end

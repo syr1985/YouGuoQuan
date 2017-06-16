@@ -1,0 +1,144 @@
+//
+//  AppDelegate.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "AppDelegate.h"
+#import "SCAppVersionTool.h"
+#import "SCNewFeatureController.h"
+
+#import "AppDelegate+EaseMob.h"
+
+#import "CityLocation.h"
+#import <SDWebImage/SDWebImageManager.h>
+#import <UserNotifications/UserNotifications.h>
+
+// 环信
+//#define EaseMobAppKey @"easemob-demo#chatdemoui"
+#define APP_KEY           @"1139161122178530#youguo"
+#define APP_CLIENT_ID     @"YXA6C3o_ELCXEea-MWGd8b2a2w"
+#define APP_CLIENT_SECRET @"YXA6HX6gCBbS0-rTetd1j3_mUFymy0A"
+
+@interface AppDelegate () <UNUserNotificationCenterDelegate>
+
+@end
+
+@implementation AppDelegate
+
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // Override point for customization after application launch.
+    
+    //[self setRootViewControllerForKeyWindow];
+    
+    [[CityLocation sharedInstance] startLocation];
+    
+    [SVProgressHUD setMinimumDismissTimeInterval:3];
+    [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+    
+    if (NSClassFromString(@"UNUserNotificationCenter")) {
+        [UNUserNotificationCenter currentNotificationCenter].delegate = self;
+    }
+    
+    // 初始化环信IM
+    NSString *apnsCertName = nil;
+#if DEBUG
+    apnsCertName = @"chatdemoui_dev";
+#else
+    apnsCertName = @"chatdemoui";
+#endif
+    
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSString *appkey = [ud stringForKey:@"identifier_appkey"];
+    if (!appkey) {
+        appkey = APP_KEY;
+        [ud setObject:appkey forKey:@"identifier_appkey"];
+    }
+    
+    [self easemobApplication:application didFinishLaunchingWithOptions:launchOptions
+                      appkey:appkey
+                apnsCertName:apnsCertName
+                 otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
+    
+    return YES;
+}
+
+
+#pragma mark - 设置根控制器
+- (void)setRootViewControllerForKeyWindow {
+    // 1. 获取当前版本信息
+    NSString *currentBundleVersion = [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"];
+    
+    // 2. 判断当前版本是否是最新
+    if (![currentBundleVersion isEqualToString:[SCAppVersionTool savedAppVersion]]) {    // 3.1 如果是新版本
+        
+        // 1. 保存新版本信息（偏好设置)
+        [SCAppVersionTool saveNewAppVersion:currentBundleVersion];
+        
+        // 2. 创建新特性画面控制器collectionViewController
+        SCNewFeatureController *newFeatureVC = [[SCNewFeatureController alloc] init];
+        // 设置窗口的根控制器
+        self.window.rootViewController = newFeatureVC;
+    } else {
+        UIStoryboard *mainSB = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        UITabBarController *tabbarVC = [mainSB instantiateViewControllerWithIdentifier:@"TabBarVC"];
+        self.window.rootViewController = tabbarVC;
+    }
+    
+    [self.window makeKeyAndVisible];
+}
+
+
+- (void)applicationWillResignActive:(UIApplication *)application {
+    
+}
+
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+}
+
+
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+    // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+}
+
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+}
+
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    [self easemobApplication:application didReceiveRemoteNotification:userInfo];
+}
+
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    NSDictionary *userInfo = notification.request.content.userInfo;
+    [self easemobApplication:[UIApplication sharedApplication] didReceiveRemoteNotification:userInfo];
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler {
+    completionHandler();
+}
+
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
+    // 停止下载所有图片
+    [[SDWebImageManager sharedManager] cancelAll];
+    // 清除内存中的图片
+    [[SDWebImageManager sharedManager].imageCache clearMemory];
+}
+
+@end

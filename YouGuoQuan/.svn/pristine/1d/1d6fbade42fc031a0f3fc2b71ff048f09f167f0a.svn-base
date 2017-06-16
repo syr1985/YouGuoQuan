@@ -1,0 +1,147 @@
+/************************************************************
+ *  * Hyphenate CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of Hyphenate Inc.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Hyphenate Inc.
+ */
+
+#import "EaseBubbleView+Text.h"
+#import <Masonry.h>
+
+@implementation EaseBubbleView (Text)
+
+#pragma mark - private
+
+- (void)_setupTextBubbleMarginConstraints
+{
+    NSLayoutConstraint *marginTopConstraint = [NSLayoutConstraint constraintWithItem:self.textLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.backgroundImageView attribute:NSLayoutAttributeTop multiplier:1.0 constant:self.margin.top];
+    NSLayoutConstraint *marginBottomConstraint = [NSLayoutConstraint constraintWithItem:self.textLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.backgroundImageView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-self.margin.bottom];
+    NSLayoutConstraint *marginLeftConstraint = [NSLayoutConstraint constraintWithItem:self.textLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.backgroundImageView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-self.margin.right];
+    NSLayoutConstraint *marginRightConstraint = [NSLayoutConstraint constraintWithItem:self.textLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.backgroundImageView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:self.margin.left];
+    
+    [self.marginConstraints removeAllObjects];
+    [self.marginConstraints addObject:marginTopConstraint];
+    [self.marginConstraints addObject:marginBottomConstraint];
+    [self.marginConstraints addObject:marginLeftConstraint];
+    [self.marginConstraints addObject:marginRightConstraint];
+    
+    [self addConstraints:self.marginConstraints];
+}
+
+- (void)setupTextSnapView {
+    __weak typeof(self) weakself = self;
+    self.backgroundImageView.userInteractionEnabled = YES;
+    self.snapBackView = [[UIView alloc] init];
+    self.snapBackView.userInteractionEnabled = YES;
+    self.snapBackView.backgroundColor = [UIColor whiteColor];
+    [self.backgroundImageView addSubview:self.snapBackView];
+    [self.snapBackView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(weakself.backgroundImageView.mas_right).with.offset(-2);
+        make.left.equalTo(weakself.backgroundImageView.mas_left).with.offset(12);
+        make.top.equalTo(weakself.backgroundImageView.mas_top).with.offset(2);
+        make.bottom.equalTo(weakself.backgroundImageView.mas_bottom).with.offset(-2);
+    }];
+    
+    self.snapImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"T"]];
+    [self.snapBackView addSubview:self.snapImageView];
+    [self.snapImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(weakself.snapBackView.mas_right).with.offset(-10);
+        make.centerY.equalTo(weakself.snapBackView.mas_centerY);
+        make.width.mas_equalTo(16);
+        make.height.mas_equalTo(18);
+    }];
+    
+    self.snapLabel = [[UILabel alloc] init];
+    self.snapLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    self.snapLabel.backgroundColor = [UIColor whiteColor];
+    self.snapLabel.textAlignment = NSTextAlignmentCenter;
+    self.snapLabel.textColor = RGBA(224, 224, 224, 1);
+    self.snapLabel.text = @"点击查看";
+    [self.snapBackView addSubview:self.snapLabel];
+    
+    [self.snapLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(weakself.snapBackView.mas_left);
+        make.right.equalTo(weakself.snapImageView.mas_left).with.offset(-5);
+        make.top.equalTo(weakself.snapBackView.mas_top).with.offset(10);
+        make.bottom.equalTo(weakself.snapBackView.mas_bottom).with.offset(-10);
+    }];
+    
+    // 添加右上角的锁
+    self.countDownButton = [[JKCountDownButton alloc] init];
+    self.countDownButton.enabled = NO;
+    self.countDownButton.titleLabel.font = [UIFont systemFontOfSize:12];
+    [self.countDownButton setBackgroundColor:RGBA(224, 224, 224, 1)];
+    [self.countDownButton setImage:[UIImage imageNamed:@"阅后即焚-锁"] forState:UIControlStateNormal];
+    self.countDownButton.layer.cornerRadius = 10;
+    self.countDownButton.layer.masksToBounds = YES;
+    [self.backgroundImageView addSubview:self.countDownButton];
+    [self.countDownButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.equalTo(weakself.backgroundImageView.mas_right);
+        make.centerY.equalTo(weakself.backgroundImageView.mas_top);
+        make.width.mas_equalTo(20);
+        make.height.mas_equalTo(20);
+    }];
+    
+    [self.countDownButton countDownChanging:^NSString *(JKCountDownButton *countDownButton,NSUInteger second) {
+        NSString *title = [NSString stringWithFormat:@"%zd",second];
+        return title;
+    }];
+    
+    [self.countDownButton countDownFinished:^NSString *(JKCountDownButton *countDownButton, NSUInteger second) {
+        // 删除这条消息
+        if (weakself.deleteMessageBolck) {
+            weakself.deleteMessageBolck();
+        }
+        return @"";
+    }];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                          action:@selector(tapSnapView)];
+    [self.snapBackView addGestureRecognizer:tap];
+}
+
+- (void)tapSnapView {
+    self.snapBackView.hidden = YES;
+    
+    [self.countDownButton setImage:nil forState:UIControlStateNormal];
+    [self.countDownButton setBackgroundColor:RGBA(249, 146, 60, 1)];
+    [self.countDownButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    
+    [self.countDownButton startCountDownWithSecond:10];
+    
+    // 发送已读回执
+    if (self.sendMessageReadBolck) {
+        self.sendMessageReadBolck();
+    }
+}
+
+#pragma mark - public
+
+- (void)setupTextBubbleView
+{
+    self.textLabel = [[UILabel alloc] init];
+    self.textLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    self.textLabel.backgroundColor = [UIColor clearColor];
+    self.textLabel.numberOfLines = 0;
+    [self.backgroundImageView addSubview:self.textLabel];
+    
+    [self _setupTextBubbleMarginConstraints];
+}
+
+- (void)updateTextMargin:(UIEdgeInsets)margin
+{
+    if (_margin.top == margin.top && _margin.bottom == margin.bottom && _margin.left == margin.left && _margin.right == margin.right) {
+        return;
+    }
+    _margin = margin;
+    
+    [self removeConstraints:self.marginConstraints];
+    [self _setupTextBubbleMarginConstraints];
+}
+
+@end

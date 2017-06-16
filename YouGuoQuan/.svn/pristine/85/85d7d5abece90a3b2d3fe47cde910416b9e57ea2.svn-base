@@ -1,0 +1,38 @@
+//
+//  CommentMessageModel.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/2/24.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "CommentMessageModel.h"
+#import <MJExtension.h>
+#import "NSString+StringSize.h"
+
+@implementation CommentMessageModel
+
++ (instancetype)commentMessageModelWithDict:(NSDictionary *)dict {
+    return [[CommentMessageModel alloc] initCommentMessageModelWithDict:dict];
+}
+
+- (instancetype)initCommentMessageModelWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self = [CommentMessageModel mj_objectWithKeyValues:dict];
+        
+        if ([self.aboutCommentId isEqualToString:@"0"]) {
+            CGFloat contentH = [NSString heightWithString:self.content
+                                                  maxSize:CGSizeMake(WIDTH - 108, 0)
+                                                  strFont:[UIFont systemFontOfSize:15]];
+            self.cellHeight = contentH + 80;
+        } else {
+            CGFloat contentH = [NSString heightWithString:self.content
+                                                  maxSize:CGSizeMake(WIDTH - 142, 0)
+                                                  strFont:[UIFont systemFontOfSize:15]];
+            self.cellHeight = contentH + 56;
+        }
+    }
+    return self;
+}
+
+@end

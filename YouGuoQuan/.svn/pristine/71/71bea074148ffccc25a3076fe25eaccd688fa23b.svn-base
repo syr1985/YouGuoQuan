@@ -1,0 +1,55 @@
+//
+//  PraiseMessageViewController.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/9.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "PraiseMessageViewController.h"
+#import "HelperUtil.h"
+#import "PraiseMessageCell.h"
+
+@interface PraiseMessageViewController ()
+
+@end
+
+@implementation PraiseMessageViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [self configViewController];
+}
+
+- (void)configViewController {
+    self.titleString = @"赞";
+    self.tableView.rowHeight = 56;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 3;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    PraiseMessageCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PraiseMessageCell" forIndexPath:indexPath];
+    
+    return cell;
+}
+
+@end

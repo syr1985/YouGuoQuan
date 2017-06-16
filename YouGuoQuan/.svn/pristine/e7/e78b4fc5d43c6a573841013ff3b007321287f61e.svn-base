@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="CrowdfundingInfoViewCell" rowHeight="144" id="0l1-M5-uIW" customClass="CrowdfundingInfoViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="144"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="0l1-M5-uIW" id="q5i-IQ-W5W">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="143"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="YhH-lW-GgM">
+                        <rect key="frame" x="12" y="8" width="113" height="113"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="YhH-lW-GgM" secondAttribute="height" id="BbA-Xn-IeE"/>
+                            <constraint firstAttribute="width" constant="113" id="z7M-M4-brf"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="洪都拉斯潜水写征集" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KWw-Ux-ddW">
+                        <rect key="frame" x="133" y="8" width="175" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="照片记录下我么生活中难忘的，独一无二的，富有个人丰富色彩的，个人主观情感的写真集。" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R6L-rA-Epp">
+                        <rect key="frame" x="133" y="37" width="175" height="62.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" white="0.48486024840000003" alpha="1" colorSpace="calibratedWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="R6L-rA-Epp" firstAttribute="top" secondItem="KWw-Ux-ddW" secondAttribute="bottom" constant="8" id="3o5-TA-BHe"/>
+                    <constraint firstItem="R6L-rA-Epp" firstAttribute="leading" secondItem="YhH-lW-GgM" secondAttribute="trailing" constant="8" id="DV0-2k-a9n"/>
+                    <constraint firstItem="KWw-Ux-ddW" firstAttribute="trailing" secondItem="q5i-IQ-W5W" secondAttribute="trailingMargin" constant="-4" id="MDT-Im-Yrx"/>
+                    <constraint firstAttribute="bottomMargin" relation="greaterThanOrEqual" secondItem="R6L-rA-Epp" secondAttribute="bottom" constant="8" id="NvA-Pp-pzV"/>
+                    <constraint firstItem="R6L-rA-Epp" firstAttribute="trailing" secondItem="q5i-IQ-W5W" secondAttribute="trailingMargin" constant="-4" id="V6x-Ra-O8h"/>
+                    <constraint firstItem="KWw-Ux-ddW" firstAttribute="top" secondItem="q5i-IQ-W5W" secondAttribute="topMargin" id="Z1Y-Xv-206"/>
+                    <constraint firstItem="KWw-Ux-ddW" firstAttribute="leading" secondItem="YhH-lW-GgM" secondAttribute="trailing" constant="8" id="a1z-Ip-W5K"/>
+                    <constraint firstItem="YhH-lW-GgM" firstAttribute="top" secondItem="q5i-IQ-W5W" secondAttribute="top" constant="8" id="izn-TW-TcH"/>
+                    <constraint firstItem="YhH-lW-GgM" firstAttribute="leading" secondItem="q5i-IQ-W5W" secondAttribute="leading" constant="12" id="puZ-yM-0hL"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="cfDescLabel" destination="R6L-rA-Epp" id="Nzl-aS-gJg"/>
+                <outlet property="cfImageView" destination="YhH-lW-GgM" id="zei-9L-p0Q"/>
+                <outlet property="cfTitleLabel" destination="KWw-Ux-ddW" id="oNk-0P-Ah3"/>
+            </connections>
+            <point key="canvasLocation" x="37" y="27"/>
+        </tableViewCell>
+    </objects>
+</document>

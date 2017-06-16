@@ -1,0 +1,239 @@
+//
+//  ConcemViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "FocusTrendsViewCell.h"
+#import "HomeFocusModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "MoreMenuHelp.h"
+#import "NSDate+LXExtension.h"
+#import "PhotoBrowserHelp.h"
+
+@interface FocusTrendsViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *sexImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UILabel *publishTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *publishTitleLabel;
+@property (weak, nonatomic) IBOutlet UIView  *imageBackgroundView;
+
+@property (weak, nonatomic) IBOutlet UIButton *favourButton;
+@property (weak, nonatomic) IBOutlet UIButton *commentButton;
+@property (weak, nonatomic) IBOutlet UIButton *moreButton;
+
+@end
+
+NSString * const kCommentSuccessNotification = @"HomeFocusCommentSuccess";
+
+@implementation FocusTrendsViewCell
+
+- (void)dealloc {
+    NSLog(@"%@ dealloc",[self class]);
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    self.headerImageView.layer.cornerRadius = 20;
+    self.headerImageView.layer.masksToBounds = YES;
+    
+    UITapGestureRecognizer *tapHeader = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapHeaderImageView)];
+    [self.headerImageView addGestureRecognizer:tapHeader];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(updateModelDataForComment:)
+                                                 name:kCommentSuccessNotification
+                                               object:nil];
+}
+
+- (void)setHomeFocusModel:(HomeFocusModel *)homeFocusModel {
+    _homeFocusModel = homeFocusModel;
+    
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:homeFocusModel.headImg]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    _nickNameLabel.text = homeFocusModel.nickName;
+    _crownImageView.hidden = !homeFocusModel.isRecommend;
+    _vipImageView.hidden = !homeFocusModel.audit;
+    _sexImageView.image = [UIImage imageNamed:homeFocusModel.sex];
+    _levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",homeFocusModel.star]];
+    
+    NSTimeInterval timeInterval = [homeFocusModel.createTime doubleValue];
+    NSDate *createDate = [NSDate dateWithTimeIntervalSince1970:timeInterval / 1000];
+    LXDateItem *item = [[NSDate date] lx_timeIntervalSinceDate:createDate];
+    //NSLog(@"%ld,%ld,%ld",item.day,item.minute,item.hour);
+    _publishTimeLabel.text = [NSString stringWithFormat:@"%@",item.description];
+    
+    _publishTitleLabel.text = homeFocusModel.instro;
+    
+    if (_imageBackgroundView.subviews.count) {
+        for (UIView *view in _imageBackgroundView.subviews) {
+            [view removeFromSuperview];
+        }
+    }
+    
+    NSUInteger margin = 5;
+    CGFloat defaultW = (WIDTH - 16 - 2 * margin) / 3;
+    if (homeFocusModel.imageUrl && homeFocusModel.imageUrl.length) {
+        if ([homeFocusModel.imageUrl containsString:@";"]) {
+            NSArray *urlArray = [homeFocusModel.imageUrl componentsSeparatedByString:@";"];
+            NSUInteger count = urlArray.count;
+            NSUInteger col = 2;
+            if (count != 4) {
+                if (count > 2) {
+                    col = 3;
+                } else {
+                    col = count;
+                }
+            }
+            NSUInteger row = count / 3 + 1;
+            if (count % 3 == 0) {
+                row = count / 3;
+            }
+            
+            CGFloat viewW = (WIDTH - 16 - (col - 1) * margin) / col;
+            if (viewW > defaultW) {
+                viewW = defaultW;
+            }
+            CGFloat viewH = viewW;
+            for (NSUInteger i = 0; i < row; i++) {
+                CGFloat viewY = (viewH + margin) * i;
+                for (NSUInteger j = 0; j < col; j++) {
+                    CGFloat viewX = (viewH + margin) * j;
+                    NSUInteger index = i * col + j;
+                    if (index < count) {
+                        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                              action:@selector(popupPhotoBrowser:)];
+                        UIImageView *imageView = [[UIImageView alloc] init];
+                        imageView.tag = index;
+                        imageView.userInteractionEnabled = YES;
+                        imageView.frame = CGRectMake(viewX, viewY, viewW, viewH);
+                        [imageView sd_setImageWithURL:[NSURL URLWithString:urlArray[index]]
+                                     placeholderImage:nil];
+                        [imageView addGestureRecognizer:tap];
+                        [_imageBackgroundView addSubview:imageView];
+                    }
+                }
+            }
+        } else {
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                  action:@selector(popupPhotoBrowser:)];
+            UIImageView *imageView = [[UIImageView alloc] init];
+            imageView.userInteractionEnabled = YES;
+            imageView.frame = CGRectMake(0, 0, defaultW, defaultW);
+            [imageView sd_setImageWithURL:[NSURL URLWithString:homeFocusModel.imageUrl]
+                         placeholderImage:nil];
+            [imageView addGestureRecognizer:tap];
+            [_imageBackgroundView addSubview:imageView];
+        }
+    }
+    
+    _favourButton.selected = homeFocusModel.praise;
+    [_favourButton setTitle:homeFocusModel.recommendCount forState:UIControlStateNormal];
+    [_commentButton setTitle:homeFocusModel.commentCount forState:UIControlStateNormal];
+}
+
+/**
+ *  更多菜单
+ */
+- (IBAction)moreButtonClicked {
+    __weak typeof(self) weakself = self;
+    [[MoreMenuHelp sharedInstance] showMoreMenu:^(NSUInteger index) {
+        if (weakself.actionSheetItemClicked) {
+            weakself.actionSheetItemClicked(index, weakself.homeFocusModel.userId, weakself.homeFocusModel.focusId);
+        }
+    }];
+}
+
+/**
+ *  点击赞按钮
+ */
+- (IBAction)favourToOther:(UIButton *)sender {
+    __weak typeof(self) weakself = self;
+    if (sender.isSelected) {
+        // 取消赞
+        [NetworkTool cancelFavourWithFeedsID:_homeFocusModel.focusId userID:_homeFocusModel.userId success:^{
+            sender.selected = NO;
+            NSInteger priseCount = [weakself.homeFocusModel.recommendCount integerValue];
+            NSString *newPriseCount = [NSString stringWithFormat:@"%ld",priseCount - 1];
+            weakself.homeFocusModel.recommendCount = newPriseCount;
+            [weakself.favourButton setTitle:newPriseCount forState:UIControlStateNormal];
+            weakself.homeFocusModel.praise = NO;
+            
+            if (weakself.favourResultBlock) {
+                weakself.favourResultBlock(YES);
+            }
+        }];
+    } else {
+        // 点赞
+        [NetworkTool doFavourWithFeedsID:_homeFocusModel.focusId userId:_homeFocusModel.userId success:^{
+            sender.selected = YES;
+            NSInteger priseCount = [weakself.homeFocusModel.recommendCount integerValue];
+            NSString *newPriseCount = [NSString stringWithFormat:@"%ld",priseCount + 1];
+            weakself.homeFocusModel.recommendCount = newPriseCount;
+            [weakself.favourButton setTitle:newPriseCount forState:UIControlStateNormal];
+            weakself.homeFocusModel.praise = YES;
+            
+            if (weakself.favourResultBlock) {
+                weakself.favourResultBlock(NO);
+            }
+        }];
+    }
+}
+
+/**
+ *  评论
+ */
+- (IBAction)messageToOther:(UIButton *)sender {
+    if (self.commentBlock) {
+        self.commentBlock(_homeFocusModel);
+    }
+}
+
+/**
+ *  打开图片浏览器
+ */
+- (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
+    UIView *tapView = sender.view;
+    if (_homeFocusModel.imageUrl && _homeFocusModel.imageUrl.length) {
+        NSArray *urlArray;
+        if ([_homeFocusModel.imageUrl containsString:@";"]) {
+            urlArray = [_homeFocusModel.imageUrl componentsSeparatedByString:@";"];
+        } else {
+            urlArray = @[_homeFocusModel.imageUrl];
+        }
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:tapView.tag];
+    }
+}
+
+/**
+ *  点击头像进TA人主页
+ */
+- (void)tapHeaderImageView {
+    if (_tapHeaderView) {
+        _tapHeaderView(_homeFocusModel.userId);
+    }
+}
+
+#pragma mark -
+#pragma mark - 评论后更新模型数据
+- (void)updateModelDataForComment:(NSNotification *)noti {
+    NSString *content = noti.userInfo[@"NewCommentTimes"];
+    NSString *focusId = noti.userInfo[@"CurrentFocusID"];
+    if ([_homeFocusModel.focusId isEqualToString:focusId]) {
+        [_commentButton setTitle:content forState:UIControlStateNormal];
+    }
+}
+
+@end

@@ -1,0 +1,19 @@
+//
+//  SnapViewCell.h
+//  YouGuoQuan
+//
+//  Created by liushuai on 2017/1/10.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "IMessageModel.h"
+
+@interface SnapViewCell : UITableViewCell
+
+
+- (void) configureContent : (id<IMessageModel>)messageModel;
+
++ (CGFloat) cellHeight :(id<IMessageModel>)messageModel;
+
+@end

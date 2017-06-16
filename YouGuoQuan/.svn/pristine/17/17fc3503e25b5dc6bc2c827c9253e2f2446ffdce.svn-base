@@ -1,0 +1,38 @@
+//
+//  ShareView.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/30.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "ShareView.h"
+
+@implementation ShareView
+
+/*
+ // Only override drawRect: if you perform custom drawing.
+ // An empty implementation adversely affects performance during animation.
+ - (void)drawRect:(CGRect)rect {
+ // Drawing code
+ }
+ */
+
++ (instancetype)shareView {
+    NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"ShareView" owner:self options:nil];
+    ShareView *shareView = nib[0];
+    shareView.frame = CGRectMake(0, 0, WIDTH, HEIGHT);
+    return shareView;
+}
+
+- (IBAction)tapShareView:(UITapGestureRecognizer *)sender {
+    if (_tapShareItem) {
+        _tapShareItem(sender.view.tag);
+    }
+}
+
+- (IBAction)cancelButtonClicked {
+    [self removeFromSuperview];
+}
+
+@end

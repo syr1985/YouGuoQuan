@@ -1,0 +1,46 @@
+//
+//  LocationUploader.m
+//  PowerDemo
+//
+//  Created by jqoo on 2016/12/10.
+//  Copyright © 2016年 jqoo. All rights reserved.
+//
+
+#import "LocationUploader.h"
+#import "YGQLocationService.h"
+
+@interface LocationUploader ()
+{
+    BOOL _started;
+}
+
+@end
+
+@implementation LocationUploader
+
+- (void)dealloc {
+    [self stop];
+}
+
+- (void)start {
+    if (!_started) {
+        [[YGQLocationService sharedInstance] addObserver:self forKeyPath:@"coordinate" options:NSKeyValueObservingOptionNew context:NULL];
+        _started = YES;
+    }
+}
+
+- (void)stop {
+    if (_started) {
+        [[YGQLocationService sharedInstance] removeObserver:self forKeyPath:@"coordinate"];
+        _started = NO;
+    }
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    if ([[YGQLocationService sharedInstance] isCoordinateValid]) {
+        //CLLocationCoordinate2D coordinate = [YGQLocationService sharedInstance].coordinate;
+        // todo: upload
+    }
+}
+
+@end

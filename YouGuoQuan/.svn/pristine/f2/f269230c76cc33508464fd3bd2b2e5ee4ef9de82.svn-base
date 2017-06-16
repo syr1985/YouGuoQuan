@@ -1,0 +1,20 @@
+//
+//  MessageVM.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/8.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "MessageVM.h"
+
+@interface MessageVM() {
+    
+}
+
+@end
+
+
+@implementation MessageVM
+
+@end

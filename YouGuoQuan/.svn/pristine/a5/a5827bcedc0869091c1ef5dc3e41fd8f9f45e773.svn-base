@@ -1,0 +1,310 @@
+//
+//  YGSelectPicView.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 2016/12/19.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "YGSelectPicView.h"
+#import "Masonry.h"
+#import "TZImageManager.h"
+#import "TZAssetModel.h"
+#import "YGSelectPicCell.h"
+#import <AssetsLibrary/AssetsLibrary.h>
+
+
+@interface YGSelectPicView()<UICollectionViewDelegate, UICollectionViewDataSource, YGSelectPicCellDelegate> 
+@property(nonatomic, strong) UICollectionView *collectionView;
+@property(nonatomic, strong) UIButton *albumBtn;
+@property(nonatomic, strong) UIButton *originBtn;
+@property(nonatomic, strong) UIButton *sendBtn;
+@property(nonatomic, strong) UIView *bottomView;
+@property(nonatomic, strong) UILabel *selectCountLabel;
+@property(nonatomic) BOOL shouldSendOriginPhoto;
+@property(nonatomic, strong) TZAlbumModel *albumModel;
+
+@end
+
+@implementation YGSelectPicView
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor whiteColor];
+        [self addSubview:self.collectionView];
+        [self addSubview:self.bottomView];
+        [self.bottomView addSubview:self.albumBtn];
+        [self.bottomView addSubview:self.originBtn];
+        [self.bottomView addSubview:self.selectCountLabel];
+        [self.bottomView addSubview:self.sendBtn];
+        [self addAutoLayoutConstraint];
+        
+        self.selectModels = [[NSMutableArray alloc] init];
+        
+        [TZImageManager manager].photoPreviewMaxWidth = 320;
+        [TZImageManager manager].sortAscendingByModificationDate = YES;
+        
+        __weak typeof(self) weakself = self;
+        [[TZImageManager manager] getCameraRollAlbum:NO allowPickingImage:YES completion:^(TZAlbumModel *model) {
+            weakself.albumModel = model;
+            [weakself.collectionView reloadData];
+        }];
+    }
+    return self;
+}
+
+- (void)addAutoLayoutConstraint {
+    [self.collectionView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.mas_left);
+        make.top.mas_equalTo(self.mas_top);
+        make.right.mas_equalTo(self.mas_right);
+        make.height.mas_equalTo(168);
+    }];
+    
+    [self.bottomView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.mas_left);
+        make.right.mas_equalTo(self.mas_right);
+        make.top.mas_equalTo(self.collectionView.mas_bottom);
+        make.bottom.mas_equalTo(self.mas_bottom);
+    }];
+    
+    [self.albumBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(10);
+        make.centerY.mas_equalTo(self.bottomView.mas_centerY);
+    }];
+    
+    [self.originBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.albumBtn.mas_right).with.offset(28);
+        make.centerY.mas_equalTo(self.bottomView.mas_centerY);
+    }];
+    
+    
+    [self.sendBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.mas_equalTo(self.bottomView.mas_right).with.offset(-5);
+        make.centerY.mas_equalTo(self.bottomView.mas_centerY);
+    }];
+    
+    [self.selectCountLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.mas_equalTo(self.sendBtn.mas_left).with.offset(-4);
+        make.centerY.mas_equalTo(self.bottomView.mas_centerY);
+        make.size.mas_equalTo(CGSizeMake(20, 20));
+    }];
+}
+
+- (UICollectionView *)collectionView {
+    if (!_collectionView) {
+        UICollectionViewFlowLayout *flowLayout=[[UICollectionViewFlowLayout alloc] init];
+        [flowLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
+        _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:flowLayout];
+        _collectionView.backgroundColor = [UIColor whiteColor];
+        [_collectionView registerClass:[YGSelectPicCell class] forCellWithReuseIdentifier:[YGSelectPicCell reuseIdentifier]];
+        _collectionView.delegate = self;
+        _collectionView.dataSource = self;
+    }
+    return _collectionView;
+}
+
+
+- (UIButton *)albumBtn {
+    if (!_albumBtn) {
+        _albumBtn = [[UIButton alloc] init];
+        [_albumBtn setTitle:@"相册" forState:UIControlStateNormal];
+        _albumBtn.titleLabel.font = [UIFont systemFontOfSize:17];
+        [_albumBtn setTitleColor:NavTabBarColor forState:UIControlStateNormal];
+        [_albumBtn addTarget:self action:@selector(actionAlbum) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _albumBtn;
+}
+
+- (UIButton *)riginBtn {
+    if (!_originBtn) {
+        _originBtn = [[UIButton alloc] init];
+        [_originBtn setTitle:@"原图" forState:UIControlStateNormal];
+        _originBtn.titleLabel.font = [UIFont systemFontOfSize:17];
+        [_originBtn setTitleColor:NavTabBarColor forState:UIControlStateNormal];
+        [_originBtn setImage:[UIImage imageNamed:@"选框"] forState:UIControlStateNormal];
+        [_originBtn setImage:[UIImage imageNamed:@"选框选中"] forState:UIControlStateSelected];
+        [_originBtn addTarget:self action:@selector(actionOriginButtonTapped) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _originBtn;
+}
+
+- (UIButton *)sendBtn {
+    if (!_sendBtn) {
+        _sendBtn = [[UIButton alloc] init];
+        [_sendBtn setTitle:@"发送" forState:UIControlStateNormal];
+        _sendBtn.titleLabel.font = [UIFont systemFontOfSize:17];
+        [_sendBtn setTitleColor:NavTabBarColor forState:UIControlStateNormal];
+        [_sendBtn addTarget:self action:@selector(actionSendPic) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _sendBtn;
+}
+
+- (UIView *)bottomView {
+    if (!_bottomView) {
+        _bottomView = [[UIView alloc] init];
+    }
+    return _bottomView;
+}
+
+- (UILabel *)selectCountLabel {
+    if (!_selectCountLabel) {
+        _selectCountLabel = [[UILabel alloc] init];
+        _selectCountLabel.layer.cornerRadius = 10;
+        _selectCountLabel.layer.backgroundColor = [HelperUtil colorWithHexString:@"#FF3654"].CGColor;
+        _selectCountLabel.font = [UIFont systemFontOfSize:12];
+        _selectCountLabel.textColor = [UIColor whiteColor];
+        _selectCountLabel.textAlignment = NSTextAlignmentCenter;
+        _selectCountLabel.text = @"4";
+    }
+    return _selectCountLabel;
+}
+
+#pragma mark - UICollectionViewDelegate
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger index = indexPath.row;
+    if ([self.delegate respondsToSelector:@selector(previewPic:atIndex:)]) {
+        [self.delegate previewPic:self atIndex:index];
+    }
+}
+
+#pragma mark - UICollectionViewDataSource
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.albumModel.models.count;
+}
+
+// The cell that is returned must be retrieved from a call to -dequeueReusableCellWithReuseIdentifier:forIndexPath:
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    TZAssetModel *assetModel = self.albumModel.models[indexPath.row];
+    YGSelectPicCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:[YGSelectPicCell reuseIdentifier] forIndexPath:indexPath];
+    cell.delegate = self;
+    [cell refreshContent:assetModel];
+    return cell;
+}
+
+
+#pragma mark ---- UICollectionViewDelegateFlowLayout
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    TZAssetModel *assetModel = self.albumModel.models[indexPath.row];
+    if ([assetModel.asset isKindOfClass:[PHAsset class]]) {
+        PHAsset *asset = assetModel.asset;
+        return CGSizeMake(asset.pixelWidth * 168 / asset.pixelHeight, 168);
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    else if ([assetModel.asset isKindOfClass:[ALAsset class]]) {
+        ALAsset *asset = assetModel.asset;
+        CGImageRef thumbnailImageRef = asset.thumbnail;
+        UIImage *thumbnailImage = [UIImage imageWithCGImage:thumbnailImageRef scale:2.0 orientation:UIImageOrientationUp];
+        return CGSizeMake(thumbnailImage.size.width * 168 / thumbnailImage.size.height, 168);
+    }
+#pragma clang diagnostic pop
+    return CGSizeMake(0, 0);
+}
+
+
+- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
+    return UIEdgeInsetsZero;
+}
+
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+    return 5.f;
+}
+
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+    return 5.f;
+}
+
+- (void)switchSelected:(BOOL)isSelected forCell:(YGSelectPicCell *)cell {
+    NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+    TZAssetModel *assetModel = self.albumModel.models[indexPath.row];
+    if (assetModel.isSelected) {
+        [self.selectModels addObject:assetModel];
+    } else {
+        [self.selectModels removeObject:assetModel];
+    }
+    
+    self.selectCountLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)self.selectModels.count];
+    if (self.selectModels.count > 0) {
+        self.selectCountLabel.hidden = NO;
+        [self.sendBtn setEnabled:YES];
+    } else {
+        self.selectCountLabel.hidden = YES;
+        [self.sendBtn setEnabled:NO];
+    }
+}
+
+- (void)tapCell:(YGSelectPicCell *)cell {
+    NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+    if ([self.delegate respondsToSelector:@selector(previewPic:atIndex:)]) {
+        [self.delegate previewPic:self atIndex:indexPath.row];
+    }
+}
+
+- (void)actionOriginButtonTapped {
+    self.originBtn.selected = !self.originBtn.selected;
+    self.shouldSendOriginPhoto = self.originBtn.selected;
+}
+
+- (void)actionSendPic {
+    if ([self.delegate respondsToSelector:@selector(didSendPic:)]) {
+        [self.delegate didSendPic:self];
+    }
+}
+
+- (void)actionAlbum {
+    if ([self.delegate respondsToSelector:@selector(didTapAlbum:)]) {
+        [self.delegate didTapAlbum:self];
+    }
+}
+
+- (void)reloadData {
+    NSMutableArray *selectArray = [[NSMutableArray alloc] init];
+    for (TZAssetModel *assetModel in self.albumModel.models) {
+        BOOL isSelected = NO;
+        for (TZAssetModel *selectModel in self.selectModels) {
+            if ([[[TZImageManager manager] getAssetIdentifier:assetModel.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:selectModel.asset]]) {
+                isSelected = YES;
+                [selectArray addObject:assetModel];
+                break;
+            }
+        }
+        assetModel.isSelected = isSelected;
+    }
+    
+    self.selectModels = selectArray;
+    
+    [self.collectionView reloadData];
+    self.selectCountLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)self.selectModels.count];
+    if (self.selectModels.count > 0) {
+        self.selectCountLabel.hidden = NO;
+        [self.sendBtn setEnabled:YES];
+    } else {
+        self.selectCountLabel.hidden = YES;
+        [self.sendBtn setEnabled:NO];
+    }
+}
+
+- (void)reset {
+    [self.selectModels removeAllObjects];
+    for (TZAssetModel *assetModel in self.albumModel.models) {
+        assetModel.isSelected = NO;
+    }
+    [self.collectionView scrollsToTop];
+    [self reloadData];
+}
+
++ (CGFloat)viewHeight {
+    return 212;
+}
+
+@end

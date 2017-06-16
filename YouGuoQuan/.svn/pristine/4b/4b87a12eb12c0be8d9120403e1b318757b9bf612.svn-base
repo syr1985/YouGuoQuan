@@ -1,0 +1,157 @@
+//
+//  NetWrokingData.m
+//
+//
+//  Created by  on 14-8-11.
+//  Copyright (c) 2014年 . All rights reserved.
+//
+
+#import "NetWorking.h"
+#import <AFNetworking.h>
+
+@implementation NetWorking
+
+
+#pragma mark -- 重新封装
+//+ (void)postJSONWithPath:(NSString *)pathString Parameters:(NSMutableDictionary *)param success:(void (^)(id responseObject))success fail:(void (^)(NSError *error))fail {
+//    //0.
+//    NSString *md5String = [self getMd5StringWithParameters:param withPath:pathString];
+//    //NSLog(@"md5String = %@",md5String);
+//    param[@"sign"] = md5String;
+//    
+//    NSString *bodyString = [self getStringWithParameters:param withSign:NO];
+//    //NSLog(@"bodyString = %@",bodyString);
+//    //1. URL
+//    NSString *urlString = [NSString stringWithFormat:@"%@%@",ServerUrl,pathString];
+//    NSURL *url = [NSURL URLWithString:urlString];
+//    
+//    // 2. Request
+//    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+//    request.timeoutInterval = 90;
+//    request.HTTPMethod = @"POST";
+//    [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"content-type"];//请求头
+//    
+//    NSData *bodyData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];//把bodyString转换为NSData数据
+//    request.HTTPBody = bodyData;
+//    
+//    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+//        if (error == nil) {
+//            success(data);
+//        } else {
+//            fail(error);
+//        }
+//    }];
+//}
+
++ (NSString *)getMd5StringWithParameters:(NSMutableDictionary *)dict withPath:(NSString *)pathString {
+    if (dict) {
+        NSString *headString = [self getStringWithParameters:dict withSign:YES];
+        NSString *signString = [headString stringByAppendingString:EncryptCode];
+        NSString *signOfPath = [pathString stringByAppendingString:signString];
+        NSString *urlEncoded = [signOfPath URLEncoding];
+        return [urlEncoded MD5];
+    } else {
+        return nil;
+    }
+}
+
++ (NSString *)getStringWithParameters:(NSMutableDictionary *)param withSign:(BOOL)bGetSign {
+    NSArray *allKeys = [param allKeys];
+    NSArray *sortArray = [allKeys sortedArrayUsingSelector:@selector(compare:)];
+    NSString *paramString = @"";
+    if (bGetSign) {
+        for (NSString *key in sortArray) {
+            if (![key isEqualToString:@"sign"]) {
+                NSString *sectionString = [NSString stringWithFormat:@"%@=%@",key,[param objectForKey:key]];
+                paramString = [paramString stringByAppendingString:sectionString];
+            }
+        }
+    } else {
+        for (NSString *key in sortArray) {
+            NSString *sectionString = [NSString stringWithFormat:@"%@=%@&",key,[param objectForKey:key]];
+            paramString = [paramString stringByAppendingString:sectionString];
+        }
+        paramString = [paramString substringToIndex:(paramString.length - 1)];
+    }
+    
+    return paramString;
+}
+
+#pragma mark -- Fourth AFN 的 FormData
+//+ (void)postWithPath:(NSString *)pathString parameters:(NSMutableDictionary *)param images:(NSMutableDictionary *)dicImages success:(void (^)(id responseObject))success fail:(void (^)(NSError *error))fail {
+//    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+//    // 设置请求格式
+//    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+//    // 设置返回格式
+//    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+//    
+//    //-1 特殊情况的处理(活动验证)
+//    NSString *qrString = nil;
+//    if ([pathString isEqualToString:@"/iface/custhird/valiQrCode"]) {
+//        qrString = [param objectForKey:@"qrCode"];
+//        [param removeObjectForKey:@"qrCode"];
+//    }
+//    
+//    //0.
+//    NSString *md5String = [self getMd5StringWithParameters:param withPath:pathString];
+//    param[@"sign"] = md5String;
+//    
+//    //1. URL
+//    NSString *urlString = [NSString stringWithFormat:@"%@%@",ServerUrl,pathString];
+//    //1.1 特殊情况的处理(活动验证)
+//    if (qrString) {
+//        urlString = qrString;
+//    }
+//    
+//    [manager POST:urlString parameters:param constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+//        if (dicImages) {
+//            NSArray *allkeys = dicImages.allKeys;
+//            
+//            for (NSString *key in allkeys) {
+//                //要上传的图片
+//                UIImage *image = [dicImages objectForKey:key];
+//                //得到图片的data
+//                NSData *data = UIImageJPEGRepresentation(image, 0.0);
+//                
+//                NSString *fileName = [key stringByAppendingString:@".jpg"];
+//                [formData appendPartWithFileData:data name:@"files" fileName:fileName mimeType:@"image/jpg"];
+//            }
+//        }
+//    } success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+//        if (success) {
+//            success(responseObject);
+//        }
+//    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+//        if (fail) {
+//            fail(error);
+//        }
+//    }];
+//}
+
+#pragma mark -- Session  AFN Post and Get
++ (void)postSessionWithUrl:(NSString *)urlStr parameters:(id)parameters success:(void (^)(id responseObject))success fail:(void (^)(NSError *error))fail {
+    
+    // 1.创建AFN管理者
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer.acceptableContentTypes = [NSSet setWithArray:@[@"text/plain", @"text/html", @"application/json"]];
+    
+    //0.
+    NSString *md5String = [self getMd5StringWithParameters:parameters withPath:urlStr];
+    parameters[@"sign"] = md5String;
+    
+    //1. URL
+    NSString *urlString = [NSString stringWithFormat:@"%@%@",ServerUrl,urlStr];
+    
+    [manager POST:urlString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (success) {
+            success(responseObject);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+@end

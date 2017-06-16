@@ -1,0 +1,21 @@
+//
+//  PersonOrderListViewController.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+//typedef NS_ENUM(NSInteger, OrderType) {
+//    OrderType_AllOrder = 0,
+//    OrderType_ReadyPay,
+//    OrderType_Ordering,
+//    OrderType_OrderEnd,
+//    OrderType_RollBack
+//};
+
+@interface AllOrderListViewController : UIViewController
+
+@end

@@ -1,0 +1,124 @@
+//
+//  FocusProductViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/6.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "FocusProductViewCell.h"
+#import "HomeFocusModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "MoreMenuHelp.h"
+#import "NSDate+LXExtension.h"
+#import "PhotoBrowserHelp.h"
+#import "UIImage+Color.h"
+
+@interface FocusProductViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *sexImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *publishTimeLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *publishTitleLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *productImageView;
+
+@property (weak, nonatomic) IBOutlet UIButton *buyButton;
+@property (weak, nonatomic) IBOutlet UILabel *buyCountLabel;
+@property (weak, nonatomic) IBOutlet UILabel *praiseRateLabel;
+@property (weak, nonatomic) IBOutlet UIButton *moreButton;
+
+@end
+
+@implementation FocusProductViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    self.headerImageView.layer.cornerRadius = 20;
+    self.headerImageView.layer.masksToBounds = YES;
+    
+    UITapGestureRecognizer *tapHeader = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapHeaderImageView)];
+    [self.headerImageView addGestureRecognizer:tapHeader];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(popupPhotoBrowser:)];
+    [self.productImageView addGestureRecognizer:tap];
+}
+
+- (void)setHomeFocusModel:(HomeFocusModel *)homeFocusModel {
+    _homeFocusModel = homeFocusModel;
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:homeFocusModel.headImg]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.nickNameLabel.text = homeFocusModel.nickName;
+    self.crownImageView.hidden = !homeFocusModel.isRecommend;
+    self.vipImageView.hidden = (homeFocusModel.audit != 1);
+    self.sexImageView.image = [UIImage imageNamed:homeFocusModel.sex];
+    self.levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",homeFocusModel.star]];
+    
+    NSTimeInterval timeInterval = [homeFocusModel.createTime doubleValue];
+    NSDate *createDate = [NSDate dateWithTimeIntervalSince1970:timeInterval / 1000];
+    LXDateItem *item = [[NSDate date] lx_timeIntervalSinceDate:createDate];
+    self.publishTimeLabel.text = [NSString stringWithFormat:@"%@",item.description];
+    self.publishTitleLabel.text = homeFocusModel.goodsName;
+    
+    UIImage *phImage = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]
+                                                     size:_productImageView.frame.size];
+    [self.productImageView sd_setImageWithURL:[NSURL URLWithString:homeFocusModel.imageUrl]
+                             placeholderImage:phImage];
+    
+    self.buyCountLabel.text = [NSString stringWithFormat:@"%@人购买", homeFocusModel.buyCount];
+    self.praiseRateLabel.text = [NSString stringWithFormat:@"好评率：%@",homeFocusModel.buyCommentGoodCount];
+}
+
+/**
+ *  更多按钮点击
+ */
+- (IBAction)moreButtonClicked {
+    __weak typeof(self) weakself = self;
+    [MoreMenuHelp  showMoreMenu:^(NSUInteger index) {
+        if (weakself.actionSheetItemClicked) {
+            weakself.actionSheetItemClicked(index, weakself.homeFocusModel.userId, weakself.homeFocusModel.focusId);
+        }
+    }];
+}
+
+/**
+ *  购买商品
+ */
+- (IBAction)buyProduct:(id)sender {
+    if (_buyButtonClickedBlock) {
+        _buyButtonClickedBlock(_homeFocusModel);
+    }
+}
+
+/**
+ *  点击头像进TA人主页
+ */
+- (void)tapHeaderImageView {
+    if (_tapHeaderView) {
+        _tapHeaderView(_homeFocusModel.userId);
+    }
+}
+
+/**
+ *  打开图片浏览器
+ */
+- (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
+    if (_homeFocusModel.imageUrl && _homeFocusModel.imageUrl.length) {
+        NSArray *urlArray;
+        if ([_homeFocusModel.imageUrl containsString:@";"]) {
+            urlArray = [_homeFocusModel.imageUrl componentsSeparatedByString:@";"];
+        } else {
+            urlArray = @[_homeFocusModel.imageUrl];
+        }
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:0];
+    }
+}
+
+@end

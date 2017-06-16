@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_0" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PublishProductHeaderView" id="U6b-Vx-4bR" customClass="PublishProductHeaderView">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="475"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="tRb-mg-kSX">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="230"/>
+                    <color key="backgroundColor" red="1" green="0.50196078430000002" blue="0.38431372549999998" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" secondItem="tRb-mg-kSX" secondAttribute="height" multiplier="75:46" id="rdq-y2-5le"/>
+                    </constraints>
+                </imageView>
+                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="请输入商品名称（限15字以内）" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="yj3-QM-LhU">
+                    <rect key="frame" x="8" y="239" width="359" height="30"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="30" id="jDk-hJ-5iW"/>
+                    </constraints>
+                    <nil key="textColor"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <textInputTraits key="textInputTraits"/>
+                    <connections>
+                        <outlet property="delegate" destination="U6b-Vx-4bR" id="bWE-eV-jDr"/>
+                    </connections>
+                </textField>
+                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="请输入商品金额（限99~1314之间）" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="PkZ-vN-Nz2">
+                    <rect key="frame" x="8" y="286" width="359" height="30"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="30" id="4wa-bA-AjY"/>
+                    </constraints>
+                    <nil key="textColor"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
+                    <connections>
+                        <outlet property="delegate" destination="U6b-Vx-4bR" id="euY-Wf-SrV"/>
+                    </connections>
+                </textField>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uai-HX-12W">
+                    <rect key="frame" x="8" y="277" width="359" height="1"/>
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="d8R-dw-QsD"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3VG-ti-Mwe">
+                    <rect key="frame" x="8" y="324" width="359" height="1"/>
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="4GZ-Tz-Dlm"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" showsVerticalScrollIndicator="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="I29-bK-5I1">
+                    <rect key="frame" x="8" y="333" width="359" height="134"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="134" id="efq-Gw-dKn"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                    <connections>
+                        <outlet property="delegate" destination="U6b-Vx-4bR" id="Wx6-HU-wlt"/>
+                    </connections>
+                </textView>
+                <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fKL-9e-7Q6">
+                    <rect key="frame" x="141" y="100" width="92" height="30"/>
+                    <state key="normal" title="点击更换封面">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <connections>
+                        <action selector="openPhotoAlbum" destination="U6b-Vx-4bR" eventType="touchUpInside" id="hLl-bL-Itr"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="75R-da-Aad" customClass="CameraButton">
+                    <rect key="frame" x="100" y="84" width="174" height="63"/>
+                    <state key="normal" title="上传商品照片" image="上传商品封面">
+                        <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <connections>
+                        <action selector="openPhotoAlbum" destination="U6b-Vx-4bR" eventType="touchUpInside" id="e8a-I9-ooP"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="0.047212446040000002" green="0.62720580640000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+            <constraints>
+                <constraint firstItem="Uai-HX-12W" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="8" id="05c-NA-tIJ"/>
+                <constraint firstAttribute="trailing" secondItem="Uai-HX-12W" secondAttribute="trailing" constant="8" id="0hU-hO-G9K"/>
+                <constraint firstAttribute="trailing" secondItem="3VG-ti-Mwe" secondAttribute="trailing" constant="8" id="3pL-Z3-UA5"/>
+                <constraint firstItem="I29-bK-5I1" firstAttribute="top" secondItem="3VG-ti-Mwe" secondAttribute="bottom" constant="8" id="54y-Cb-12v"/>
+                <constraint firstAttribute="trailing" secondItem="tRb-mg-kSX" secondAttribute="trailing" id="791-tn-OlL"/>
+                <constraint firstAttribute="trailing" secondItem="yj3-QM-LhU" secondAttribute="trailing" constant="8" id="AlW-ci-E9B"/>
+                <constraint firstItem="PkZ-vN-Nz2" firstAttribute="top" secondItem="Uai-HX-12W" secondAttribute="bottom" constant="8" id="CLm-dI-fGJ"/>
+                <constraint firstItem="3VG-ti-Mwe" firstAttribute="top" secondItem="PkZ-vN-Nz2" secondAttribute="bottom" constant="8" id="IgH-f4-4Ah"/>
+                <constraint firstItem="yj3-QM-LhU" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="8" id="K69-D4-eP8"/>
+                <constraint firstAttribute="trailing" secondItem="PkZ-vN-Nz2" secondAttribute="trailing" constant="8" id="LmI-T0-DM3"/>
+                <constraint firstItem="I29-bK-5I1" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="8" id="Now-Be-AqR"/>
+                <constraint firstItem="75R-da-Aad" firstAttribute="centerY" secondItem="tRb-mg-kSX" secondAttribute="centerY" id="OUi-WI-Cqu"/>
+                <constraint firstItem="fKL-9e-7Q6" firstAttribute="centerY" secondItem="tRb-mg-kSX" secondAttribute="centerY" id="QcI-FL-TAH"/>
+                <constraint firstItem="tRb-mg-kSX" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" id="Ucn-fx-Fyv"/>
+                <constraint firstItem="75R-da-Aad" firstAttribute="centerX" secondItem="tRb-mg-kSX" secondAttribute="centerX" id="Xjl-Tz-LnW"/>
+                <constraint firstItem="tRb-mg-kSX" firstAttribute="top" secondItem="U6b-Vx-4bR" secondAttribute="top" id="a36-oR-hNX"/>
+                <constraint firstItem="PkZ-vN-Nz2" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="8" id="bzH-9w-oaK"/>
+                <constraint firstItem="yj3-QM-LhU" firstAttribute="top" secondItem="tRb-mg-kSX" secondAttribute="bottom" constant="9" id="ega-em-j3T"/>
+                <constraint firstItem="3VG-ti-Mwe" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="8" id="k7g-F5-KXA"/>
+                <constraint firstItem="Uai-HX-12W" firstAttribute="top" secondItem="yj3-QM-LhU" secondAttribute="bottom" constant="8" id="kpe-MA-laR"/>
+                <constraint firstItem="fKL-9e-7Q6" firstAttribute="centerX" secondItem="tRb-mg-kSX" secondAttribute="centerX" id="vQb-wB-CRk"/>
+                <constraint firstAttribute="trailing" secondItem="I29-bK-5I1" secondAttribute="trailing" constant="8" id="yIb-9V-G2Z"/>
+            </constraints>
+            <connections>
+                <outlet property="changeCoverImageButton" destination="fKL-9e-7Q6" id="gF3-pw-Yi6"/>
+                <outlet property="coverImageView" destination="tRb-mg-kSX" id="MpV-ML-hoe"/>
+                <outlet property="productIntroTextView" destination="I29-bK-5I1" id="A1Q-oE-wMk"/>
+                <outlet property="productNameTextField" destination="yj3-QM-LhU" id="dJS-Ev-AbG"/>
+                <outlet property="productPriceTextField" destination="PkZ-vN-Nz2" id="PtN-DP-SPm"/>
+                <outlet property="uploadPhotoButton" destination="75R-da-Aad" id="uTc-hP-pD3"/>
+            </connections>
+            <point key="canvasLocation" x="-419" y="51"/>
+        </collectionReusableView>
+    </objects>
+    <resources>
+        <image name="上传商品封面" width="63" height="63"/>
+    </resources>
+</document>

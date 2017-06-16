@@ -1,0 +1,62 @@
+//
+//  ActionSheetHelp.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/25.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "PayTool.h"
+#import <LCActionSheet.h>
+
+@implementation PayTool
+
++ (void)payWithResult:(void (^)(NSString *payType))returnBlock {
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:@"请选择支付方式"
+                                             cancelButtonTitle:@"取消"
+                                                       clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+                                                           if (buttonIndex != 0) {
+                                                               NSString *payType = @"zfb";
+                                                               switch (buttonIndex) {
+                                                                   case 1:
+                                                                       payType = @"zfb";
+                                                                       break;
+                                                                   case 2:
+                                                                       payType = @"wx";
+                                                                       break;
+                                                                   case 3:
+                                                                       payType = @"wallet";
+                                                                       break;
+                                                               }
+                                                               returnBlock(payType);
+                                                           }
+                                                       }
+                                             otherButtonTitles:@"支付宝", @"微信", @"零钱钱包", nil];
+    
+    [actionSheet show];
+}
+
++ (void)rechargeWithResult:(void (^)(NSString *payType))returnBlock {
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:@"请选择支付方式"
+                                             cancelButtonTitle:@"取消"
+                                                       clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+                                                           if (buttonIndex != 0) {
+                                                               NSString *payType = @"zfb";
+                                                               switch (buttonIndex) {
+                                                                   case 1:
+                                                                       payType = @"zfb";
+                                                                       break;
+                                                                   case 2:
+                                                                       payType = @"wx";
+                                                                       break;
+                                                               }
+                                                               returnBlock(payType);
+                                                           }
+                                                       }
+                                             otherButtonTitles:@"支付宝", @"微信", nil];
+    
+    [actionSheet show];
+}
+
+
+@end

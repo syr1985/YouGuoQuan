@@ -1,0 +1,87 @@
+//
+//  MallBannerViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/10.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "MallBannerViewCell.h"
+#import "NewPagedFlowView.h"
+#import "IndexBannerSubiew.h"
+#import "UIImage+Color.h"
+
+@interface MallBannerViewCell () <NewPagedFlowViewDataSource, NewPagedFlowViewDelegate>
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (nonatomic, weak) NewPagedFlowView *pageFlowView;
+@property (nonatomic, strong) NSMutableArray *bannerModelArray;
+@end
+
+@implementation MallBannerViewCell
+
+- (void)dealloc {
+    [self.pageFlowView releasePageFlowView];
+    NSLog(@"%s",__func__);
+}
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)bannerModelArray {
+    if (!_bannerModelArray) {
+        _bannerModelArray = [NSMutableArray new];
+        //        for (int i = 0; i < 5; i++) {
+        //            UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"Yosemite0%d",i]];
+        //            [_bannerModelArray addObject:image];
+        //        }
+    }
+    return _bannerModelArray;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    CGFloat heght = WIDTH * 46 / 75;
+    NewPagedFlowView *pageFlowView = [[NewPagedFlowView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, heght)];
+    pageFlowView.delegate = self;
+    pageFlowView.dataSource = self;
+    pageFlowView.minimumPageAlpha = 0.1;
+    pageFlowView.minimumPageScale = 1;
+    pageFlowView.orientation = NewPagedFlowViewOrientationHorizontal;
+    pageFlowView.isOpenAutoScroll = YES;
+    
+    CGRect pageControlRect = CGRectMake(0, pageFlowView.frame.size.height - 20, WIDTH, 5);
+    SMPageControl *pageControl = [[SMPageControl alloc] initWithFrame:pageControlRect];
+    pageControl.pageIndicatorImage = [UIImage imageFromContextWithColor:[UIColor grayColor] size:CGSizeMake(10,3)];
+    pageControl.currentPageIndicatorImage = [UIImage imageFromContextWithColor:NavColor size:CGSizeMake(10, 3)];
+    pageFlowView.pageControl = pageControl;
+    [pageFlowView addSubview:pageControl];
+    
+    [self.scrollView addSubview:pageFlowView];
+    _pageFlowView = pageFlowView;
+    [_pageFlowView reloadData];
+}
+
+
+#pragma mark NewPagedFlowView Delegate
+- (CGSize)sizeForPageInFlowView:(NewPagedFlowView *)flowView {
+    return CGSizeMake(WIDTH, WIDTH * 46 / 75);
+}
+
+#pragma mark NewPagedFlowView Datasource
+- (NSInteger)numberOfPagesInFlowView:(NewPagedFlowView *)flowView {
+    return self.bannerModelArray.count;
+}
+
+- (UIView *)flowView:(NewPagedFlowView *)flowView cellForPageAtIndex:(NSInteger)index {
+    IndexBannerSubiew *bannerView = (IndexBannerSubiew *)[flowView dequeueReusableCell];
+    if (!bannerView) {
+        bannerView = [[IndexBannerSubiew alloc] initWithFrame:CGRectMake(0, 0, WIDTH, WIDTH * 46 / 75) normal:YES];
+    }
+    //bannerView.homeBannerModel = self.bannerModelArray[index];
+    bannerView.mainImageView.image = self.bannerModelArray[index];
+    return bannerView;
+}
+
+
+@end

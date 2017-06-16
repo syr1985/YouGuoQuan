@@ -1,0 +1,43 @@
+//
+//  ProductDetailCommentViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/17.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "ProductDetailCommentViewCell.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "DetailCommentModel.h"
+
+@interface ProductDetailCommentViewCell ()
+@property (weak, nonatomic) IBOutlet UILabel *totalCommentScoreLabel;
+@property (weak, nonatomic) IBOutlet UILabel *totalCommentCountLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UIStackView *praiseRatingStackView;
+@property (weak, nonatomic) IBOutlet UILabel *commentContentLabel;
+
+@end
+
+@implementation ProductDetailCommentViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+-(void)setDetalCommentModel:(DetailCommentModel *)detalCommentModel {
+    _detalCommentModel = detalCommentModel;
+    
+    
+}
+
+- (IBAction)commentListButtonClicked:(UIButton *)sender {
+    if (_commentListBlock) {
+        _commentListBlock();
+    }
+}
+
+@end

@@ -1,0 +1,42 @@
+//
+//  SearchReaultModel.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "SearchReaultModel.h"
+#import <MJExtension/MJExtension.h>
+
+@implementation SearchReaultModel
+
++ (instancetype)searchReaultModelWithDict:(NSDictionary *)dict {
+    [SearchReaultModel mj_setupReplacedKeyFromPropertyName:^NSDictionary *{
+        return @{@"userId" : @"id"};
+    }];
+    return [[SearchReaultModel alloc] initSearchReaultModelWithDict:dict];
+}
+
+- (instancetype)initSearchReaultModelWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self =  [SearchReaultModel mj_objectWithKeyValues:dict];
+    }
+    return self;
+}
+
+- (int)star {
+    if (_star > 6) {
+        return 6;
+    }
+    return _star;
+}
+
+- (NSNumber *)fansCount {
+    if (!_fansCount) {
+        return @0;
+    }
+    return _fansCount;
+}
+
+@end

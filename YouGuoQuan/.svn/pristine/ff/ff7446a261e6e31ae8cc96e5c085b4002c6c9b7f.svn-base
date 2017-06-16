@@ -1,0 +1,17 @@
+//
+//  ConversionHelper.h
+//  YouGuoQuan
+//
+//  Created by liushuai on 2016/12/16.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Hyphenate_CN/EMSDKFull.h>
+#import "IConversationModel.h"
+#import "EaseConvertToCommonEmoticonsHelper.h"
+
+
+@interface ConversionHelper : NSObject
++ (NSString *)latestMessageTitleForConversationModel:(id<IConversationModel>)conversationModel;
+@end

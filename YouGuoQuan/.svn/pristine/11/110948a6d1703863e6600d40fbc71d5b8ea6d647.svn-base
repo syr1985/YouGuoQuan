@@ -1,0 +1,88 @@
+//
+//  VideoViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "VideoViewController.h"
+#import "VideoViewCell.h"
+#import "AlertViewTool.h"
+
+@interface VideoViewController ()
+
+@end
+
+@implementation VideoViewController
+
+static NSString * const collectionViewCellID = @"VideoViewCell";
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Uncomment the following line to preserve selection between presentations
+    // self.clearsSelectionOnViewWillAppear = NO;
+    
+    // Register cell classes
+    self.collectionView.backgroundColor = [UIColor whiteColor];
+    UINib *nib = [UINib nibWithNibName:collectionViewCellID bundle:nil];
+    [self.collectionView registerNib:nib forCellWithReuseIdentifier:collectionViewCellID];
+    
+    // Do any additional setup after loading the view.
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark <UICollectionViewDataSource>
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return 6;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    VideoViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID forIndexPath:indexPath];
+    
+    // Configure the cell
+    
+    return cell;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    CGFloat sizeW = (WIDTH - 24) * 0.5;
+    return CGSizeMake(sizeW, sizeW);
+}
+
+#pragma mark <UICollectionViewDelegate>
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+    UINavigationController *videoDetailVC = [discoverySB instantiateViewControllerWithIdentifier:@"VideoDetail"];
+    videoDetailVC.navigationBar.backgroundColor = [UIColor whiteColor];
+    [self presentViewController:videoDetailVC animated:YES completion:nil];
+    
+    //    [AlertViewTool showAlertViewWithTitle:@"" Message:@"非会员用户只能观看部分视频资源，立即开通贵族会员，即可免费观看所有视频" viewController:self sureBlock:^{
+    //        
+    //    }];
+}
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

@@ -1,0 +1,89 @@
+/************************************************************
+ *  * Hyphenate CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of Hyphenate Inc.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Hyphenate Inc.
+ */
+
+#import "AppDelegate+EaseMob.h"
+#import "MBProgressHUD.h"
+#import "AlertViewTool.h"
+#import "EaseLocalDefine.h"
+/**
+ *  本类中做了EaseMob初始化和推送等操作
+ */
+
+@implementation AppDelegate (EaseMob)
+
+- (void)easemobApplication:(UIApplication *)application
+                   options:(NSDictionary *)launchOptions
+                    appkey:(NSString *)appkey
+              apnsCertName:(NSString *)apnsCertName
+               otherConfig:(NSDictionary *)otherConfig {
+    
+    [[EaseSDKHelper shareHelper] hyphenateApplication:application
+                        didFinishLaunchingWithOptions:launchOptions
+                                               appkey:appkey
+                                         apnsCertName:apnsCertName
+                                          otherConfig:@{kSDKConfigEnableConsoleLogger:@NO,@"easeSandBox":@NO}];
+    
+    [[EMClient sharedClient] addDelegate:self delegateQueue:nil];
+}
+
+- (void)easemobApplication:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    [[EaseSDKHelper shareHelper] hyphenateApplication:application didReceiveRemoteNotification:userInfo];
+}
+
+#pragma mark - App Delegate
+// 将得到的deviceToken传给SDK
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[EMClient sharedClient] bindDeviceToken:deviceToken];
+    });
+}
+
+// 注册deviceToken失败，此处失败，与环信SDK无关，一般是您的环境配置或者证书配置有误
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    //    [AlertViewTool showAlertViewWithTitle:NSLocalizedString(@"apns.failToRegisterApns", @"Fail to register apns") Message:error.description buttonTitle:NSLocalizedString(@"ok", @"OK") sureBlock:^{
+    //        
+    //    }];
+}
+
+#pragma mark - EMClientDelegate
+- (void)userAccountDidLoginFromOtherDevice {
+    if ([LoginData sharedLoginData].userId) {
+        [[EMClient sharedClient] logout:NO completion:^(EMError *aError) {
+            if (!aError) {
+                [LoginData sharedLoginData].userId = nil;
+                [AlertViewTool showAlertViewWithTitle:nil Message:NSEaseLocalizedString(@"loginAtOtherDevice", @"") buttonTitle:NSEaseLocalizedString(@"ok", @"OK") sureBlock:^{
+                    UIStoryboard *loginSB = [UIStoryboard storyboardWithName:@"Login" bundle:nil];
+                    UIViewController *loginVC = [loginSB instantiateViewControllerWithIdentifier:@"LoginVC"];
+                    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:loginVC
+                                                                                                 animated:YES
+                                                                                               completion:nil];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_LogoutSuccess object:nil];
+                }];
+            }
+        }];
+    }
+}
+
+#pragma mark - EMPushManagerDelegateDevice
+// 打印收到的apns信息
+- (void)didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    NSError *parseError = nil;
+    NSData  *jsonData = [NSJSONSerialization dataWithJSONObject:userInfo
+                                                        options:NSJSONWritingPrettyPrinted error:&parseError];
+    NSString *str =  [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    [AlertViewTool showAlertViewWithTitle:NSLocalizedString(@"apns.content", @"Apns content") Message:str buttonTitle:NSLocalizedString(@"ok", @"OK") sureBlock:^{
+        
+    }];
+}
+
+@end

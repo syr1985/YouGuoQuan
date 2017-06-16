@@ -1,0 +1,14 @@
+//
+//  ExpendRecordViewController.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/5.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+//#import <UIKit/UIKit.h>
+#import "BaseTableViewController.h"
+
+@interface ExpendRecordViewController : BaseTableViewController
+@property (nonatomic,   copy) NSString *type;
+@end

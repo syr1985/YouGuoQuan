@@ -1,0 +1,62 @@
+//
+//  CommentMessageViewController.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/9.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CommentMessageViewController.h"
+#import "HelperUtil.h"
+#import "CommentMessageCell.h"
+#import "ReplyCommentMessageCell.h"
+
+@interface CommentMessageViewController ()
+
+@end
+
+@implementation CommentMessageViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [self configViewController];
+}
+
+- (void)configViewController {
+    self.titleString = @"评论";
+    
+    self.tableView.rowHeight = 100;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 3;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row % 2 == 0) {
+        CommentMessageCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CommentMessageCell" forIndexPath:indexPath];
+        
+        return cell;
+    } else {
+        ReplyCommentMessageCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ReplyCommentMessageCell" forIndexPath:indexPath];
+        
+        return cell;
+    }
+}
+
+@end

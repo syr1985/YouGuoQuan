@@ -1,0 +1,1923 @@
+//
+//  NetworkTool.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/15.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "NetworkTool.h"
+#import "NetWorking.h"
+#import "NSString+Random.h"
+#import <QiniuSDK.h>
+#import "QiniuUploadHelper.h"
+
+@implementation NetworkTool
+
++ (void)updateUserLocationInfoWithCity:(NSString *)city latitude:(NSString *)latitude longitude:(NSString *)longitude success:(void (^)())success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"city"]       = city;
+    muDict[@"latitude"]   = latitude;
+    muDict[@"longitude"]  = longitude;
+    muDict[@"userId"]     = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Profile_UpdateUserLocation parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"更新用户经纬度： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getUserInfoByHuanXinAccountWith:(NSString *)hxid success:(void (^)(id result))success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]     = [NSString randomString];
+    muDict[@"sign"]           = @"";
+    muDict[@"hxid"]           = hxid;
+    muDict[@"searcherUserId"] = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Message_GetUserBaseInfo parameters:muDict success:^(id responseObject) {
+        YGQLog(@"user info： %@",responseObject);
+        if (success) {
+            success(responseObject);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getMyFavoursListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id))success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"id"]         = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Profile_GetMyFavoursList parameters:muDict success:^(id responseObject) {
+        YGQLog(@"我的赞： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getMyFunsFocusBlackListWithType:(NSNumber *)type pageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id))success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"type"]       = type;
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"id"]         = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Profile_GetMyFunsFocuses parameters:muDict success:^(id responseObject) {
+        YGQLog(@"我的关注、粉丝： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)refuseOrAcceptServiceWithType:(NSNumber *)type orderNo:(NSString *)orderNo success:(void (^)())success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"type"]       = type;
+    muDict[@"orderNo"]    = orderNo;
+    YGQLog(@"拒绝或接受服务： %@",muDict);
+    
+    [NetWorking postSessionWithUrl:Profile_SoldOrder_Refuse parameters:muDict success:^(id responseObject) {
+        YGQLog(@"拒绝或接受服务： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getMySoldOrderListWithType:(NSNumber *)dealType pageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id))success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]  = [NSString randomString];
+    muDict[@"sign"]        = @"";
+    muDict[@"pageNo"]      = pageNo;
+    muDict[@"pagesize"]    = pageSize;
+    muDict[@"dealType"]    = dealType;
+    muDict[@"saleUserId"]  = [LoginData sharedLoginData].userId;
+    YGQLog(@"我售出的订单list： %@",muDict);
+    
+    [NetWorking postSessionWithUrl:Profile_GetMySoldOrderList parameters:muDict success:^(id responseObject) {
+        YGQLog(@"我售出的订单list： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)evaluateOrderWithOrderId:(NSString *)orderId goodsId:(NSString *)goodsId content:(NSString *)content stars:(NSNumber *)stars success:(void (^)())success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"orderId"]    = orderId;
+    muDict[@"goodsId"]    = goodsId;
+    muDict[@"content"]    = content;
+    muDict[@"stars"]      = stars;
+    muDict[@"userId"]     = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Profile_Order_Evaluate parameters:muDict success:^(id responseObject) {
+        YGQLog(@"评论订单： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)cancelOrDeleteOrder:(NSString *)orderNo success:(void (^)())success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"orderNo"]    = orderNo;
+    
+    [NetWorking postSessionWithUrl:Profile_Order_Delete parameters:muDict success:^(id responseObject) {
+        YGQLog(@"取消删除订单： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)addPhotosToPhotosWallWithImageUrl:(NSString *)imageUrl success:(void (^)())success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = [LoginData sharedLoginData].userId;
+    muDict[@"imageUrl"]   = imageUrl;
+    
+    [NetWorking postSessionWithUrl:Profile_AddPhotosToWall parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"照片墙添加照片： %@",responseObject[@"interfaceno"]);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getExpValueWithExp:(NSString *)exp success:(void (^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = [LoginData sharedLoginData].userId;
+    muDict[@"num"]        = exp;
+    
+    [NetWorking postSessionWithUrl:Profile_DailyTask_GetExp parameters:muDict success:^(id responseObject) {
+        YGQLog(@"获取经验值： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)signInForDailyTaskWithInfo:(NSDictionary *)infoDict success:(void (^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]     = [NSString randomString];
+    muDict[@"sign"]           = @"";
+    muDict[@"id"]             = [LoginData sharedLoginData].userId;
+    muDict[@"lastSignDate"]   = infoDict[@"lastSignDate"];
+    muDict[@"continuitySign"] = infoDict[@"continuitySign"];
+    muDict[@"userScore"]      = infoDict[@"userScore"];
+    
+    [NetWorking postSessionWithUrl:Profile_DailyTask_SignIn parameters:muDict success:^(id responseObject) {
+        YGQLog(@"签到： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getMySignInInfoSuccess:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Profile_GetMySignInInfo parameters:muDict success:^(id responseObject) {
+        YGQLog(@"我的签到： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getMyTaskDailyInfoSuccess:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Profile_GetMyTaskDaily parameters:muDict success:^(id responseObject) {
+        YGQLog(@"我的每日任务： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getMyLevelScoreInfoSuccess:(void (^)(id result))success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Profile_GetMyLevelScore parameters:muDict success:^(id responseObject) {
+        YGQLog(@"我的等级积分： %@",responseObject);
+        if (success) {
+            success(responseObject);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getIncomeOrExpenditureInfoWithType:(NSString *)type pageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize Success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"type"]       = type;
+    muDict[@"id"]         = [LoginData sharedLoginData].userId;
+    YGQLog(@"我的收入、支出： %@",muDict);
+    
+    [NetWorking postSessionWithUrl:Profile_GetMyIncomeInfo parameters:muDict success:^(id responseObject) {
+        YGQLog(@"我的收入、支出： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+    
+}
+
++ (void)getMyWalletInfoSuccess:(void (^)(id result))success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = [LoginData sharedLoginData].userId;
+    YGQLog(@"我的钱包： %@",muDict);
+    
+    [NetWorking postSessionWithUrl:Profile_GetMyWalletInfo parameters:muDict success:^(id responseObject) {
+        YGQLog(@"我的钱包： %@",responseObject);
+        if (success) {
+            success(responseObject);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)officiallyCertifiedWithAuditResult:(NSString *)auditResult verifiCode:(NSString *)verifiCode cardNo:(NSString *)idCardNo imageUrl:(NSString *)authentiUrl realName:(NSString *)realName mobile:(NSString *)mobile success:(void (^)())success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]       = [NSString randomString];
+    muDict[@"sign"]             = @"";
+    muDict[@"auditResult"]      = auditResult;
+    muDict[@"verifiCode"]       = verifiCode;
+    muDict[@"idCardNo"]         = idCardNo;
+    muDict[@"authentiUrl"]      = authentiUrl;
+    muDict[@"realName"]         = realName;
+    muDict[@"mobile"]           = mobile;
+    muDict[@"id"]               = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Profile_OfficialCertified parameters:muDict success:^(id responseObject) {
+        YGQLog(@"OfficialCertified： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getVerifyCodeForOfficiallyCertifiedWithPhoneNumber:(NSString *)phone success:(void (^)(id))success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"mobile"]     = phone;
+    
+    [NetWorking postSessionWithUrl:Profile_GetVerifyCode parameters:muDict success:^(id responseObject) {
+        YGQLog(@"GetVerifyCode： %@",responseObject);
+        if (success) {
+            success(responseObject[@"verifiCode"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)submitFeedbackWithSuggestion:(NSString *)tReasons success:(void (^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"tReasons"]   = tReasons;
+    muDict[@"fromUserId"] = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Profile_SubmitFeedback parameters:muDict success:^(id responseObject) {
+        YGQLog(@"SubmitFeedback： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getMyBlackListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Profile_GetMyBlackList parameters:muDict success:^(id responseObject) {
+        YGQLog(@"我的blacklist： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)modifyPersonInfoWithType:(NSString *)mType value:(NSString *)newValue success:(void (^)())success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"mType"]      = mType;
+    muDict[@"newValue"]   = newValue;
+    muDict[@"userId"]     = [LoginData sharedLoginData].userId;
+    //    YGQLog(@"修改我的信息： %@",muDict);
+    [NetWorking postSessionWithUrl:Profile_ModifyPersonInfo parameters:muDict success:^(id responseObject) {
+        YGQLog(@"修改我的信息： %@",responseObject);
+        if (success) {
+            success();
+        } 
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getMyOrderListWithType:(NSNumber *)orderType pageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"type"]       = orderType;
+    muDict[@"buyUserId"]  = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Profile_GetMyOrderList parameters:muDict success:^(id responseObject) {
+        YGQLog(@"获取我的订单list： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        }
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)deleteWeiXinWithWeixinID:(NSString *)weixinId success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = weixinId;
+    
+    [NetWorking postSessionWithUrl:Profile_WeiXin_Delete parameters:muDict success:^(id responseObject) {
+        YGQLog(@"删除微信： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)deleteRedPacketWithRedPacketID:(NSString *)redPacketId success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = redPacketId;
+    
+    [NetWorking postSessionWithUrl:Profile_RedPacket_Delete parameters:muDict success:^(id responseObject) {
+        YGQLog(@"删除红包： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)deleteProductWithProductID:(NSString *)productId success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = productId;
+    
+    [NetWorking postSessionWithUrl:Profile_Product_Delete parameters:muDict success:^(id responseObject) {
+        YGQLog(@"删除商品： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)deleteTrendsWithTrendsID:(NSString *)trendsId success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = trendsId;
+    
+    [NetWorking postSessionWithUrl:Profile_Trends_Delete parameters:muDict success:^(id responseObject) {
+        YGQLog(@"删除动态： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)checkOrderStatusOrderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"orderNo"]    = orderNo;
+    
+    [NetWorking postSessionWithUrl:Pay_CheckOrderNo_Nobility parameters:muDict success:^(id responseObject) {
+        YGQLog(@"支付-贵族-check： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)payForNobilityWithOrderNo:(NSString *)orderNo paymth:(NSString *)paymth success:(void (^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"orderNo"]    = orderNo;
+    muDict[@"paymth"]     = paymth;
+    YGQLog(@"%@",muDict);
+    [NetWorking postSessionWithUrl:Pay_Imediately_Nobility parameters:muDict success:^(id responseObject) {
+        YGQLog(@"支付-贵族： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)createBuyNobilityOrderWithOrderNo:(NSString *)orderNo money:(NSString *)money payMethod:(NSString *)payMethod month:(NSNumber *)nobleType success:(void (^)(id result))success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"money"]      = money;
+    muDict[@"buyUserId"]  = [LoginData sharedLoginData].userId;
+    muDict[@"orderNo"]    = orderNo;
+    muDict[@"nobleType"]  = nobleType;
+    muDict[@"payMethod"]  = payMethod;
+    
+    [NetWorking postSessionWithUrl:Pay_CreateOrder_Nobility parameters:muDict success:^(id responseObject) {
+        YGQLog(@"支付-创建购买贵族订单号： %@",responseObject);
+        if (success) {
+            success(responseObject[@"orderNo"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)createRechargeOrderWithOrderNo:(NSString *)orderNo money:(NSString *)money payMethod:(NSString *)payMethod success:(void (^)(id result))success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"money"]      = money;
+    muDict[@"buyerId"]    = [LoginData sharedLoginData].userId;
+    muDict[@"orderNo"]    = orderNo;
+    muDict[@"payMethod"]  = payMethod;
+    
+    [NetWorking postSessionWithUrl:Pay_CreateOrder_Recharge parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"支付-创建充值订单号： %@",responseObject);
+        if (success) {
+            success(responseObject[@"orderNo"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)createDateOrderWithOrderNo:(NSString *)orderNo serviceName:(NSString *)serviceName payMethod:(NSString *)payMethod salerId:(NSString *)salerId price:(NSString *)price dateTimeInfo:(NSString *)dateTimeInfo dateAddress:(NSString *)dateAddress success:(void (^)(id))success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]   = [NSString randomString];
+    muDict[@"sign"]         = @"";
+    muDict[@"serviceName"]  = serviceName;
+    muDict[@"price"]        = price;
+    muDict[@"payMethod"]    = payMethod;
+    muDict[@"buyerId"]      = [LoginData sharedLoginData].userId;
+    muDict[@"salerId"]      = salerId;
+    muDict[@"orderNo"]      = orderNo;
+    muDict[@"dateTimeInfo"] = dateTimeInfo;
+    muDict[@"dateAddress"]  = dateAddress;
+    
+    [NetWorking postSessionWithUrl:Pay_CreateOrder_Date parameters:muDict success:^(id responseObject) {
+        YGQLog(@"支付-创建约见订单号： %@",responseObject);
+        if (success) {
+            success(responseObject[@"orderNo"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)generateOrderNoWithGoodsType:(NSString *)goodsType success:(void (^)(id result))success failure:(void (^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"goodsType"]  = goodsType;
+    
+    [NetWorking postSessionWithUrl:Pay_GenerateOrder_OrderNo parameters:muDict success:^(id responseObject) {
+        YGQLog(@"支付-获取订单号： %@",responseObject);
+        if (success) {
+            success(responseObject[@"orderNo"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)payForRewardWithOrderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"orderNo"]    = orderNo;
+    
+    [NetWorking postSessionWithUrl:Pay_ToUserDirectly_Reward parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"支付-打赏： %@",responseObject);
+        if (success) {
+            success(nil);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)createRewardOrderWithUserID:(NSString *)toUserId money:(NSString *)money payMethod:(NSString *)payMethod rType:(NSString *)rType memo:(NSString *)memo orderNo:(NSString *)orderNo success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"memo"]       = memo;
+    muDict[@"rType"]      = rType;
+    muDict[@"money"]      = money;
+    muDict[@"payMethod"]  = payMethod;
+    muDict[@"fromUserId"] = [LoginData sharedLoginData].userId;
+    muDict[@"toUserId"]   = toUserId;
+    muDict[@"orderNo"]    = orderNo;
+    
+    [NetWorking postSessionWithUrl:Pay_CreateOrder_Reward parameters:muDict success:^(id responseObject) {
+        YGQLog(@"创建打赏订单： %@",responseObject);
+        if (success) {
+            success(responseObject[@"orderNo"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)createRedPacketOrderWithGoodsId:(NSString *)goodsId feedsId:(NSString *)feedsId payMethod:(NSString *)payMethod phone:(NSString *)phone orderNo:(NSString *)orderNo success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"goodsId"]    = goodsId;
+    muDict[@"feedsId"]    = feedsId;
+    muDict[@"payMethod"]  = payMethod;
+    muDict[@"buyerId"]    = [LoginData sharedLoginData].userId;
+    muDict[@"buyerPhone"] = phone;
+    muDict[@"orderNo"]    = orderNo;
+    YGQLog(@"创建红包订单： %@",muDict);
+    [NetWorking postSessionWithUrl:Pay_CreateOrder_RedPacket parameters:muDict success:^(id responseObject) {
+        YGQLog(@"创建红包订单： %@",responseObject);
+        if (success) {
+            success(responseObject[@"orderNo"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)createWeiXinOrderWithSalerId:(NSString *)salerId payMethod:(NSString *)payMethod orderNo:(NSString *)orderNo weixin:(NSString *)account success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"salerId"]    = salerId;
+    muDict[@"buyerId"]    = [LoginData sharedLoginData].userId;
+    muDict[@"payMethod"]  = payMethod;
+    muDict[@"orderNo"]    = orderNo;
+    muDict[@"buyerDesc"]  = account;
+    
+    [NetWorking postSessionWithUrl:Pay_CreateOrder_WeiXin parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"创建微信订单： %@",responseObject);
+        if (success) {
+            success(responseObject[@"orderNo"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)payforCrowdfundingWithOrderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"orderNo"]    = orderNo;
+    
+    [NetWorking postSessionWithUrl:Pay_Imediately_Crowdfunding parameters:muDict success:^(id responseObject) {
+        YGQLog(@"支付-众筹： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)createCrowdfundingOrderWithCfId:(NSString *)cfid payMethod:(NSString *)payMethod money:(NSString *)money phone:(NSString *)phone email:(NSString *)email orderNo:(NSString *)orderNo success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"cfid"]       = cfid;
+    muDict[@"payMethod"]  = payMethod;
+    muDict[@"buyerId"]    = [LoginData sharedLoginData].userId;
+    muDict[@"buyerPhone"] = phone;
+    muDict[@"buyerEmail"] = email;
+    muDict[@"money"]      = money;
+    muDict[@"orderNo"]    = orderNo;
+    //YGQLog(@"创建众筹DICT： %@",muDict);
+    
+    [NetWorking postSessionWithUrl:Pay_CreateOrder_Crowdfunding parameters:muDict success:^(id responseObject) {
+        YGQLog(@"创建众筹订单： %@",responseObject);
+        if (success) {
+            success(responseObject[@"orderNo"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)payForConfirmOrderWithOrderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"orderNo"]    = orderNo;
+    
+    [NetWorking postSessionWithUrl:Pay_ForConfirmOrder_Trends parameters:muDict success:^(id responseObject) {
+        YGQLog(@"支付-确认收货： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)payForTrendsToUserDirectlyWithOrderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"orderNo"]    = orderNo;
+    
+    [NetWorking postSessionWithUrl:Pay_ToUserDirectly_Trends parameters:muDict success:^(id responseObject) {
+        YGQLog(@"支付-直接付款： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)payForTrendsToMiddleAccountWithOrderNo:(NSString *)orderNo success:(void (^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"orderNo"]    = orderNo;
+    
+    [NetWorking postSessionWithUrl:Pay_ToMiddleAccount_Trends parameters:muDict success:^(id responseObject) {
+        YGQLog(@"支付-到中间账户： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)createOrderWithGoodsId:(NSString *)goodsId feedsId:(NSString *)feedsId payMethod:(NSString *)payMethod phone:(NSString *)phone email:(NSString *)email desc:(NSString *)desc orderNo:(NSString *)orderNo success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"goodsId"]    = goodsId;
+    muDict[@"feedsId"]    = feedsId;
+    muDict[@"payMethod"]  = payMethod;
+    muDict[@"buyerId"]    = [LoginData sharedLoginData].userId;
+    muDict[@"buyerPhone"] = phone;
+    muDict[@"buyerEmail"] = email;
+    muDict[@"buyerDesc"]  = desc;
+    muDict[@"orderNo"]    = orderNo;
+    
+    [NetWorking postSessionWithUrl:Pay_CreateOrder_Trends parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"创建订单： %@",responseObject);
+        if (success) {
+            success(responseObject[@"orderNo"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)getDiscoveryParticipatenListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize cfID:(NSString *)cfId  success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"cfid"]       = cfId;
+    
+    [NetWorking postSessionWithUrl:Discovery_ParticipatenList parameters:muDict success:^(id responseObject) {
+        YGQLog(@"发现众筹参与者list： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)getDiscoveryNearbyUsersListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize longitude:(NSString *)longitude latitude:(NSString *)latitude success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"longitude"]  = longitude;
+    muDict[@"latitude"]   = latitude;
+    
+    [NetWorking postSessionWithUrl:Discovery_NearbyUsersList parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"发现附近的人list： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)getDiscoveryCrowdfundingListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    
+    [NetWorking postSessionWithUrl:Discovery_CrowdfundingList parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"发现众筹list： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)getDiscoveryVideosListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    
+    [NetWorking postSessionWithUrl:Discovery_VideosList parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"发现视频list： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)getDiscoveryTrendsListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"fromUserId"] = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Discovery_TrendsList parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"发现推荐list： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)getTrendsFavorerListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize feedsId:(NSString *)feedsId success:(void (^)(id result))success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"feedsId"]    = feedsId;
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    
+    [NetWorking postSessionWithUrl:Detail_GetFavorers parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"赞动态的人list： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)deleteCommentWithFeedsID:(NSString *)feedsId commentID:(NSString *)commentId success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"feedsId"]    = feedsId;
+    muDict[@"id"]         = commentId;
+    
+    [NetWorking postSessionWithUrl:Detail_DeleteComment parameters:muDict success:^(id responseObject) {
+        YGQLog(@"删除评论： %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getTotalCommentCountWithTrendsID:(NSString *)trendsId success:(void (^)(id result))success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = trendsId;
+    
+    [NetWorking postSessionWithUrl:Detail_CommentTotalCount parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"评论总数： %@",responseObject);
+        if (success) {
+            success(responseObject[@"count"]);
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getTrendsDetailWithTreendsID:(NSString *)trendsId success:(void (^)(id result))success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = trendsId;
+    muDict[@"fromUserId"] = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Detail_Trends parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"动态详情： %@",responseObject);
+        if (success) {
+            success(responseObject);
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getCommentListWithPageNO:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize trendsId:(NSString *)trendsId success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"id"]         = trendsId;
+    
+    [NetWorking postSessionWithUrl:Detail_GetComments parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"评论列表 %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getProductDetailWithProductID:(NSString *)productId success:(void (^)(id result))success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"id"]         = productId;
+    
+    [NetWorking postSessionWithUrl:Detail_Product parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"商品详情： %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getOtherFavoursWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize userID:(NSString *)toUserId success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"fromUserId"] = [LoginData sharedLoginData].userId;
+    muDict[@"toUserId"]   = toUserId;
+    
+    [NetWorking postSessionWithUrl:Others_GetOtherFavours parameters:muDict success:^(id responseObject) {
+        YGQLog(@"他赞过的 %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getOtherContributerWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize userID:(NSString *)userId success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"userId"]     = userId;
+    
+    [NetWorking postSessionWithUrl:Others_GetContributers parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"他人贡献榜 %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getOtherTrendsWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize userID:(NSString *)userId success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"userId"]     = userId;
+    muDict[@"myUserId"]   = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Others_GetTrends parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"他人动态 %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)doCommentWithContent:(NSString *)commentContent toUser:(NSString *)aboutUserId toComment:(NSString *)aboutCommentId  toProduct:(NSString *)aboutId success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]       = [NSString randomString];
+    muDict[@"sign"]             = @"";
+    muDict[@"commentContent"]   = commentContent;
+    muDict[@"aboutUserId"]      = aboutUserId;
+    muDict[@"aboutCommentId"]   = aboutCommentId;
+    muDict[@"aboutId"]          = aboutId;
+    muDict[@"fromUserNickName"] = [LoginData sharedLoginData].nickName;
+    muDict[@"fromUserId"]       = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Detail_DoComment parameters:muDict success:^(id responseObject) {
+        YGQLog(@"评论 %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)doFavourWithFeedsID:(NSString *)feedsId userId:(NSString *)toUserId success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]  = [NSString randomString];
+    muDict[@"sign"]        = @"";
+    muDict[@"feedsId"]     = feedsId;
+    muDict[@"toUserId"]    = toUserId;
+    muDict[@"fromUserId"]  = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Detail_DoFavour parameters:muDict success:^(id responseObject) {
+        YGQLog(@"zan dongtai %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)cancelFavourWithFeedsID:(NSString *)feedsId userID:(NSString *)toUserId success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]  = [NSString randomString];
+    muDict[@"sign"]        = @"";
+    muDict[@"feedsId"]     = feedsId;
+    muDict[@"toUserId"]    = toUserId;
+    muDict[@"fromUserId"]  = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Detail_CancelFavour parameters:muDict success:^(id responseObject) {
+        YGQLog(@"cancel zan  %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)updatePlayTimesWithVideoTrendsID:(NSString *)trendsID success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]  = [NSString randomString];
+    muDict[@"sign"]        = @"";
+    muDict[@"id"]          = trendsID;
+    
+    [NetWorking postSessionWithUrl:Detail_UpdatePlayTimes parameters:muDict success:^(id responseObject) {
+        YGQLog(@"updatePlayTimes %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getOthersFunsListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize userID:(NSString *)searchedId success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]  = [NSString randomString];
+    muDict[@"sign"]        = @"";
+    muDict[@"pageNo"]      = pageNo;
+    muDict[@"pagesize"]    = pageSize;
+    muDict[@"searcherid"]  = [LoginData sharedLoginData].userId;
+    muDict[@"searchedid"]  = searchedId;
+    
+    [NetWorking postSessionWithUrl:Others_GetOthersFuns parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"OthersFunsList %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)getOthersFocusListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize userID:(NSString *)searchedId success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]  = [NSString randomString];
+    muDict[@"sign"]        = @"";
+    muDict[@"pageNo"]      = pageNo;
+    muDict[@"pagesize"]    = pageSize;
+    muDict[@"searcherid"]  = [LoginData sharedLoginData].userId;
+    muDict[@"searchedid"]  = searchedId;
+    
+    [NetWorking postSessionWithUrl:Others_GetOthersFocus parameters:muDict success:^(id responseObject) {
+        YGQLog(@"OthersFoucsList %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)doOperationWithType:(NSString *)relType userId:(NSString *)toUserId operationType:(NSString *)type success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"relType"]    = relType;
+    muDict[@"fromUserId"] = [LoginData sharedLoginData].userId;
+    muDict[@"toUserId"]   = toUserId;
+    muDict[@"type"]       = type;
+    
+    [NetWorking postSessionWithUrl:Detail_DoOperation parameters:muDict success:^(id responseObject) {
+        YGQLog(@"Black %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:@"拉黑失败"];
+        }
+    } progress:nil];
+}
+
++ (void)getOtherPhotosWithUserID:(NSString *)userId success:(void (^)(id result))success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]  = [NSString randomString];
+    muDict[@"sign"]        = @"";
+    muDict[@"id"]          = userId;
+    
+    [NetWorking postSessionWithUrl:Others_GetUserPhotos parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"OtherPhotos %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
+//+ (void)rewardOtherWithMoney:(NSString *)money userID:(NSString *)toUserId success:(void (^)())success {
+//    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+//    muDict[@"requestseq"]  = [NSString randomString];
+//    muDict[@"sign"]        = @"";
+//    muDict[@"money"]       = money;
+//    muDict[@"toUserId"]    = toUserId;
+//    muDict[@"fromUserId"]  = [LoginData sharedLoginData].userId;
+//    
+//    [NetWorking postSessionWithUrl:Others_Rewarding parameters:muDict success:^(id responseObject) {
+//        YGQLog(@"RewardOther %@",responseObject);
+//        if (success) {
+//            success();
+//        }
+//    } fail:^(NSError *error) {
+//        if (error) {
+//            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+//        }
+//    } progress:nil];
+//}
+
+
++ (void)getHomeFocusListWithPageNo:(NSNumber *)pagetNO pageSize:(NSNumber *)pageSize success:(void (^)(id result))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]  = [NSString randomString];
+    muDict[@"sign"]        = @"";
+    muDict[@"pageNo"]      = pagetNO;
+    muDict[@"pagesize"]    = pageSize;
+    muDict[@"fromUserId"]  = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Home_GetFocusTrends parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"HomePageFocusList %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+/**
+ type	string	类型:0,人;1,动态;2,评论	是
+ aboutId	string	被举报人id、动态id或评论id
+ */
++ (void)reportOthersWithType:(NSNumber *)type reason:(NSString *)tReasons aboutID:(NSString *)aboutId success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"tReasons"]   = tReasons;
+    muDict[@"fromUserId"] = [LoginData sharedLoginData].userId;
+    muDict[@"aboutId"]    = aboutId;
+    muDict[@"type"]       = type;
+    YGQLog(@"ReportOther %@",muDict);
+    [NetWorking postSessionWithUrl:Others_Reporting parameters:muDict success:^(id responseObject) {
+        YGQLog(@"ReportOther %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:@"举报失败"];
+        }
+    } progress:nil];
+}
+
+
++ (void)getOthersInfoWithUserId:(NSString *)userId success:(void (^)(id result))success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"userId"]     = userId;
+    muDict[@"searcherId"] = [LoginData sharedLoginData].userId;
+    
+    [NetWorking postSessionWithUrl:Others_UserBaseInfo parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"OthersInfo %@",responseObject);
+        if (success) {
+            success(responseObject);
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)getMsgAuthCode:(NSString *)phoneNumber RetsetPassword:(BOOL)reset Result:(void (^)(NSString *code))returnResult {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]   = [NSString randomString];
+    muDict[@"sign"]         = @"";
+    muDict[@"mobile"]       = phoneNumber;
+    muDict[@"isResetPass"]  = @"";
+    
+    [NetWorking postSessionWithUrl:Login_GetAuthCode parameters:muDict success:^(id responseObject) {
+        if (returnResult) {
+            NSString *authCode = [responseObject objectForKey:@"verifiCode"];
+            returnResult(authCode);
+        }
+        [SVProgressHUD showSuccessWithStatus:@"验证码已发送"];
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)registerWithPhone:(NSString *)phoneNumber Password:(NSString *)password NickName:(NSString *)nickName Sex:(NSString *)sex City:(NSString *)city success:(void (^)(id result))success failed:(void (^)())fail {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"mobile"]     = phoneNumber;
+    muDict[@"passwd"]     = password;
+    muDict[@"nickName"]   = nickName;
+    muDict[@"sex"]        = sex;
+    muDict[@"city"]       = city;
+    
+    [SVProgressHUD showWithStatus:@"注册中..."];
+    [NetWorking postSessionWithUrl:Login_Register parameters:muDict success:^(id responseObject) {
+        NSString *result = [responseObject objectForKey:@"result"];
+        YGQLog(@"%@",responseObject);
+        if ([result isEqualToString:@"004"]) {
+            if (fail) {
+                fail();
+            }
+        } else {
+            if (success) {
+                success(responseObject);
+            }
+            [SVProgressHUD showSuccessWithStatus:@"注册成功"];
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)resetPasswordWithPhone:(NSString *)phoneNumber Password:(NSString *)newPassword Result:(void (^)())returnResult {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]   = [NSString randomString];
+    muDict[@"sign"]         = @"";
+    muDict[@"mobile"]       = phoneNumber;
+    muDict[@"passwd"]       = newPassword;
+    
+    [NetWorking postSessionWithUrl:Login_ResetPwd parameters:muDict success:^(id responseObject) {
+        if (returnResult) {
+            returnResult();
+        }
+        [SVProgressHUD showSuccessWithStatus:@"密码修改成功"];
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
++ (void)loginWithPhone:(NSString *)phoneNumber Password:(NSString *)password Success:(void (^)(id result))success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"mobile"]     = phoneNumber;
+    muDict[@"passwd"]     = password;
+    
+    [SVProgressHUD showWithStatus:@"登录中..."];
+    [NetWorking postSessionWithUrl:Login_UserLogin parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"result = %@",responseObject);
+        [SVProgressHUD showSuccessWithStatus:@"登录成功"];
+        if (success) {
+            success(responseObject);
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+// 废弃 - 用直接上传七牛云的接口
++ (void)uploadImagesToServer:(NSDictionary *)imagesDict success:(void (^)(id result))success {
+    [NetWorking postSessionWithUrl:Publish_UploadImages parameters:nil images:imagesDict success:^(id responseObject) {
+        YGQLog(@"%@",responseObject);
+        //        height = 426;
+        //        msg = "\U6210\U529f";
+        //        picurl = "http://7xtk9y.com1.z0.glb.clouddn.com/b567f8b6e44c7ecd72cb0f9946a2ad36.jpg";
+        //        result = 000;
+        //        width = 640;
+        if (success) {
+            success(responseObject[@"picurl"]);
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:^(NSProgress *uploadProgress) {
+        YGQLog(@"%@",uploadProgress);
+    }];
+}
+
+//获取七牛的token
++ (void)getQiniuUploadToken:(void(^)(NSString *token, NSString *baseUrl))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    
+    [NetWorking postSessionWithUrl:Publish_GetQiniuToken parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"%@",responseObject);
+        if (success) {
+            success(responseObject[@"token"], responseObject[@"urlprefix"]);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+//上传单张图片到七牛
++ (void)uploadImage:(NSData *)imageData progress:(QNUpProgressHandler)progress success:(void(^)(NSString *url))success failure:(void(^)())failure {
+    [NetworkTool getQiniuUploadToken:^(NSString *token, NSString *baseUrl) {
+        
+        NSString *fileName = [NSString stringWithFormat:@"%@_%@.jpg", [NSString getDateTimeString], [NSString randomStringWithLength:8]];
+        QNUploadOption *opt = [[QNUploadOption alloc] initWithMime:nil
+                                                   progressHandler:progress
+                                                            params:nil
+                                                          checkCrc:NO
+                                                cancellationSignal:nil];
+        
+        //NSLog(@"qiniuToken - %@ - %@",token,fileName);
+        
+        QNUploadManager *uploadManager = [QNUploadManager sharedInstanceWithConfiguration:nil];
+        [uploadManager putData:imageData
+                           key:fileName
+                         token:token
+                      complete:^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+                          if (info.statusCode == 200 && resp) {
+                              NSString *url = [NSString stringWithFormat:@"%@%@", baseUrl, resp[@"key"]];
+                              NSLog(@"url - %@",url);
+                              if(success) {
+                                  success(url);
+                              }
+                          } else {
+                              if(failure) {
+                                  failure();
+                              }
+                          }
+                      } option:opt];
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"获取七牛token失败"];
+    }];
+}
+
+//上传多张图片到七牛
++ (void)uploadImages:(NSArray *)imageDataArray progress:(void(^)(CGFloat percent))progress success:(void(^)(NSArray *urlArray))success failure:(void(^)())failure {
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    
+    NSUInteger imageDataArrayCount = [imageDataArray count];
+    
+    if (imageDataArrayCount == 0) {
+        return;
+    }
+    
+    __block CGFloat totalProgress = 0.0f;
+    
+    __block CGFloat partProgress = 1.0f / imageDataArrayCount;
+    
+    __block NSUInteger currentIndex = 0;
+    
+    QiniuUploadHelper *uploadHelper = [QiniuUploadHelper sharedUploadHelper];
+    
+    __weak typeof(uploadHelper) weakHelper = uploadHelper;
+    
+    weakHelper.singleFailureBlock = ^() {
+        failure();
+        return;
+    };
+    
+    weakHelper.singleSuccessBlock = ^(NSString *url) {
+        [array addObject:url];
+        
+        totalProgress += partProgress;
+        
+        progress(totalProgress);
+        
+        currentIndex++;
+        
+        if ([array count] == imageDataArrayCount) {
+            success([array copy]);
+            return;
+        } else {
+            //NSLog(@"---%ld",(unsigned long)currentIndex);
+            [NetworkTool uploadImage:imageDataArray[currentIndex] progress:nil success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+        }
+    };
+    
+    [NetworkTool uploadImage:imageDataArray[currentIndex] progress:nil success:weakHelper.singleSuccessBlock failure:weakHelper.singleFailureBlock];
+}
+
++ (void)uploadVideoToQiniu:(NSData *)videoData progress:(QNUpProgressHandler)progress success:(void(^)(NSString *videoUrl))success failure:(void(^)())failure {
+    [NetworkTool getQiniuUploadToken:^(NSString *token, NSString *baseUrl) {
+        NSString *fileName = [NSString stringWithFormat:@"%@_%@.jpg", [NSString getDateTimeString], [NSString randomStringWithLength:8]];
+        QNUploadOption *opt = [[QNUploadOption alloc] initWithMime:nil
+                                                   progressHandler:progress
+                                                            params:nil
+                                                          checkCrc:NO
+                                                cancellationSignal:nil];
+        QNUploadManager *uploadManager = [QNUploadManager sharedInstanceWithConfiguration:nil];
+        [uploadManager putData:videoData
+                           key:fileName
+                         token:token
+                      complete:^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+                          if (info.statusCode == 200 && resp) {
+                              NSString *url = [NSString stringWithFormat:@"%@%@", baseUrl, resp[@"key"]];
+                              //NSLog(@"url - %@",url);
+                              if(success) {
+                                  success(url);
+                              }
+                          } else {
+                              if(failure) {
+                                  failure();
+                              }
+                          }
+                      } option:opt];
+        
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"获取七牛token失败"];
+    }];
+}
+
+
++ (void)publishProduct:(NSString *)goodsName price:(NSString *)goodsPrice cover:(NSString *)coverUrl image:(NSString *)imagesUrl intro:(NSString *)goodsIntro success:(void(^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]  = [NSString randomString];
+    muDict[@"sign"]        = @"";
+    muDict[@"userId"]      = [LoginData sharedLoginData].userId;
+    muDict[@"price"]       = goodsPrice;
+    muDict[@"imageUrl"]    = coverUrl;
+    muDict[@"goodsName"]   = goodsName;
+    muDict[@"goodsLink"]   = imagesUrl;
+    muDict[@"goodsInstro"] = goodsIntro ? goodsIntro : @"";
+    muDict[@"isReal"]      = @"0";
+    
+    [SVProgressHUD showWithStatus:@"发布商品中..."];
+    [NetWorking postSessionWithUrl:Publish_PublishProduct parameters:muDict success:^(id responseObject) {
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)publishRedEnvelope:(NSString *)goodsPrice image:(NSString *)imagesUrl intro:(NSString *)goodsTitle success:(void(^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]  = [NSString randomString];
+    muDict[@"sign"]        = @"";
+    muDict[@"userId"]      = [LoginData sharedLoginData].userId;
+    muDict[@"price"]       = goodsPrice;
+    muDict[@"goodsLink"]   = imagesUrl;
+    muDict[@"goodsInstro"] = goodsTitle;
+    
+    [SVProgressHUD showWithStatus:@"发布红包中..."];
+    [NetWorking postSessionWithUrl:Publish_PublishRedpacket parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"success %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)publishTrends:(NSString *)imagesUrl intro:(NSString *)goodsIntro video:(NSString *)videoUrl cover:(NSString *)videoCoverUrl trendsType:(NSString *)feedsType success:(void(^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]   = [NSString randomString];
+    muDict[@"sign"]         = @"";
+    muDict[@"userId"]       = [LoginData sharedLoginData].userId;
+    muDict[@"instro"]       = goodsIntro;
+    muDict[@"imageUrl"]     = imagesUrl;
+    muDict[@"videoUrl"]     = videoUrl;
+    muDict[@"videoEvelope"] = videoCoverUrl;
+    muDict[@"feedsType"]    = feedsType;
+    
+    [SVProgressHUD showWithStatus:@"发布动态中..."];
+    [NetWorking postSessionWithUrl:Publish_PublishTrends parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"success %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)sellWeixin:(NSString *)price weixinID:(NSString *)wxId success:(void(^)())success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"userId"]     = [LoginData sharedLoginData].userId;
+    muDict[@"price"]      = price;
+    muDict[@"wxId"]       = wxId;
+    
+    [SVProgressHUD showWithStatus:@"出售微信中..."];
+    [NetWorking postSessionWithUrl:Publish_SellWeiXin parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"success %@",responseObject);
+        if (success) {
+            success();
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)getHotSearchWords:(NSString *)pageNo pageSize:(NSString *)pageSize success:(void(^)(NSArray *hotWords))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    
+    [NetWorking postSessionWithUrl:Home_HotSearchWords parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"hotsearch %@",responseObject);
+        NSArray *dataArray = responseObject[@"list"];
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in dataArray) {
+            [muArray addObject:dict[@"name"]];
+        }
+        
+        if (success) {
+            success(muArray);
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)searchWithContent:(NSString *)content pageNO:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void(^)(NSArray *searchResult))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    muDict[@"fromUserId"] = [LoginData sharedLoginData].userId;
+    muDict[@"nickName"]   = content;
+    
+    [NetWorking postSessionWithUrl:Home_SearchUsers parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"searchresult %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)getBannerListWithPageNo:(NSString *)pageNo pageSize:(NSString *)pageSize success:(void(^)(NSArray *dataArray))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    
+    [NetWorking postSessionWithUrl:Home_GetBanners parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"banner %@",responseObject);
+        if (success) {
+            success(responseObject[@"list"]);
+        }
+    } fail:^(NSError *error) {
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+
++ (void)getHomeListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void(^)(NSArray *dataArray))success failure:(void(^)())failure {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"pageNo"]     = pageNo;
+    muDict[@"pagesize"]   = pageSize;
+    
+    [NetWorking postSessionWithUrl:Home_GetResoures parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"home-youguo %@",responseObject);
+        NSArray *dataArray = responseObject[@"list"];
+        if (success) {
+            success(dataArray);
+        }
+    } fail:^(NSError *error) {
+        if (failure) {
+            failure();
+        } else if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        }
+    } progress:nil];
+}
+
+@end

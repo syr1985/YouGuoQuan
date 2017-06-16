@@ -1,0 +1,91 @@
+//
+//  UserCenterProductViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/6.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "UserCenterProductViewCell.h"
+#import "PhotoBrowserHelp.h"
+#import "MoreMenuHelp.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "UserCenterModel.h"
+#import "UIImage+Color.h"
+
+@interface UserCenterProductViewCell ()
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *productImageView;
+@property (weak, nonatomic) IBOutlet UIButton *buyButton;
+@property (weak, nonatomic) IBOutlet UILabel *buyCountLabel;
+@property (weak, nonatomic) IBOutlet UILabel *praiseRateLabel;
+@property (weak, nonatomic) IBOutlet UIButton *moreButton;
+@end
+
+@implementation UserCenterProductViewCell
+
+- (void)dealloc {
+    NSLog(@"%s", __func__);
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                          action:@selector(popupPhotoBrowser:)];
+    [_productImageView addGestureRecognizer:tap];
+}
+
+- (void)setUserCenterModel:(UserCenterModel *)userCenterModel {
+    _userCenterModel = userCenterModel;
+    
+    _titleLabel.text = userCenterModel.goodsName;
+    
+    UIImage *phImage = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]
+                                                     size:_productImageView.frame.size];
+    [_productImageView sd_setImageWithURL:[NSURL URLWithString:userCenterModel.imageUrl]
+                         placeholderImage:phImage];
+    
+    _moreButton.hidden = ![userCenterModel.userId isEqualToString:[LoginData sharedLoginData].userId];
+    _buyCountLabel.text = [NSString stringWithFormat:@"%@人购买", userCenterModel.buyCount];
+    _praiseRateLabel.text = [NSString stringWithFormat:@"好评率：%@",userCenterModel.buyCommentGoodCount];
+}
+
+/**
+ *  购买商品
+ */
+- (IBAction)buyProduct:(id)sender {
+    if (_buyButtonClickedBlock) {
+        _buyButtonClickedBlock(_userCenterModel);
+    }
+}
+
+/**
+ *  更多按钮点击
+ */
+- (IBAction)moreButtonClicked:(id)sender {
+    __weak typeof(self) weakself = self;
+    [MoreMenuHelp showMoreMenuForMineTrendsWithResult:^(NSUInteger buttonIndex) {
+        if (weakself.actionSheetItemClicked) {
+            weakself.actionSheetItemClicked(buttonIndex, weakself.userCenterModel.trendsId, weakself.userCenterModel.feedsType, weakself.indexPath);
+        }
+    }];
+}
+
+/**
+ *  打开图片浏览器
+ */
+- (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
+    if (_userCenterModel.imageUrl && _userCenterModel.imageUrl.length) {
+        NSArray *urlArray;
+        if ([_userCenterModel.imageUrl containsString:@";"]) {
+            urlArray = [_userCenterModel.imageUrl componentsSeparatedByString:@";"];
+        } else {
+            urlArray = @[_userCenterModel.imageUrl];
+        }
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:0];
+    }
+}
+
+@end

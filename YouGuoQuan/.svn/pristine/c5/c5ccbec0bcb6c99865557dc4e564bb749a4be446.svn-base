@@ -1,0 +1,17 @@
+//
+//  LookPhotosViewController.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/4.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface LookPhotosViewController : UIViewController
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic, assign) NSUInteger price;
+@property (nonatomic,   copy) NSString *goodsId;
+@property (nonatomic,   copy) NSString *feedsId;
+@end

@@ -1,0 +1,159 @@
+//
+//  SCNavTabBar.m
+//  SCNavTabBarController
+//
+//  Created by ShiCang on 14/11/17.
+//  Copyright (c) 2014年 SCNavTabBarController. All rights reserved.
+//
+
+#import "SCNavTabBar.h"
+#import "CommonMacro.h"
+#import "SCPopView.h"
+
+@interface SCNavTabBar () <SCPopViewDelegate>
+{
+    UIScrollView    *_navgationTabBar;      // all items on this scroll view
+    UIView          *_line;                 // underscore show which item selected
+    
+    NSMutableArray  *_items;                // SCNavTabBar pressed item
+    NSArray         *_itemsWidth;           // an array of items' width
+    UIButton        *_selectButton;
+    
+    BOOL            _bShowLine;
+    BOOL            _bShowSpaceLine;
+}
+
+@end
+
+@implementation SCNavTabBar
+
+- (instancetype)initWithFrame:(CGRect)frame showLine:(BOOL)showLine {
+    self = [super initWithFrame:frame];
+    if (self) {
+        _bShowLine = showLine;
+        [self initConfig];
+    }
+    return self;
+}
+
+- (instancetype)initWithFrame:(CGRect)frame showLine:(BOOL)showLine showSpaceLine:(BOOL)showSpaceLine {
+    self = [super initWithFrame:frame];
+    if (self) {
+        _bShowLine = showLine;
+        _bShowSpaceLine = showSpaceLine;
+        [self initConfig];
+    }
+    return self;
+}
+
+#pragma mark -
+#pragma mark - Private Methods
+
+- (void)initConfig {
+    _titleFont = [UIFont systemFontOfSize:14];
+    _items = [@[] mutableCopy];
+    
+    _navgationTabBar = [[UIScrollView alloc] initWithFrame:CGRectMake(DOT_COORDINATE, DOT_COORDINATE, SCREEN_WIDTH, NAV_TAB_BAR_HEIGHT)];
+    _navgationTabBar.showsHorizontalScrollIndicator = NO;
+    [self addSubview:_navgationTabBar];
+    
+    if (_bShowSpaceLine) {
+        UIView *spaceLine = [[UIView alloc] initWithFrame:CGRectMake(0, NAV_TAB_BAR_HEIGHT - 1, SCREEN_WIDTH, 1.0f)];
+        spaceLine.backgroundColor = TextFieldBorderColor;
+        [_navgationTabBar addSubview:spaceLine];
+    }
+}
+
+- (void)showLineWithButtonWidth:(CGFloat)width {
+    UIButton *button = _items[0];
+    CGFloat lineX = button.frame.origin.x;
+    _line = [[UIView alloc] initWithFrame:CGRectMake(lineX, NAV_TAB_BAR_HEIGHT - 8.0f, 36, 2.0f)];
+    _line.backgroundColor = _lineColor;
+    [_navgationTabBar addSubview:_line];
+}
+
+- (void)contentWidthAndAddNavTabBarItemsWithButtonsWidth:(NSArray *)widths {
+    CGFloat allButtonW = 0;
+    for (NSNumber *width in widths) {
+        allButtonW += [width floatValue];
+    }
+    
+    CGFloat space = (SCREEN_WIDTH - allButtonW) / (widths.count + 1);
+    CGFloat buttonX = 0;
+    for (NSInteger index = 0; index < [_itemTitles count]; index++) {
+        buttonX += space;
+        CGFloat buttonW = [widths[index] floatValue];
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+        button.frame = CGRectMake(buttonX, DOT_COORDINATE, buttonW, NAV_TAB_BAR_HEIGHT);
+        button.titleLabel.font = _titleFont;
+        [button setTitle:_itemTitles[index] forState:UIControlStateNormal];
+        [button setTitleColor:GaryFontColor forState:UIControlStateNormal];
+        [button setTitleColor:NavTabBarColor forState:UIControlStateSelected];
+        [button addTarget:self action:@selector(itemPressed:) forControlEvents:UIControlEventTouchUpInside];
+        [_navgationTabBar addSubview:button];
+        [_items addObject:button];
+        
+        buttonX += buttonW;
+    }
+    
+    self.currentItemIndex = 0;
+    
+    if (_bShowLine) {
+        [self showLineWithButtonWidth:[widths[0] floatValue]];
+    }
+    
+    _navgationTabBar.contentSize = CGSizeMake(SCREEN_WIDTH, NAVIGATION_BAR_HEIGHT);
+}
+
+- (void)itemPressed:(UIButton *)button {
+    NSInteger index = [_items indexOfObject:button];
+    if (_isHomeFocusPage) {
+        if (index == 2 && ![LoginData sharedLoginData].userId) {
+            if (_showLoginPage) {
+                _showLoginPage();
+            }
+            return;
+        }
+    }
+    
+    if (_selectButton != button) {
+        self.currentItemIndex = index;
+        [_delegate itemDidSelectedWithIndex:index];
+    }
+}
+
+- (NSArray *)getButtonsWidthWithTitles:(NSArray *)titles {
+    NSMutableArray *widths = [@[] mutableCopy];
+    for (NSString *title in titles) {
+        CGSize size = [title sizeWithAttributes:@{NSFontAttributeName:_titleFont}];
+        NSNumber *width = [NSNumber numberWithFloat:size.width];
+        [widths addObject:width];
+    }
+    return widths;
+}
+
+#pragma mark -
+#pragma mark - Public Methods
+
+- (void)setCurrentItemIndex:(NSInteger)currentItemIndex {
+    _currentItemIndex = currentItemIndex;
+    
+    _selectButton.selected = NO;
+    UIButton *button = _items[currentItemIndex];
+    button.selected = YES;
+    _selectButton = button;
+    
+    [UIView animateWithDuration:0.2f animations:^{
+        _line.frame = CGRectMake(button.frame.origin.x, _line.frame.origin.y, 36, _line.frame.size.height);
+    }];
+}
+
+- (void)updateData {
+    _itemsWidth = [self getButtonsWidthWithTitles:_itemTitles];
+    if (_itemsWidth.count) {
+        [self contentWidthAndAddNavTabBarItemsWithButtonsWidth:_itemsWidth];
+    }
+}
+
+@end
+

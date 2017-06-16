@@ -1,0 +1,175 @@
+//
+//  PublishVideoViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/28.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "PublishVideoViewController.h"
+#import <TZImagePickerController.h>
+#import <TZImageManager.h>
+#import "AlertViewTool.h"
+#import <AssetsLibrary/AssetsLibrary.h>
+
+@interface PublishVideoViewController () 
+@property (weak, nonatomic) IBOutlet UITextView *titleTextView;
+@property (weak, nonatomic) IBOutlet UIButton *selectVideoButton;
+@property (weak, nonatomic) IBOutlet UILabel  *videoTimeLabel;
+@property (weak, nonatomic) IBOutlet UIButton *publishVideoButton;
+@property (weak, nonatomic) UILabel  *placeholder;
+@property (nonatomic, strong) UIImage *videoCoverImage;
+@property (nonatomic,   copy) NSString *videoCoverImageUrl;
+@property (nonatomic,   copy) NSString *videoUrl;
+@property (nonatomic,   copy) NSString *videoTitle;
+//@property (nonatomic, strong) AVPlayerItem *playerItem;
+@property (nonatomic,   copy) NSString *videoFilePath;
+
+@end
+
+@implementation PublishVideoViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    UILabel *placeholder = [[UILabel alloc] init];
+    placeholder.text = @"说点什么吧，这段话会被用作标题哦~";
+    placeholder.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+    placeholder.textColor = RGBA(130, 130, 130, 0.7);
+    placeholder.frame = CGRectMake(5, 5, _titleTextView.frame.size.width - 10, 21);
+    placeholder.backgroundColor = [UIColor clearColor];
+    [self.titleTextView addSubview:placeholder];
+    _placeholder = placeholder;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - 关闭页面
+- (IBAction)dismissViewController {
+    __weak typeof(self) weakself = self;
+    [AlertViewTool showAlertViewWithTitle:nil Message:@"您确认放弃此次操作吗？" sureBlock:^{
+        [weakself dismissViewControllerAnimated:YES completion:nil];
+    }];
+}
+
+- (IBAction)selectVideoButtonClicked {
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:1 delegate:nil];
+    imagePickerVc.allowTakePicture = NO;
+    imagePickerVc.allowPickingImage = NO;
+    imagePickerVc.allowPickingOriginalPhoto = NO;
+    
+    // 你可以通过block或者代理，来得到用户选择的照片.
+    __weak typeof(self) weakself = self;
+    imagePickerVc.didFinishPickingVideoHandle = ^(UIImage *coverImage, id asset) {
+        weakself.videoCoverImage = coverImage;
+        [weakself.selectVideoButton setBackgroundImage:coverImage forState:UIControlStateNormal];
+        [weakself.selectVideoButton setTitle:@"设置封面" forState:UIControlStateNormal];
+        
+        [[TZImageManager manager] getVideoWithAsset:asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
+            //YGQLog(@"video info = %@",info);
+            NSString *filePath = info[@"PHImageFileSandboxExtensionTokenKey"];
+            if (filePath && filePath.length > 0) {
+                NSArray *lyricArr = [filePath componentsSeparatedByString:@";"];
+                NSString *privatePath = [lyricArr lastObject];
+                
+                if (privatePath.length > 8) {
+                    NSString *videoPath = [privatePath substringFromIndex:8];
+                    //NSLog(@"videoPath = %@",videoPath);
+                    weakself.videoFilePath = videoPath;
+                }
+            }
+            double time = CMTimeGetSeconds(playerItem.asset.duration);
+            NSUInteger mintues = time / 60;
+            NSUInteger seconds = (NSUInteger)roundf(time) % 60;
+            weakself.videoTimeLabel.text = [NSString stringWithFormat:@"视频时长：%lu:%02lu", (unsigned long)mintues, (unsigned long)seconds];
+        }];
+    };
+    
+    [self presentViewController:imagePickerVc animated:YES completion:nil];
+}
+
+- (IBAction)publishVideo:(id)sender {
+    if (!self.videoTitle || !self.videoTitle.length) {
+        [SVProgressHUD showInfoWithStatus:@"请输入文字描述"];
+        return;
+    }
+    
+    if (!self.videoCoverImage) {
+        [SVProgressHUD showInfoWithStatus:@"请选择一个视频"];
+        return;
+    }
+    
+    __weak typeof(self) weakself = self;
+    NSData *imageData = UIImageJPEGRepresentation(self.videoCoverImage, 0.1);
+    
+    [NetworkTool uploadImage:imageData progress:^(NSString *key, float percent) {
+        [SVProgressHUD showProgress:percent status:@"上传封面"];
+    } success:^(NSString *url) {
+        weakself.videoCoverImageUrl = url;
+        
+        NSData *videoData = [NSData dataWithContentsOfFile:weakself.videoFilePath];
+        //NSLog(@"%@",videoData);
+        
+        [NetworkTool uploadImage:videoData progress:^(NSString *key, float percent) {
+            [SVProgressHUD showProgress:percent status:@"上传视频"];
+        } success:^(NSString *videoUrl) {
+            weakself.videoUrl = videoUrl;
+            NSLog(@"%@",videoUrl);
+            [NetworkTool publishTrends:nil intro:weakself.videoTitle video:videoUrl cover:weakself.videoCoverImageUrl trendsType:@"2" success:^{
+                [SVProgressHUD showSuccessWithStatus:@"发布视频成功"];
+                
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [weakself dismissViewControllerAnimated:YES completion:^{
+                        weakself.tabBarController.selectedIndex = 0;
+                    }];
+                });
+            } failure:^{
+                [SVProgressHUD showErrorWithStatus:@"发布视频失败"];
+            }];
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"上传视频失败"];
+        }];
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"上传视频封面图片失败"];
+    }];
+}
+
+#pragma mark - textView delegate
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
+    if ([text isEqualToString:@"\n"]) { //判断输入的字是否是回车，即按下return
+        //在这里做你响应return键的代码
+        [self.view endEditing:YES];
+        return NO; //这里返回NO，就代表return键值失效，即页面上按下return，不会出现换行，如果为yes，则输入页面会换行
+    }
+    if (textView.text.length > 0) {
+        _placeholder.hidden = YES;
+    }
+    
+    if (textView.text.length > 20) {
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (void)textViewDidChange:(UITextView *)textView {
+    if (textView.text.length == 0) {
+        _placeholder.hidden = NO;
+    } else {
+        _placeholder.hidden = YES;
+    }
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView {
+    self.videoTitle = textView.text;
+    //self.publishVideoButton.enabled = textView.text.length;
+}
+
+
+@end

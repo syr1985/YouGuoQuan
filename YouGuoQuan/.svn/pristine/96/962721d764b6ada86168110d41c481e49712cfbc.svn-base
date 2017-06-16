@@ -1,0 +1,32 @@
+//
+//  UserCenterHeaderView.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@class UserBaseInfoModel;
+@interface UserCenterHeaderView : UIView
+
+@property (nonatomic,   copy) void (^actionSheetItemClicked)(NSUInteger buttonIndex);
+
+@property (nonatomic,   copy) void (^shareButtonClickedBlock)();
+
+@property (nonatomic,   copy) void (^tapHeaderImageView)(id userData);
+
+@property (nonatomic,   copy) void (^concemButtonClickedBlock)();
+
+@property (nonatomic,   copy) void (^funsButtonClickedBlock)();
+
+@property (nonatomic,   copy) void (^favourButtonClickedBlock)();
+
+@property (nonatomic, strong) UserBaseInfoModel *userBaseInfoModel;
+
+@property (nonatomic, strong) NSArray *photoArray;
+
++ (instancetype)loadUserCenterHeaderView;
+
+@end

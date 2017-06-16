@@ -1,0 +1,30 @@
+//
+//  MyIncomeModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/17.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface MyConsumeModel : NSObject
+@property (nonatomic,   copy) NSString *incomeId;
+@property (nonatomic,   copy) NSString *buyerId;
+@property (nonatomic,   copy) NSString *buyerNickName;
+@property (nonatomic,   copy) NSString *goodsId;
+@property (nonatomic,   copy) NSString *goodsName;
+@property (nonatomic,   copy) NSString *sellerId;
+@property (nonatomic,   copy) NSString *sellerNickName;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *updateTime;
+@property (nonatomic,   copy) NSString *orderNo;
+@property (nonatomic,   copy) NSString *payMethod;
+@property (nonatomic, strong) NSNumber *balance;
+@property (nonatomic, strong) NSNumber *buyerBalance;
+@property (nonatomic, strong) NSNumber *goodsPrice;
+@property (nonatomic, assign) BOOL isDelete;
+
++ (instancetype)myConsumeModelWithDict:(NSDictionary *)dict;
+- (instancetype)initMyConsumeModelWithDict:(NSDictionary *)dict;
+@end

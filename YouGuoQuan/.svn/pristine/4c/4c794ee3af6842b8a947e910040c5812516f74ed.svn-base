@@ -1,0 +1,33 @@
+//
+//  OthersContributerModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/2/22.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ audit = 1;
+ headImg = "http://7xtk9y.com1.z0.glb.clouddn.com/2017-02-14_99C568RI.jpg";
+ nickName = "omy god";
+ rank = "<null>";
+ rankTime = 1487303164000;
+ star = 5;
+ totalMoney = 568;
+ userId = "140ec9d8-f016-49ca-99e7-00d5fb9b56e2";
+ */
+@interface OthersContributerModel : NSObject
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *rankTime;
+@property (nonatomic,   copy) NSString *rank;
+@property (nonatomic,   copy) NSString *totalMoney;
+@property (nonatomic, assign) int star;
+@property (nonatomic, assign) int audit;
+
++ (instancetype)othersContributerModelWithDict:(NSDictionary *)dict;
+- (instancetype)initOthersContributerModelWithDict:(NSDictionary *)dict;
+@end

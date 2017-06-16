@@ -1,0 +1,201 @@
+//
+//  CrowdfundingDetailViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/29.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CrowdfundingDetailViewController.h"
+#import "ParticipatenListViewController.h"
+#import "CrowdfundingOrderViewController.h"
+
+#import "CrowdfundingDetailHeaderView.h"
+#import "CrowdfundingDetailViewCell.h"
+
+#import "DiscoveryCrowdfundingModel.h"
+
+@interface CrowdfundingDetailViewController () <UIScrollViewDelegate>
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
+@property (weak, nonatomic) IBOutlet UIButton *participateButton;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *buyButtonBottomConstraint;
+@property (nonatomic, strong) UIButton *backButton;
+@property (nonatomic, strong) NSArray *photosArray;
+@property (nonatomic, assign) BOOL animationing;
+@end
+
+static NSString * const collectionViewCellID_Header = @"CrowdfundingDetailHeaderView";
+static NSString * const collectionViewCellID_Photo  = @"CrowdfundingDetailViewCell";
+
+@implementation CrowdfundingDetailViewController
+
+- (NSArray *)photosArray {
+    if (!_photosArray) {
+        _photosArray = [NSArray new];
+    }
+    return _photosArray;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.title = _discoveryCrowdfundingModel.cTitle;
+    
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+    self.navigationController.navigationBar.tintColor = FontColor;
+    self.navigationController.navigationBar.barTintColor = BackgroundColor;
+    self.navigationController.navigationBar.backgroundColor = NavBackgroundColor;
+    
+    NSString *bannerImageUrl = _discoveryCrowdfundingModel.bannerImageUrl;
+    if (bannerImageUrl && bannerImageUrl.length) {
+        if ([bannerImageUrl containsString:@";"]) {
+            self.photosArray = [bannerImageUrl componentsSeparatedByString:@";"];
+        } else {
+            self.photosArray = @[bannerImageUrl];
+        }
+    }
+    
+    _backButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _backButton.frame = CGRectMake(12, 33, 20, 20);
+    [_backButton setBackgroundImage:[UIImage imageNamed:@"返回-白"] forState:UIControlStateNormal];
+    [_backButton addTarget:self action:@selector(dismissViewController) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:_backButton];
+    
+    UICollectionViewFlowLayout *flowLaout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+    flowLaout.minimumLineSpacing = 0;
+    flowLaout.minimumInteritemSpacing = 0;
+    flowLaout.sectionInset = UIEdgeInsetsMake(0, 0, 0, 0);
+    flowLaout.itemSize = CGSizeMake(WIDTH, WIDTH * 46 / 75);
+    flowLaout.headerReferenceSize = CGSizeMake(WIDTH, WIDTH * 46 / 75 + 256);
+    
+    UINib *nib_photo  = [UINib nibWithNibName:collectionViewCellID_Photo bundle:nil];
+    [self.collectionView registerNib:nib_photo forCellWithReuseIdentifier:collectionViewCellID_Photo];
+    
+    UINib *nib_header = [UINib nibWithNibName:collectionViewCellID_Header bundle:nil];
+    [self.collectionView registerNib:nib_header
+          forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+                 withReuseIdentifier:collectionViewCellID_Header];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    self.navigationController.navigationBar.hidden = YES;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+    //    self.photosArray = nil;
+}
+
+- (void)dismissViewController {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)backItemClicked:(id)sender {
+    [self dismissViewController];
+}
+
+- (IBAction)participateButtonClicked {
+    UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+    CrowdfundingOrderViewController *cfOrderVC = [discoverySB instantiateViewControllerWithIdentifier:@"CrowdfundingOrder"];
+    cfOrderVC.discoveryCrowdfundingModel = _discoveryCrowdfundingModel;
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:cfOrderVC];
+    [self presentViewController:nav animated:YES completion:nil];
+}
+
+#pragma mark -
+#pragma mark - <UICollectionViewDataSource>
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.photosArray.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    CrowdfundingDetailViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Photo forIndexPath:indexPath];
+    
+    // Configure the cell
+    cell.imageUrl = self.photosArray[indexPath.row];
+    return cell;
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    UICollectionReusableView *reusableview = nil;
+    
+    if ([kind isEqualToString:UICollectionElementKindSectionHeader]) {
+        CrowdfundingDetailHeaderView *headerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                                      withReuseIdentifier:collectionViewCellID_Header
+                                                                                             forIndexPath:indexPath];
+        __weak typeof(self) weakself = self;
+        headerview.pushViewControllerBlock = ^{
+            ParticipatenListViewController *participatenListVC = [[ParticipatenListViewController alloc] init];
+            participatenListVC.cfId = weakself.discoveryCrowdfundingModel.crowdfundingId;
+            //[weakself.navigationController pushViewController:participatenListVC animated:YES];
+            UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:participatenListVC];
+            [weakself presentViewController:nav animated:YES completion:nil];
+        };
+        headerview.discoveryCrowdfundingModel = _discoveryCrowdfundingModel;
+        
+        reusableview = headerview;
+    }
+    return reusableview;
+}
+
+#pragma mark - 
+#pragma mark - UIScrollViewDelegate
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    //CGFloat offsetY = scrollView.contentOffset.y + _collectionView.contentInset.top;//注意
+    CGFloat panTranslationY = [scrollView.panGestureRecognizer translationInView:_collectionView].y;
+    
+    if (panTranslationY > 0) { //下滑趋势，显示
+        if (!_animationing) {
+            // 导航栏显示
+            [self.navigationController setNavigationBarHidden:NO animated:YES];
+            self.backButton.hidden = YES;
+            // 按钮显示
+            if (_buyButtonBottomConstraint.constant != 0) {
+                _animationing = YES;
+                [UIView animateWithDuration:0.5 animations:^{
+                    _buyButtonBottomConstraint.constant = 0;
+                } completion:^(BOOL finished) {
+                    if (finished) {
+                        _animationing = NO;
+                    }
+                }];
+            }
+        }
+    } else {  //上滑趋势，隐藏
+        if (!_animationing) {
+            // 导航栏隐藏
+            [self.navigationController setNavigationBarHidden:YES animated:YES];
+            self.backButton.hidden = NO;
+            // 按钮隐藏
+            if (_buyButtonBottomConstraint.constant == 0) {
+                _animationing = YES;
+                [UIView animateWithDuration:0.5 animations:^{
+                    _buyButtonBottomConstraint.constant = -44;
+                } completion:^(BOOL finished) {
+                    if (finished) {
+                        _animationing = NO;
+                    }
+                }];
+            }
+        }
+    }
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

@@ -1,0 +1,35 @@
+//
+//  SystemMessageModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/3/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ content = "\U4e70\U5bb6\U5f20\U537f\U537f\U8d2d\U4e70\U4e86\U60a8\U7684\U5fae\U4fe1\Uff0c\U5feb\U53bb\U6dfb\U52a0\U4ed6\U5427\Uff01;\U5f20\U537f\U537f";
+ createTime = 1488606621000;
+ id = "0fcd3584-7be8-4393-9a1e-4965cdd8cd87";
+ isDelete = 0;
+ relationId = WX763781488606613582;
+ type = 1;
+ updateTime = 1488606621000;
+ userId = "b3006f58-f2c4-4415-a673-a948b5b62849";
+ */
+@interface SystemMessageModel : NSObject
+@property (nonatomic,   copy) NSString *msgId;
+@property (nonatomic,   copy) NSString *content;
+@property (nonatomic,   copy) NSString *relationId;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *updateTime;
+@property (nonatomic, assign) int  type;
+@property (nonatomic, assign) BOOL isDelete;
+
+@property (nonatomic, assign) CGFloat cellHeight;
+
++ (instancetype)systemMessageModelWithDict:(NSDictionary *)dict;
+- (instancetype)initSystemMessageModelWithDict:(NSDictionary *)dict;
+@end

@@ -1,0 +1,292 @@
+//
+//  PersonCenterViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/3.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "PersonCenterViewCell.h"
+#import "UserBaseInfoModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "TakePhotoHelp.h"
+#import "UIImage+Color.h"
+#import "PhotoBrowserHelp.h"
+#import "LongPressHelp.h"
+#import "PhotoWallModel.h"
+
+@interface PersonCenterViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView  *headerBackgroundImageView;   // 头像背景
+@property (weak, nonatomic) IBOutlet UIView       *backgroundBlurView;
+@property (weak, nonatomic) IBOutlet UIImageView  *headerImageView;             // 头像
+@property (weak, nonatomic) IBOutlet UIImageView  *crownImageView;              // 皇冠
+@property (weak, nonatomic) IBOutlet UIImageView  *recommandImageView;          // 右下角V
+@property (weak, nonatomic) IBOutlet UIImageView  *goldenVipImageView;          // 壕
+
+@property (weak, nonatomic) IBOutlet UILabel      *nickNameLabel;               // 昵称
+@property (weak, nonatomic) IBOutlet UIImageView  *sexImageView;                // 性别
+@property (weak, nonatomic) IBOutlet UIImageView  *levelImageView;              // 等级
+@property (weak, nonatomic) IBOutlet UIImageView  *vipImageView;
+
+@property (weak, nonatomic) IBOutlet UILabel      *indentificationLabel;        // 尤果认证
+@property (weak, nonatomic) IBOutlet UILabel      *positiveRateLabel;           // 好评率
+
+@property (weak, nonatomic) IBOutlet UIButton     *concemButton;                // 关注
+@property (weak, nonatomic) IBOutlet UIButton     *fansButton;                  // 粉丝
+@property (weak, nonatomic) IBOutlet UIButton     *favourButton;                // 赞
+@property (weak, nonatomic) IBOutlet UIStackView  *publishStackView;
+@property (weak, nonatomic) IBOutlet UIScrollView *photoWallScrollView;         // 照片墙
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *stackViewHeightConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *stackViewTopConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *vipImageViewWidthConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *vipImageViewLeadingConstraint;
+
+@end
+
+@implementation PersonCenterViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    _headerImageView.layer.cornerRadius = _headerImageView.frame.size.width * 0.5;
+    _headerImageView.layer.masksToBounds = YES;
+    _headerImageView.layer.borderColor = [UIColor whiteColor].CGColor;
+    _headerImageView.layer.borderWidth = 2;
+    
+    UITapGestureRecognizer *tapHead = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                              action:@selector(tapUserHeaderImageView:)];
+    [_headerImageView addGestureRecognizer:tapHead];
+    
+    UITapGestureRecognizer *tapBlur = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                              action:@selector(tapBackgroundImageView:)];
+    [_backgroundBlurView addGestureRecognizer:tapBlur];
+    
+    _publishStackView.hidden = ![LoginData sharedLoginData].ope;
+    _stackViewHeightConstraint.constant = [LoginData sharedLoginData].ope ? 33 : 0;
+}
+
+- (void)setUserBaseInfoModel:(UserBaseInfoModel *)userBaseInfoModel {
+    _userBaseInfoModel = userBaseInfoModel;
+    
+    NSString *headBackImageUrlStr = [NSString cropImageUrlWithUrlString:userBaseInfoModel.coverImgUrl
+                                                                  width:_headerBackgroundImageView.bounds.size.width
+                                                                 height:_headerBackgroundImageView.bounds.size.height];
+    [_headerBackgroundImageView sd_setImageWithURL:[NSURL URLWithString:headBackImageUrlStr]
+                                  placeholderImage:[UIImage imageNamed:@"背景封面默认图"]];
+    
+    NSString *headImageUrlStr = [NSString cropImageUrlWithUrlString:userBaseInfoModel.headImg
+                                                              width:_headerImageView.bounds.size.width
+                                                             height:_headerImageView.bounds.size.height];
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    _crownImageView.hidden = !(userBaseInfoModel.star == 6);
+    _goldenVipImageView.hidden = !(userBaseInfoModel.star == 5);
+    _recommandImageView.hidden = !(userBaseInfoModel.audit == 1 || userBaseInfoModel.audit == 3);
+    _recommandImageView.image  = userBaseInfoModel.audit == 3 ? [UIImage imageNamed:@"列表头像团体认证"] : [UIImage imageNamed:@"头像加V"];
+    
+    _vipImageViewWidthConstraint.constant = userBaseInfoModel.isRecommend ? 29 : 0;
+    _vipImageViewLeadingConstraint.constant = userBaseInfoModel.isRecommend ? 4 : 0;
+    _vipImageView.image = userBaseInfoModel.isRecommend ? [UIImage imageNamed:@"VIP"] : nil;
+    
+    _nickNameLabel.text = userBaseInfoModel.nickName;
+    _sexImageView.image = [UIImage imageNamed:userBaseInfoModel.sex];
+
+    _levelImageView.hidden = userBaseInfoModel.star == 0;
+    if (userBaseInfoModel.star != 0) {
+        _levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",userBaseInfoModel.star]];
+    }
+
+    if ((userBaseInfoModel.audit == 3 || userBaseInfoModel.audit == 1)) {
+        NSString *auditResult = [NSString stringWithFormat:@"尤果认证：%@",userBaseInfoModel.auditResult];
+        NSString *rateOfPrise = [NSString stringWithFormat:@"好评率：%@%%",userBaseInfoModel.rateOfPraise];
+        _indentificationLabel.text = auditResult;
+        _positiveRateLabel.text = rateOfPrise;
+        _stackViewTopConstraint.constant = 8;
+    } else {
+        _indentificationLabel.text = @"";
+        _positiveRateLabel.text = @"";
+        _stackViewTopConstraint.constant = 0;
+    }
+    
+    NSString *focusCountStr = [NSString stringWithFormat:@"%@  关注",userBaseInfoModel.focusCount];
+    long long focusCount = [userBaseInfoModel.focusCount longLongValue];
+    if (focusCount > 99999) {
+        focusCountStr = [NSString stringWithFormat:@"%zd万  关注", focusCount / 10000];
+    }
+    NSString *fansCountStr = [NSString stringWithFormat:@"%@  粉丝",userBaseInfoModel.fansCount];
+    long long fansCount = [userBaseInfoModel.fansCount longLongValue];
+    if (fansCount > 99999) {
+        fansCountStr = [NSString stringWithFormat:@"%zd万  粉丝", fansCount / 10000];
+    }
+    NSString *zanCountStr = [NSString stringWithFormat:@"%@  赞",userBaseInfoModel.zanCount];
+    long long zanCount = [userBaseInfoModel.zanCount longLongValue];
+    if (zanCount > 99999) {
+        zanCountStr = [NSString stringWithFormat:@"%zd万  赞", zanCount / 10000];
+    }
+    
+    [_concemButton setTitle:focusCountStr forState:UIControlStateNormal];
+    [_fansButton setTitle:fansCountStr forState:UIControlStateNormal];
+    [_favourButton setTitle:zanCountStr forState:UIControlStateNormal];
+}
+
+- (void)setPhotoArray:(NSArray *)photoArray {
+    _photoArray = photoArray;
+    
+    for (UIView *view in self.photoWallScrollView.subviews) {
+        [view removeFromSuperview];
+    }
+    
+    NSUInteger photoCount = photoArray.count;
+    CGFloat imageViewH = _photoWallScrollView.frame.size.height;
+    
+    for (NSUInteger i = 0; i < photoCount; i++) {
+        id obj = photoArray[i];
+        CGFloat imageViewX = imageViewH * i + 8 * (i + 1);
+        UIImageView *imageView = [[UIImageView alloc] init];
+        imageView.tag = i;
+        imageView.layer.cornerRadius = 5;
+        imageView.layer.masksToBounds = YES;
+        imageView.userInteractionEnabled = YES;
+        imageView.frame = CGRectMake(imageViewX, 0, imageViewH, imageViewH);
+        
+        if ([obj isKindOfClass:[PhotoWallModel class]]) {
+            PhotoWallModel *model = (PhotoWallModel *)obj;
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                  action:@selector(popupPhotoBrowser:)];
+            [imageView addGestureRecognizer:tap];
+            
+            UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self
+                                                                                                    action:@selector(deleteImage:)];
+            [imageView addGestureRecognizer:longPress];
+            
+            UIImage *phImage = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]
+                                                             size:imageView.frame.size];
+            NSString *imageUrlStr = [NSString cropImageUrlWithUrlString:model.imageUrl
+                                                                  width:imageViewH
+                                                                 height:imageViewH];
+            [imageView sd_setImageWithURL:[NSURL URLWithString:imageUrlStr]
+                         placeholderImage:phImage];
+        } else {
+            imageView.image = [UIImage imageNamed:obj];
+            imageView.userInteractionEnabled = YES;
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                  action:@selector(openPhotoAlbum)];
+            [imageView addGestureRecognizer:tap];
+        }
+        [_photoWallScrollView addSubview:imageView];
+    }
+    _photoWallScrollView.contentSize = CGSizeMake((imageViewH + 8) * photoCount + 8, imageViewH);
+}
+
+- (void)deleteImage:(UILongPressGestureRecognizer *)sender {
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        [LongPressHelp showMenuForLongPressImageWithReturnBlock:^(NSUInteger index) {
+            if (index == 1) {
+                if (_deleteImageBlock) {
+                    UIView *imageView = sender.view;
+                    _deleteImageBlock(imageView.tag);
+                }
+            }
+        }];
+    }
+}
+
+/**
+ *  打开图片浏览器
+ */
+- (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
+    UIView *tapView = sender.view;
+    if (_photoArray.count > 1) {
+        NSRange range = {1, _photoArray.count - 1};
+        NSArray *modelArray = [_photoArray subarrayWithRange:range];
+        NSMutableArray *urlArray = [NSMutableArray array];
+        for (PhotoWallModel *model in modelArray) {
+            [urlArray addObject:model.imageUrl];
+        }
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:tapView.tag - 1 canDeleteImage:YES];
+    }
+}
+
+/**
+ *  点击头像查看个人信息
+ */
+- (void)tapUserHeaderImageView:(id)sender {
+    if (_tapHeaderImageViewBlock) {
+        _tapHeaderImageViewBlock();
+    }
+}
+
+- (void)tapBackgroundImageView:(UITapGestureRecognizer *)sender {
+    if (_tapBackgroundImageViewBlock) {
+        _tapBackgroundImageViewBlock();
+    }
+}
+
+/**
+ *  他人关注
+ */
+- (IBAction)lookOthersConcems {
+    if (_concemButtonClickedBlock) {
+        _concemButtonClickedBlock();
+    }
+}
+
+/**
+ *  他人粉丝
+ */
+- (IBAction)lookOthersFuns {
+    if (_funsButtonClickedBlock) {
+        _funsButtonClickedBlock();
+    }
+}
+
+/**
+ *  他赞过的
+ */
+- (IBAction)lookOthersFavours {
+    if (_favourButtonClickedBlock) {
+        _favourButtonClickedBlock();
+    }
+}
+
+- (void)openPhotoAlbum {
+    if (_selectPhotoBlock) {
+        _selectPhotoBlock();
+    }
+}
+
+- (IBAction)sellWeiXinButtonClicked:(id)sender {
+    if ([self judgeAuthority]) {
+        if (_sellWeixinBlock) {
+            _sellWeixinBlock();
+        }
+    } else {
+        [self showTips];
+    }
+}
+
+- (IBAction)publishRedpacketButtonClicked:(id)sender {
+    if ([self judgeAuthority]) {
+        if (_publishRedpackstBlock) {
+            _publishRedpackstBlock();
+        }
+    } else {
+        [self showTips];
+    }
+}
+
+- (BOOL)judgeAuthority {
+    return  [LoginData sharedLoginData].star > 2 ||
+            [LoginData sharedLoginData].isRecommend ||
+            [LoginData sharedLoginData].audit == 1 ||
+            [LoginData sharedLoginData].audit == 3;
+}
+
+- (void)showTips {
+    if (_publishDeniedBlock) {
+        _publishDeniedBlock();
+    }
+}
+
+@end

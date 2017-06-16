@@ -1,0 +1,20 @@
+//
+//  NetWrokingData.h
+//
+//
+//  Created by  on 14-8-11.
+//  Copyright (c) 2014年 . All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface NetWorking : NSObject
+
+#pragma mark -- 重新封装
+//+ (void)postJSONWithPath:(NSString *)pathString Parameters:(NSMutableDictionary *)param success:(void (^)(id responseObject))success fail:(void (^)(NSError *error))fail;
+
+#pragma mark -- AFN FormData
+//+ (void)postWithPath:(NSString *)pathString parameters:(NSMutableDictionary *)param images:(NSMutableDictionary *)dicImages success:(void (^)(id responseObject))success fail:(void (^)(NSError *error))fail;
+
++ (void)postSessionWithUrl:(NSString *)urlStr parameters:(id)parameters success:(void (^)(id responseObject))success fail:(void (^)(NSError *error))fail;
+@end

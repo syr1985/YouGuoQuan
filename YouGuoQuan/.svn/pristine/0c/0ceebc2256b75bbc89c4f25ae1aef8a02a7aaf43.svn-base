@@ -1,0 +1,200 @@
+//
+//  TakePhotoHelp.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/26.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "TakePhotoHelp.h"
+#import <LCActionSheet.h>
+#import <TZImagePickerController.h>
+#import <TZImageManager.h>
+#import "AlertViewTool.h"
+
+@interface TakePhotoHelp () <LCActionSheetDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate>
+@property (nonatomic, strong) UIImagePickerController *imagePickerVc;
+@property (nonatomic, strong) UIViewController *selfVC;
+@property (nonatomic, assign) BOOL       isCover;
+@property (nonatomic, assign) BOOL       isUploadOrignalPhoto;
+@property (nonatomic, assign) NSUInteger photosCount;
+@property (nonatomic,   copy) NSString   *photosSize;
+@end
+
+@implementation TakePhotoHelp
+
+static TakePhotoHelp *_instance;
+
++ (instancetype)sharedInstance {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _instance = [[self alloc] init];
+    });
+    return _instance;
+}
+
+- (void)showActionSheetWithTitle:(NSString *)title viewController:(UIViewController *)vc  {
+    _selfVC = vc;
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:title
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"拍摄照片", @"从相册选取", nil];
+    [actionSheet show];
+}
+
+- (void)showActionSheetWithTitle:(NSString *)title viewController:(UIViewController *)vc returnBlock:(void (^)(BOOL, NSArray<UIImage *> *))result  {
+    _selectedPhotosReturnBlock = [result copy];
+    _selfVC = vc;
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:title
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"拍摄照片", @"从相册选取", nil];
+    [actionSheet show];
+}
+
+- (void)showActionSheetWithTitle:(NSString *)title photosCount:(NSUInteger)count viewController:(UIViewController *)vc  {
+    _photosCount = count;
+    _selfVC = vc;
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:title
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"拍摄照片", @"从相册选取", nil];
+    [actionSheet show];
+}
+
+- (void)showActionSheetWithTitle:(NSString *)title photosCount:(NSUInteger)count viewController:(UIViewController *)vc returnBlock:(void (^)(BOOL, NSArray<UIImage *> *))result {
+    _selectedPhotosReturnBlock = [result copy];
+    _photosCount = count;
+    _selfVC = vc;
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:title
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"拍摄照片", @"从相册选取", nil];
+    [actionSheet show];
+}
+
+/**
+ *  打开相机
+ */
+#pragma mark - Private Method
+- (void)openCameraTakePhoto {
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if ((authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied) && iOS7Later) {
+        // 无权限 做一个友好的提示
+        NSString *appName = [[NSBundle mainBundle].infoDictionary valueForKey:@"CFBundleDisplayName"];
+        if (!appName) appName = [[NSBundle mainBundle].infoDictionary valueForKey:@"CFBundleName"];
+        NSString *message = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\""],appName];
+        [AlertViewTool showAlertViewWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"]
+                                      Message:message
+                                  cancelTitle:[NSBundle tz_localizedStringForKey:@"Cancel"]
+                                    sureTitle:[NSBundle tz_localizedStringForKey:@"Setting"]
+                                    sureBlock:^{
+                                        
+                                    }];
+    } else { // 调用相机
+        UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
+        if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
+            self.imagePickerVc.sourceType = sourceType;
+            self.imagePickerVc.allowsEditing = YES;
+            [_selfVC presentViewController:self.imagePickerVc animated:YES completion:nil];
+        }
+    }
+}
+
+/**
+ *  打开相册
+ */
+- (void)openPhotoAlbum:(NSUInteger)maxImagesCount cover:(BOOL)isCover edit:(BOOL)canEdit useCamera:(BOOL)allowTake {
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:maxImagesCount delegate:nil];
+    imagePickerVc.allowTakePicture = allowTake;
+    
+    // 你可以通过block或者代理，来得到用户选择的照片.
+    __weak typeof(self) weakself = self;
+    imagePickerVc.didFinishPickingPhotosHandle = ^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+        __strong typeof(self) strongself = weakself;
+        if (photos.count) {
+            NSMutableArray *muArray = [NSMutableArray array];
+            for (PHAsset *asset in assets) {
+                TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhoto];
+                [muArray addObject:model];
+            }
+            
+            [[TZImageManager manager] getPhotosBytesWithArray:muArray completion:^(NSString *totalBytes) {
+                strongself.photosSize = totalBytes;
+            }];
+            
+            if (strongself.selectedPhotosReturnBlock) {
+                strongself.selectedPhotosReturnBlock(strongself.isCover, photos);
+            }
+        }
+    };
+    [_selfVC presentViewController:imagePickerVc animated:YES completion:nil];
+}
+
+
+#pragma mark - LCActionSheet Delegate
+
+- (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    self.isCover = [actionSheet.title isEqualToString:@"设置封面"] || [actionSheet.title isEqualToString:@"更换背景封面"] || [actionSheet.title isEqualToString:@"修改头像"];
+    if (buttonIndex == 1) {
+        [self openCameraTakePhoto];
+    } else if (buttonIndex == 2) {
+        if (self.isCover) {
+            [self openPhotoAlbum:1 cover:YES edit:NO useCamera:NO];
+        } else {
+            [self openPhotoAlbum:(10 - self.photosCount) cover:NO edit:NO useCamera:NO];
+        }
+    }
+}
+
+#pragma mark - UIImagePickerControllerDelegate
+
+- (void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    [picker dismissViewControllerAnimated:YES completion:nil];
+    NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
+    if ([type isEqualToString:@"public.image"]) {
+        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        /**
+         *  保存图片
+         */
+        [[TZImageManager manager] savePhotoWithImage:image completion:^(NSError *error){
+            [SVProgressHUD showErrorWithStatus:@"保存图片到本地失败"];
+        }];
+        
+        if (self.selectedPhotosReturnBlock) {
+            self.selectedPhotosReturnBlock(self.isCover, @[image]);
+        }        
+    }
+}
+
+/**
+ *  懒加载
+ *
+ *  @return UIImagePickerController对象
+ */
+- (UIImagePickerController *)imagePickerVc {
+    if (_imagePickerVc == nil) {
+        _imagePickerVc = [[UIImagePickerController alloc] init];
+        _imagePickerVc.delegate = self;
+        // set appearance / 改变相册选择页的导航栏外观
+        _imagePickerVc.navigationBar.barTintColor = _selfVC.navigationController.navigationBar.barTintColor;
+        _imagePickerVc.navigationBar.tintColor = _selfVC.navigationController.navigationBar.tintColor;
+        UIBarButtonItem *tzBarItem, *BarItem;
+        if (iOS9Later) {
+            tzBarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
+            BarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UIImagePickerController class]]];
+        }
+        //        else {
+        //#pragma clang diagnostic push
+        //#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        //            tzBarItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
+        //            BarItem = [UIBarButtonItem appearanceWhenContainedIn:[UIImagePickerController class], nil];
+        //#pragma clang diagnostic pop
+        //        }
+        NSDictionary *titleTextAttributes = [tzBarItem titleTextAttributesForState:UIControlStateNormal];
+        [BarItem setTitleTextAttributes:titleTextAttributes forState:UIControlStateNormal];
+    }
+    return _imagePickerVc;
+}
+
+@end

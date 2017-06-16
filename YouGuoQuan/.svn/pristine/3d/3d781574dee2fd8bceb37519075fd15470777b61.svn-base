@@ -1,0 +1,75 @@
+//
+//  CommentMessageViewController.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/9.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CommentMessageViewController.h"
+#import "HelperUtil.h"
+#import "CommentMessageCell.h"
+
+@interface CommentMessageViewController ()
+
+@end
+
+@implementation CommentMessageViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setUpNavBar];
+    [self setUpTableView];
+}
+
+- (void) setUpNavBar {
+    self.title = @"评论";
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"返回"] style:UIBarButtonItemStylePlain target:self action:@selector(actionBack)];
+    self.navigationItem.leftBarButtonItem.tintColor = [HelperUtil colorWithHexString:@"#352007"];
+}
+
+- (void) setUpTableView {
+    [self.tableView registerClass:[CommentMessageCell class] forCellReuseIdentifier:[CommentMessageCell reuseIdentifier]];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 10;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    CommentMessageCell *cell = [tableView dequeueReusableCellWithIdentifier:[CommentMessageCell reuseIdentifier] forIndexPath:indexPath];
+    
+    if (indexPath.row %2) {
+        [cell refreshContent:nil];
+    } else {
+        [cell refreshContent:@"sf"];
+    }
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row %2) {
+        return [CommentMessageCell cellHeightWithText:nil];
+    }
+    return [CommentMessageCell cellHeightWithText:@"1"];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+#pragma mark action
+- (void) actionBack {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+@end

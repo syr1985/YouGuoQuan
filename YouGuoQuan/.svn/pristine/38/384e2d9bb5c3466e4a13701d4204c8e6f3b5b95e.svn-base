@@ -1,0 +1,110 @@
+//
+//  PublishViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/16.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "PublishViewController.h"
+#import <PopMenu.h>
+#import "PublishProductViewController.h"
+
+@interface PublishViewController ()
+@property (nonatomic, strong) PopMenu *popMenu;
+
+@end
+
+@implementation PublishViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self showMenu];
+}
+
+- (void)showMenu {
+    if (!_popMenu) {
+        NSArray *icons = @[@"发布商品", @"红包照片", @"出售微信", @"视频动态", @"图文动态", @""];
+        NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:5];
+        
+        NSUInteger index = 0;
+        for (NSString *icon in icons) {
+            MenuItem *menuItem = [MenuItem itemWithTitle:@"" iconName:icon];
+            menuItem.index = index++;
+            [items addObject:menuItem];
+        }
+        
+        _popMenu = [[PopMenu alloc] initWithFrame:self.view.bounds items:items];
+        _popMenu.menuAnimationType = kPopMenuAnimationTypeNetEase;
+    }
+    
+    if (_popMenu.isShowed) {
+        return;
+    }
+    
+    __weak typeof(self) weakself = self;
+    _popMenu.didSelectedItemCompletion = ^(MenuItem *selectedItem) {
+        //NSLog(@"---%ld",selectedItem.index);
+        
+        UIStoryboard *publishSB = [UIStoryboard storyboardWithName:@"Publish" bundle:nil];
+        switch (selectedItem.index) {
+            case 0:
+            {
+                if (true) {
+                    PublishProductViewController *publishProductVC = [publishSB instantiateViewControllerWithIdentifier:@"PublishProduct"];
+                    [weakself presentViewController:publishProductVC animated:YES completion:nil];
+                } else {
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                                                   message:@"该功能只对认证用户开放，快去认证吧"
+                                                                            preferredStyle:UIAlertControllerStyleAlert];
+                    
+                    UIAlertAction *sureAction = [UIAlertAction actionWithTitle:@"确定"
+                                                                         style:UIAlertActionStyleDefault
+                                                                       handler:^(UIAlertAction * action) {
+                                                                           
+                                                                       }];
+                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消"
+                                                                           style:UIAlertActionStyleCancel
+                                                                         handler:^(UIAlertAction * action) {
+                                                                             
+                                                                         }];
+                    [alert addAction:sureAction];
+                    [alert addAction:cancelAction];
+                    [weakself presentViewController:alert animated:YES completion:nil];
+                }
+            }
+                break;
+            case 4:
+                
+                break;
+            default:
+                break;
+        }
+        weakself.tabBarController.selectedIndex = 0;
+    };
+    
+    [_popMenu showMenuAtView:[UIApplication sharedApplication].keyWindow showCloseButton:YES];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

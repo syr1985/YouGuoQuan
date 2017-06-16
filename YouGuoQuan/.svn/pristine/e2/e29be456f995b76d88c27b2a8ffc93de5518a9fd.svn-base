@@ -1,0 +1,159 @@
+//
+//  PraiseMessageCell.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "PraiseMessageCell.h"
+#import "Masonry.h"
+#import "UIScreen+Adapt.h"
+#import "HelperUtil.h"
+
+@interface PraiseMessageCell() {
+    
+}
+@property(nonatomic) CGFloat screenWidth;
+
+@property(nonatomic, strong) UIImageView *headImgView;
+@property(nonatomic, strong) UIImageView *vMarkImgView;
+@property(nonatomic, strong) UILabel *nameLabel;
+@property(nonatomic, strong) UILabel *praiseLabel;
+@property(nonatomic, strong) UILabel *timeLabel;
+@property(nonatomic, strong) UIImageView *picImgView;
+
++ (NSString *) reuseIdentifier;
+
+@end
+
+@implementation PraiseMessageCell
+
+- (instancetype) initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        self.screenWidth = [UIScreen mainScreen].bounds.size.width;
+        [self.contentView addSubview:self.headImgView];
+        [self.contentView addSubview:self.vMarkImgView];
+        [self.contentView addSubview:self.nameLabel];
+        [self.contentView addSubview:self.praiseLabel];
+        [self.contentView addSubview:self.picImgView];
+        [self.contentView addSubview:self.timeLabel];
+        [self addAutoLayoutConstraint];
+    }
+    return self;
+}
+
+- (void) addAutoLayoutConstraint {
+    __weak __typeof(self)weakSelf = self;
+    [self.headImgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.left.mas_equalTo([UIScreen adaptedLengthOf:18]);
+        make.top.mas_equalTo([UIScreen adaptedLengthOf:11]);
+        make.bottom.mas_equalTo([UIScreen adaptedLengthOf:-11]);
+        make.width.equalTo(strongSelf.headImgView.mas_height);
+    }];
+    
+    
+    [self.vMarkImgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.right.equalTo(strongSelf.headImgView.mas_right);
+        make.bottom.equalTo(strongSelf.headImgView.mas_bottom);
+    }];
+    
+    [self.nameLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.top.mas_equalTo([UIScreen adaptedLengthOf:12]);
+        make.left.mas_equalTo(strongSelf.headImgView.mas_right).with.offset([UIScreen adaptedLengthOf:12]);
+        make.width.mas_lessThanOrEqualTo([UIScreen adaptedLengthOf:200]);
+    }];
+    
+    [self.praiseLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.left.mas_equalTo(strongSelf.nameLabel.mas_right).with.offset([UIScreen adaptedLengthOf:2]);
+        make.centerY.mas_equalTo(strongSelf.nameLabel.mas_centerY);
+        make.right.mas_lessThanOrEqualTo(strongSelf.picImgView.mas_left).with.offset(-6);
+    }];
+    
+    [self.picImgView mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.right.mas_equalTo([UIScreen adaptedLengthOf:-12]);
+        make.bottom.mas_equalTo([UIScreen adaptedLengthOf:-10]);
+        make.top.mas_equalTo([UIScreen adaptedLengthOf:10]);
+        make.width.equalTo(strongSelf.picImgView.mas_height);
+    }];
+    
+    [self.timeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.nameLabel.mas_left);
+        make.top.mas_equalTo(self.nameLabel.mas_bottom).with.offset([UIScreen adaptedLengthOf:5]);
+    }];
+}
+
+- (UIImageView *) headImgView {
+    if (!_headImgView) {
+        if (!_headImgView) {
+            _headImgView = [[UIImageView alloc] init];
+            _headImgView.image = [UIImage imageNamed:@"my_head_default"];
+        }
+    }
+    return _headImgView;
+}
+
+- (UIImageView *) vMarkImgView {
+    if (!_vMarkImgView) {
+        _vMarkImgView = [[UIImageView alloc] init];
+        _vMarkImgView.image = [UIImage imageNamed:@"头像加V"];
+    }
+    return _vMarkImgView;
+}
+
+- (UILabel *) nameLabel {
+    if (!_nameLabel) {
+        _nameLabel = [[UILabel alloc] init];
+        _nameLabel.font = [UIFont adaptedFontOfSize:14];
+        _nameLabel.textColor = [HelperUtil colorWithHexString:@"#352007"];
+    }
+    return _nameLabel;
+}
+
+- (UILabel *) praiseLabel {
+    if (!_praiseLabel) {
+        _praiseLabel = [[UILabel alloc] init];
+        _praiseLabel.font = [UIFont adaptedFontOfSize:14];
+        _praiseLabel.textColor = [HelperUtil colorWithHexString:@"#ABABAB"];
+    }
+    return _praiseLabel;
+}
+
+- (UILabel *) timeLabel {
+    if (!_timeLabel) {
+        _timeLabel = [[UILabel alloc] init];
+        _timeLabel.font = [UIFont adaptedFontOfSize:12];
+        _timeLabel.textColor = [HelperUtil colorWithHexString:@"#ABABAB"];
+    }
+    return _timeLabel;
+}
+
+- (UIImageView *) picImgView {
+    if (!_picImgView) {
+        _picImgView = [[UIImageView alloc] init];
+        _picImgView.contentMode = UIViewContentModeScaleAspectFill;
+    }
+    return _picImgView;
+}
+
+- (void) refreshContent : (id) content {
+    self.nameLabel.text = @"朝花夕拾新视觉";
+    self.praiseLabel.text = @"赞了你的图片";
+    self.timeLabel.text = @"2016年10月23日";
+}
+
++ (CGFloat) cellHeight {
+    return [UIScreen adaptedLengthOf:60];
+}
+
++ (NSString *) reuseIdentifier {
+    return @"PraiseMessageCell";
+}
+
+@end

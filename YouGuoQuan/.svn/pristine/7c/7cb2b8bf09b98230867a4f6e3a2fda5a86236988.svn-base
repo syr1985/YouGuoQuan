@@ -1,0 +1,62 @@
+//
+//  WaitingForPayMeetingViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/9.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "WaitingForPayMeetingViewCell.h"
+#import <UIImageView+WebCache.h>
+#import "MyOrderModel.h"
+
+@interface WaitingForPayMeetingViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *contentImageView;
+@property (weak, nonatomic) IBOutlet UILabel *contentTitleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentPriceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *meetingDateLabel;
+@property (weak, nonatomic) IBOutlet UILabel *meetingAddressLabel;
+
+@end
+
+@implementation WaitingForPayMeetingViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    _headerImageView.layer.cornerRadius = _headerImageView.bounds.size.width * 0.5;
+    _headerImageView.layer.masksToBounds = YES; // 导致离屏渲染
+}
+
+- (void)setOrderModel:(MyOrderModel *)orderModel {
+    _orderModel = orderModel;
+    
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:orderModel.headImg]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    _titleLabel.text = orderModel.saleNickName;
+    
+    _contentImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"购买订单-约见-%@",orderModel.goodsName]];
+    _contentTitleLabel.text = [NSString stringWithFormat:@"约见-%@",orderModel.goodsName];
+    _contentPriceLabel.text = [NSString stringWithFormat:@"¥%@",orderModel.price];
+    
+    _meetingDateLabel.text = [NSString stringWithFormat:@"日期：%@", orderModel.dateTimeInfo];
+    _meetingAddressLabel.text = [NSString stringWithFormat:@"地址：%@", orderModel.dateAddress];
+}
+
+
+- (IBAction)goonPayButtonClicked:(id)sender {
+    if (_goonPayBolck) {
+        _goonPayBolck(_orderModel.orderNo);
+    }
+}
+
+- (IBAction)cancelOrderButtonClicked:(id)sender {
+    if (_cancelOrderBlock) {
+        _cancelOrderBlock(_orderModel.orderNo);
+    }
+}
+
+@end

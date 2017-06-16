@@ -1,0 +1,13 @@
+//
+//  BaseCollectionViewController.h
+//  RoomService
+//
+//  Created by YM on 16/3/11.
+//  Copyright © 2016年 SYR. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface BaseCollectionViewController : UICollectionViewController
+//@property (nonatomic, strong) UILabel *titleLabel;
+@end

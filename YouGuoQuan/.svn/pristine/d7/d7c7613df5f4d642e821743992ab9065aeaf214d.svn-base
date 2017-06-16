@@ -1,0 +1,79 @@
+//
+//  MyOrderModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/12.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ buyUserHeadImg = "http://7xtk9y.com1.z0.glb.clouddn.com/%E5%9B%BE%E5%B1%82-9.png";
+ buyUserId = "0f188a3d-4529-40a7-9d37-ffb288b19e5d";
+ buyUserNickName = wwww;
+ buyerDesc = "";
+ buyerEmail = "";
+ buyerPhone = "";
+ createTime = "2017-01-03 16:17:32.0";
+ feedsId = "7dcf2f48-b28b-484c-a67a-9f7077f0a620";
+ goodsId = "b84c0cbd-d505-4982-ac69-eff7af222c9d";
+ goodsName = "\U5566\U5566\U5566";
+ haveComment = "";
+ headImg = "http://7xtk9y.com1.z0.glb.clouddn.com/ff7262fee61f64ae3c128988422beaccac05bf5cbe6630e947e737428928206d..jpg";
+ id = "0199717a-b1e4-430f-beb7-384b55684890";
+ imageUrl = 2;
+ isDelete = 0;
+ isReal = 1;
+ orderNo = RP222071483431449488;
+ orderStatus = 1;
+ orderType = 3;
+ payMethod = wallet;
+ payStatus = 1;
+ price = 1;
+ returnCode = "";
+ returnMsg = "";
+ saleNickName = wwww;
+ saleUserId = "0f188a3d-4529-40a7-9d37-ffb288b19e5d";
+ servOrGoods = "";
+ updateTime = "2017-01-03 16:17:32.0";
+ dateAddress = "";
+ dateTimeInfo = "";
+ goodsDetailType = 2;
+ isAutoShip = 0;
+ */
+@interface MyOrderModel : NSObject
+@property (nonatomic,   copy) NSString *orderId;
+@property (nonatomic,   copy) NSString *buyUserHeadImg;
+@property (nonatomic,   copy) NSString *buyUserId;
+@property (nonatomic,   copy) NSString *buyUserNickName;
+@property (nonatomic,   copy) NSString *buyerDesc;
+@property (nonatomic,   copy) NSString *buyerEmail;
+@property (nonatomic,   copy) NSString *buyerPhone;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *updateTime;
+@property (nonatomic,   copy) NSString *feedsId;
+@property (nonatomic,   copy) NSString *goodsId;
+@property (nonatomic,   copy) NSString *goodsName;
+@property (nonatomic,   copy) NSString *haveComment;
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *imageUrl;
+@property (nonatomic,   copy) NSString *orderNo;
+@property (nonatomic,   copy) NSString *payMethod;
+@property (nonatomic,   copy) NSString *price;
+@property (nonatomic,   copy) NSString *saleNickName;
+@property (nonatomic,   copy) NSString *saleUserId;
+@property (nonatomic,   copy) NSString *servOrGoods;
+@property (nonatomic,   copy) NSString *dateAddress;
+@property (nonatomic,   copy) NSString *dateTimeInfo;
+@property (nonatomic, assign) int  goodsDetailType; // 1待付款 2购买进行中 3退款进行中 4购买成功 5 退款成功 6 交易关闭
+@property (nonatomic, assign) int  orderType;   // 1 = 退款中，2 = 拒绝服务，3 = 正常，4 = 已发货
+@property (nonatomic, assign) int  orderStatus; // 1 = 已完成，2 = 进行中 3 = 关闭
+@property (nonatomic, assign) int  payStatus;   // 1 = 待支付，2 = 已支付
+@property (nonatomic, assign) BOOL isReal;
+@property (nonatomic, assign) BOOL isDelete;
+@property (nonatomic, assign) BOOL isAutoShip;
+
++ (instancetype)myOrderModelWithDict:(NSDictionary *)dict;
+- (instancetype)initMyOrderModelWithDict:(NSDictionary *)dict;
+@end

@@ -1,0 +1,27 @@
+//
+//  PublishDateViewController.h
+//  YouGuoQuan
+//
+//  Created by liushuai on 2017/1/2.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+//#import <UIKit/UIKit.h>
+#import "BaseViewController.h"
+
+typedef NS_ENUM(NSInteger, DateType) {
+    DateType_Eat,
+    DateType_Stay,
+    DateType_Movie,
+    DateType_Tea,
+    DateType_Photo,
+    DateType_Trail
+};
+
+@interface PublishDateViewController : BaseViewController
+
+- (instancetype)initWithDateType:(DateType)dateType;
+
+- (instancetype)initWithDateType:(DateType)dateType userID:(NSString *)userId;
+
+@end

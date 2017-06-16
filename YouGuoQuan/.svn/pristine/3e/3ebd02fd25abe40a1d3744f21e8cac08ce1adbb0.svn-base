@@ -1,0 +1,17 @@
+//
+//  FocusRedEnvelopeViewCell.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/6.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@class HomeFocusModel;
+@interface FocusRedEnvelopeViewCell : UITableViewCell
+@property (nonatomic,   copy) void (^favoursBlock)();
+@property (nonatomic,   copy) void (^commentBlock)();
+@property (nonatomic,   copy) void (^actionSheetItemClicked)(NSUInteger buttonIndex);
+@property (nonatomic, strong) HomeFocusModel *homeFocusModel;
+@end

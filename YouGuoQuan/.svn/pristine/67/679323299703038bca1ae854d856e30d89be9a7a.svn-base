@@ -1,0 +1,78 @@
+//
+//  WaitingForPayTrendsViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/9.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "CompletedForPayTrendsViewCell.h"
+#import <UIImageView+WebCache.h>
+#import "MyOrderModel.h"
+#import "UIImage+Color.h"
+
+@interface CompletedForPayTrendsViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *contentImageView;
+@property (weak, nonatomic) IBOutlet UILabel *contentTitleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentPriceLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *evaluateTrailingLayoutConstraint;
+@end
+
+@implementation CompletedForPayTrendsViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    _headerImageView.layer.cornerRadius = _headerImageView.bounds.size.width * 0.5;
+    _headerImageView.layer.masksToBounds = YES; // 导致离屏渲染
+}
+
+- (void)setOrderModel:(MyOrderModel *)orderModel {
+    _orderModel = orderModel;
+    
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:orderModel.headImg]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    _titleLabel.text = orderModel.saleNickName;
+    
+    UIImage *phImage = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]
+                                                     size:_contentImageView.frame.size];
+    // RP(红包照片)NM(普通商品)WX(购买微信)CF(众筹)RB(红包)RE(打赏)
+    NSString *orderNo = orderModel.orderNo;
+    if ([orderNo hasPrefix:@"WX"]) {
+        _contentImageView.image = [UIImage imageNamed:@"购买订单-购买微信"];
+        _contentTitleLabel.text = @"购买微信";
+    } else if ([orderNo hasPrefix:@"RP"]) {
+        [_contentImageView sd_setImageWithURL:[NSURL URLWithString:orderModel.imageUrl]
+                             placeholderImage:phImage];
+        _contentTitleLabel.text = @"红包照片";
+    } else if ([orderNo hasPrefix:@"RE"]) {
+        _contentImageView.image = [UIImage imageNamed:@"我的订单-打赏"];
+        _contentTitleLabel.text = @"打赏";
+    } else {
+        [_contentImageView sd_setImageWithURL:[NSURL URLWithString:orderModel.imageUrl]
+                             placeholderImage:phImage];
+        _contentTitleLabel.text = orderModel.goodsName;
+    }
+    _contentPriceLabel.text = [NSString stringWithFormat:@"¥%@",orderModel.price];
+    
+    if ([orderNo hasPrefix:@"NM"]) {
+        _evaluateTrailingLayoutConstraint.constant = 12;
+    }
+}
+
+- (IBAction)deleteOrderButtonClicked:(id)sender {
+    if (_deleteOrderBlock) {
+        _deleteOrderBlock(_orderModel.orderNo);
+    }
+}
+
+- (IBAction)evaluationButtonClicked:(id)sender {
+    if (_evaluateOrderBlock) {
+        _evaluateOrderBlock(_orderModel.orderId, _orderModel.goodsId, _orderModel.goodsName);
+    }
+}
+
+@end

@@ -1,0 +1,21 @@
+//
+//  ConcemViewCell.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+extern NSString * const kCommentSuccessNotification;
+
+@class HomeFocusModel;
+@interface FocusTrendsViewCell : UITableViewCell
+@property (nonatomic,   copy) void (^tapHeaderView)(NSString *userId);
+@property (nonatomic,   copy) void (^commentBlock)(NSString *focusId);
+@property (nonatomic,   copy) void (^actionSheetItemClicked)(NSUInteger buttonIndex, NSString *userId);
+@property (nonatomic, strong) HomeFocusModel *homeFocusModel;
+
+@end
+

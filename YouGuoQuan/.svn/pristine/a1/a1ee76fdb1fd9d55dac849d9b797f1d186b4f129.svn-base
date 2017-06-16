@@ -1,0 +1,21 @@
+//
+//  FocusVideoViewCell.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/6.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+extern NSString * const kCommentSuccessNotification;
+
+@class HomeFocusModel;
+@interface FocusVideoViewCell : UITableViewCell
+@property (nonatomic,   copy) void (^tapHeaderView)(NSString *userId);
+@property (nonatomic,   copy) void (^commentBlock)(NSString *focusId);
+@property (nonatomic,   copy) void (^actionSheetItemClicked)(NSUInteger buttonIndex, NSString *userId);
+@property (nonatomic, strong) HomeFocusModel *homeFocusModel;
+
+- (void)releaseWMPlayer;
+@end

@@ -1,0 +1,86 @@
+//
+//  ProductDetailCommentViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/17.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "ProductDetailCommentViewCell.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "ProductEvaluateModel.h"
+#import "NSDate+LXExtension.h"
+#import "NSString+AttributedText.h"
+
+@interface ProductDetailCommentViewCell ()
+@property (weak, nonatomic) IBOutlet UILabel *totalCommentScoreLabel;
+@property (weak, nonatomic) IBOutlet UILabel *totalCommentCountLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UIStackView *praiseRatingStackView;
+@property (weak, nonatomic) IBOutlet UILabel *commentContentLabel;
+@property (weak, nonatomic) IBOutlet UILabel *evaluateTimeLabel;
+
+@end
+
+@implementation ProductDetailCommentViewCell
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    self.headerImageView.layer.cornerRadius = 20;
+    self.headerImageView.layer.masksToBounds = YES;
+}
+
+- (void)setDetailEvaluateModel:(ProductEvaluateModel *)detailEvaluateModel {
+    _detailEvaluateModel = detailEvaluateModel;
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:detailEvaluateModel.headImg]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    self.nickNameLabel.text = detailEvaluateModel.nickName;
+    self.levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d", detailEvaluateModel.star]];
+    for (int i = 1; i < detailEvaluateModel.stars + 1; i++) {
+        UIButton *btn = [self.praiseRatingStackView viewWithTag:i];
+        btn.selected = YES;
+    }
+    self.commentContentLabel.text = detailEvaluateModel.content;
+    
+    NSTimeInterval timeInterval = [detailEvaluateModel.createTime doubleValue];
+    NSDate *createDate = [NSDate dateWithTimeIntervalSince1970:timeInterval / 1000];
+    LXDateItem *item = [[NSDate date] lx_timeIntervalSinceDate:createDate];
+    _evaluateTimeLabel.text = [NSString stringWithFormat:@"%@前",item.description];
+}
+
+- (void)setInfoDict:(NSDictionary *)infoDict {
+    _infoDict = infoDict;
+    
+    NSString *score = [NSString stringWithFormat:@"%@分",infoDict[@"score"]];
+    NSRange range = {score.length - 1, 1};
+    _totalCommentScoreLabel.attributedText = [NSString attributedStringWithString:score
+                                                                             font:[UIFont systemFontOfSize:12]
+                                                                            range:range];
+    NSNumber *cmtCount = _commentCount ? _commentCount : @(0);
+    _totalCommentCountLabel.text = [NSString stringWithFormat:@"共%@条评论（好评率%@%%）",cmtCount,infoDict[@"praiseRate"]];
+}
+
+- (void)setCommentCount:(NSNumber *)commentCount {
+    _commentCount = commentCount;
+    
+    if (_infoDict) {
+        _totalCommentCountLabel.text = [NSString stringWithFormat:@"共%@条评论（好评率%@%%）",commentCount,_infoDict[@"praiseRate"]];
+    }
+}
+
+- (IBAction)commentListButtonClicked:(UIButton *)sender {
+    if (_commentListBlock) {
+        _commentListBlock();
+    }
+}
+
+@end

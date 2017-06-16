@@ -1,0 +1,18 @@
+//
+//  UserCenterVideoViewCell.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/6.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+extern NSString * const kUserCenterCommentSuccessNotification;
+
+@class UserCenterModel;
+@interface UserCenterVideoViewCell : UITableViewCell
+@property (nonatomic,   copy) void (^commentBlock)(NSString *trendsId);
+@property (nonatomic, strong) UserCenterModel *userCenterModel;
+- (void)releaseWMPlayer;
+@end

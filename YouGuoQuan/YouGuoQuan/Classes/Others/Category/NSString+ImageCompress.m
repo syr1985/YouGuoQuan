@@ -1,0 +1,39 @@
+//
+//  NSString+ImageCompress.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/3/20.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "NSString+ImageCompress.h"
+#import "NSString+Encrypt.h"
+
+#define IS_IPHONE (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+#define __kScreenHeight ([[UIScreen mainScreen]bounds].size.height)
+#define __kScreenWidth ([[UIScreen mainScreen]bounds].size.width)
+#define SCREEN_MAX_LENGTH (MAX(__kScreenWidth, __kScreenHeight))
+#define SCREEN_MIN_LENGTH (MIN(__kScreenWidth, __kScreenHeight))
+#define IS_IPHONE_6P_7P (IS_IPHONE && SCREEN_MAX_LENGTH == 736.0)
+
+@implementation NSString (ImageCompress)
+
++ (NSString *)compressImageUrlWithUrlString:(NSString *)imageUrl width:(CGFloat)imageW height:(CGFloat)imageH {
+    NSInteger scale = IS_IPHONE_6P_7P ? 3 : 2;
+    NSString *url = [NSString stringWithFormat:@"%@?imageView2/0/w/%.0f/h/%.0f/interlace/1", imageUrl, imageW * scale, imageH * scale];//|imageslim
+    return [url URLEncoding];
+}
+
++ (NSString *)cropImageUrlWithUrlString:(NSString *)imageUrl width:(CGFloat)imageW height:(CGFloat)imageH {
+    NSInteger scale = IS_IPHONE_6P_7P ? 3 : 2;
+    NSString *url = [NSString stringWithFormat:@"%@?imageView2/1/w/%.0f/h/%.0f/interlace/1", imageUrl, imageW * scale, imageH * scale];
+    return [url URLEncoding];
+}
+
++ (NSString *)imageUrlWithWatermark:(NSString *)urlString {
+//    NSInteger scale = IS_IPHONE_6P_7P ? 3 : 2;
+    NSString *url = [NSString stringWithFormat:@"%@?watermark/1/image/aHR0cHM6Ly9pbWcueW91Z3Vvd2FuZy5jb20vd2F0ZXJtYXJrZXIucG5n/dissolve/30/gravity/SouthEast/dx/10/dy/10|imageslim",urlString];
+    return [url URLEncoding];
+}
+
+@end

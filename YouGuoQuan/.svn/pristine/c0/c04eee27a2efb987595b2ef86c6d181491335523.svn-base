@@ -1,0 +1,178 @@
+//
+//  NetworkTool.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/15.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import <QNUploadOption.h>
+
+@interface NetworkTool : NSObject
+
+/**
+ *  获取他人资料
+ *
+ *  @param userId  用户id
+ *  @param success 成功block
+ */
++ (void)getOthersInfoWithUserId:(NSString *)userId success:(void (^)(id result))success;
+
+/**
+ *  获取验证码
+ *
+ *  @param phoneNumber  手机号
+ *  @param reset        是否是重设密码
+ *  @param returnResult 回调block
+ */
++ (void)getMsgAuthCode:(NSString *)phoneNumber RetsetPassword:(BOOL)reset Result:(void (^)(NSString *code))returnResult;
+
+/**
+ *  用户注册
+ *
+ *  @param phoneNumber 手机号
+ *  @param password    密码
+ *  @param nickName    昵称
+ *  @param sex         性别
+ *  @param city        城市
+ *  @param fail        回调block
+ */
++ (void)registerWithPhone:(NSString *)phoneNumber Password:(NSString *)password NickName:(NSString *)nickName Sex:(NSString *)sex City:(NSString *)city Failed:(void (^)())fail;
+
+/**
+ *  重置密码
+ *
+ *  @param phoneNumber 手机号
+ *  @param newPassword 新密码
+ *  @param returnResult 回调block
+ */
++ (void)resetPasswordWithPhone:(NSString *)phoneNumber Password:(NSString *)newPassword Result:(void (^)())returnResult;
+
+/**
+ *  用户登录
+ *
+ *  @param phoneNumber 手机号
+ *  @param password    密码
+ *  @param success     回调block
+ */
++ (void)loginWithPhone:(NSString *)phoneNumber Password:(NSString *)password Success:(void (^)(id result))success;
+
+/**
+ *  上传图片到自己的服务器
+ *
+ *  @param imagesDict 图片字典
+ *  @param success    回调block
+ */
++ (void)uploadImagesToServer:(NSDictionary *)imagesDict success:(void (^)(id result))success;
+
+/**
+ *  上传单张图到七牛云
+ *
+ *  @param imageData 图片数据
+ *  @param progress  进度block
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)uploadImage:(NSData *)imageData progress:(QNUpProgressHandler)progress success:(void(^)(NSString *url))success failure:(void(^)())failure;
+
+/**
+ *  上传多张图到七牛云
+ *
+ *  @param imageDataArray 多图数据数组
+ *  @param progress  进度block
+ *  @param success   成功block
+ *  @param failure   失败block
+ */
++ (void)uploadImages:(NSArray *)imageDataArray progress:(void(^)(CGFloat percent))progress success:(void(^)(NSArray *urlArray))success failure:(void(^)())failure;
+
+/**
+ *  发布商品
+ *
+ *  @param goodsName    多图数据数组
+ *  @param goodsPrice   商品价格
+ *  @param coverUrl     封面路径
+ *  @param imagesUrl    商品图片路径
+ *  @param goodsIntro   商品介绍
+ *  @param success      成功block
+ *  @param failure      失败block
+ */
++ (void)publishProduct:(NSString *)goodsName price:(NSString *)goodsPrice cover:(NSString *)coverUrl image:(NSString *)imagesUrl intro:(NSString *)goodsIntro success:(void(^)())success failure:(void(^)())failure;
+
+/**
+ *  发布红包
+ *
+ *  @param goodsPrice   商品价格
+ *  @param imagesUrl    商品图片路径
+ *  @param goodsTitle   商品标题
+ *  @param success      成功block
+ *  @param failure      失败block
+ */
++ (void)publishRedEnvelope:(NSString *)goodsPrice image:(NSString *)imagesUrl intro:(NSString *)goodsTitle success:(void(^)())success failure:(void(^)())failure;
+
+/**
+ *  发布动态
+ *
+ *  @param imagesUrl     图片URL
+ *  @param goodsIntro    动态描述（标题）
+ *  @param videoUrl      视频URL
+ *  @param videoCoverUrl 视频封面URL
+ *  @param feedsType     动态类型 1，视频，2、图文
+ *  @param success       成功block
+ *  @param failure       失败block
+ */
++ (void)publishTrends:(NSString *)imagesUrl intro:(NSString *)goodsIntro video:(NSString *)videoUrl cover:(NSString *)videoCoverUrl trendsType:(NSString *)feedsType success:(void(^)())success failure:(void(^)())failure;
+
+/**
+ *  出售微信
+ *
+ *  @param price   价格
+ *  @param wxId    微信id
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)sellWeixin:(NSString *)price weixinID:(NSString *)wxId success:(void(^)())success failure:(void(^)())failure;
+
+/**
+ *  获取热搜词
+ *
+ *  @param pageNo  页号
+ *  @param size    每页数
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)getHotSearchWords:(NSString *)pageNo pageSize:(NSString *)size success:(void(^)(NSArray *hotWords))success failure:(void(^)())failure;
+
+/**
+ *  搜索
+ *
+ *  @param content 搜索内容
+ *  @param pageNo  页数
+ *  @param size    每页数
+ *  @param success 成功block
+ *  @param failure 失败block
+ */
++ (void)searchWithContent:(NSString *)content pageNO:(NSString *)pageNo pageSize:(NSString *)size success:(void(^)(NSArray *searchResult))success failure:(void(^)())failure;
+
+/**
+ *  获取首页轮播图
+ *
+ *  @param pageNo   页数
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getBannerListWithPageNo:(NSString *)pageNo pageSize:(NSString *)pageSize success:(void(^)(NSArray *dataArray))success failure:(void(^)())failure;
+
+/**
+ *  获取首页瀑布流数据
+ *
+ *  @param pageNo   页数
+ *  @param pageSize 每页数
+ *  @param success  成功block
+ *  @param failure  失败block
+ */
++ (void)getHomeListWithPageNo:(NSNumber *)pageNo pageSize:(NSNumber *)pageSize success:(void(^)(NSArray *dataArray))success failure:(void(^)())failure;
+
+@end

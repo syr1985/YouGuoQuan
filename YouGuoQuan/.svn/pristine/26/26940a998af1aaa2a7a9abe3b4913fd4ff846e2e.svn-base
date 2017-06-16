@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="UserCenterProductViewCell" rowHeight="301" id="KGk-i7-Jjw" customClass="UserCenterProductViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="301"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="300.5"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="好拍哦了" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xbR-Ht-dd1">
+                        <rect key="frame" x="8" y="8" width="359" height="18"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ePU-Lh-yBw">
+                        <rect key="frame" x="8" y="34" width="359" height="221.5"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="ePU-Lh-yBw" secondAttribute="height" multiplier="350:216" id="IFT-jK-phC"/>
+                        </constraints>
+                    </imageView>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Rl-eg-imz">
+                        <rect key="frame" x="8" y="263.5" width="62" height="28"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="28" id="Mko-qG-Mz5"/>
+                            <constraint firstAttribute="width" secondItem="2Rl-eg-imz" secondAttribute="height" multiplier="11:5" id="gZG-3a-VGR"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="6" maxY="0.0"/>
+                        <state key="normal" title="购买" image="购买" backgroundImage="黄色Button">
+                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="calibratedRGB"/>
+                        </state>
+                        <connections>
+                            <action selector="buyProduct:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="LvM-LB-ksB"/>
+                        </connections>
+                    </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0人购买" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WHY-fW-1o2">
+                        <rect key="frame" x="78" y="263.5" width="55.5" height="28"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="好评率:0%" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M9e-Km-4nq">
+                        <rect key="frame" x="141.5" y="263.5" width="71" height="28"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" red="0.99607843139999996" green="0.85098039219999999" blue="0.56078431370000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="a0M-Qn-3W5">
+                        <rect key="frame" x="8" y="34" width="34" height="45"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <state key="normal" title="商品" backgroundImage="推荐背景">
+                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </state>
+                    </button>
+                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Fk2-dK-YSM">
+                        <rect key="frame" x="332" y="263.5" width="35" height="28"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="35" id="lOQ-7E-5Rx"/>
+                        </constraints>
+                        <state key="normal" image="更多-竖"/>
+                        <connections>
+                            <action selector="moreButtonClicked:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="aY1-yY-1z5"/>
+                        </connections>
+                    </button>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PYf-m4-pZD">
+                        <rect key="frame" x="8" y="299.5" width="367" height="1"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="1" id="EZ6-zn-JNc"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="M9e-Km-4nq" firstAttribute="leading" secondItem="WHY-fW-1o2" secondAttribute="trailing" constant="8" id="42D-XM-x3b"/>
+                    <constraint firstItem="ePU-Lh-yBw" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="4ib-Ri-FoT"/>
+                    <constraint firstItem="ePU-Lh-yBw" firstAttribute="top" secondItem="xbR-Ht-dd1" secondAttribute="bottom" constant="8" id="5iH-YS-dAa"/>
+                    <constraint firstItem="M9e-Km-4nq" firstAttribute="height" secondItem="WHY-fW-1o2" secondAttribute="height" id="8nu-jb-mgB"/>
+                    <constraint firstItem="M9e-Km-4nq" firstAttribute="centerY" secondItem="WHY-fW-1o2" secondAttribute="centerY" id="9JP-fi-Szh"/>
+                    <constraint firstAttribute="trailing" secondItem="PYf-m4-pZD" secondAttribute="trailing" id="B8D-uD-Hct"/>
+                    <constraint firstItem="xbR-Ht-dd1" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailingMargin" id="Iij-Rp-Vei"/>
+                    <constraint firstItem="WHY-fW-1o2" firstAttribute="leading" secondItem="2Rl-eg-imz" secondAttribute="trailing" constant="8" id="OsN-mW-K4F"/>
+                    <constraint firstItem="2Rl-eg-imz" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="QkE-l0-mc3"/>
+                    <constraint firstItem="Fk2-dK-YSM" firstAttribute="trailing" secondItem="ePU-Lh-yBw" secondAttribute="trailing" id="Qqt-JN-7ki"/>
+                    <constraint firstItem="PYf-m4-pZD" firstAttribute="leading" secondItem="2Rl-eg-imz" secondAttribute="leading" id="Qsb-z0-zAQ"/>
+                    <constraint firstItem="xbR-Ht-dd1" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="U46-8K-Hmz"/>
+                    <constraint firstItem="Fk2-dK-YSM" firstAttribute="bottom" secondItem="2Rl-eg-imz" secondAttribute="bottom" id="Y9b-yI-c7p"/>
+                    <constraint firstItem="WHY-fW-1o2" firstAttribute="height" secondItem="2Rl-eg-imz" secondAttribute="height" id="d25-tK-hnK"/>
+                    <constraint firstItem="ePU-Lh-yBw" firstAttribute="leading" secondItem="a0M-Qn-3W5" secondAttribute="leading" id="gYe-2W-RlE"/>
+                    <constraint firstItem="ePU-Lh-yBw" firstAttribute="top" secondItem="a0M-Qn-3W5" secondAttribute="top" id="hfM-Zh-G50"/>
+                    <constraint firstItem="Fk2-dK-YSM" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="M9e-Km-4nq" secondAttribute="trailing" constant="8" id="jqr-fe-0ew"/>
+                    <constraint firstItem="WHY-fW-1o2" firstAttribute="centerY" secondItem="2Rl-eg-imz" secondAttribute="centerY" id="jxV-4P-3UG"/>
+                    <constraint firstItem="ePU-Lh-yBw" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailingMargin" id="k47-A9-uv3"/>
+                    <constraint firstAttribute="bottom" secondItem="PYf-m4-pZD" secondAttribute="bottom" id="ket-RW-E8Y"/>
+                    <constraint firstItem="M9e-Km-4nq" firstAttribute="top" secondItem="ePU-Lh-yBw" secondAttribute="bottom" constant="8" id="umx-uW-cd3"/>
+                    <constraint firstItem="xbR-Ht-dd1" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" id="yoY-Bc-C4y"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="buyButton" destination="2Rl-eg-imz" id="ULF-wT-jVf"/>
+                <outlet property="buyCountLabel" destination="WHY-fW-1o2" id="gs4-Yw-fJj"/>
+                <outlet property="moreButton" destination="Fk2-dK-YSM" id="LAU-eC-8en"/>
+                <outlet property="praiseRateLabel" destination="M9e-Km-4nq" id="TTy-BQ-Su6"/>
+                <outlet property="productImageView" destination="ePU-Lh-yBw" id="XnM-EQ-5sp"/>
+                <outlet property="titleLabel" destination="xbR-Ht-dd1" id="3Lg-1c-aDk"/>
+            </connections>
+            <point key="canvasLocation" x="67.5" y="-96.5"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="推荐背景" width="34" height="45"/>
+        <image name="更多-竖" width="28" height="28"/>
+        <image name="购买" width="16" height="16"/>
+        <image name="黄色Button" width="313" height="36"/>
+    </resources>
+</document>

@@ -1,0 +1,60 @@
+//
+//  ModifyNameViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/13.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "ModifyNameViewController.h"
+
+@interface ModifyNameViewController ()
+@property (weak, nonatomic) IBOutlet UITextField *textField;
+
+@end
+
+@implementation ModifyNameViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"昵称";
+    
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"保存"
+                                                                  style:UIBarButtonItemStylePlain
+                                                                 target:self
+                                                                 action:@selector(saveNickName)];
+    rightItem.tintColor = NavColor;
+    self.navigationItem.rightBarButtonItem = rightItem;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)saveNickName {
+    if (_textField.text.length) {
+        __weak typeof(self) weakself = self;
+        [NetworkTool modifyPersonInfoWithType:@"nickName" value:_textField.text success:^{
+            [SVProgressHUD showSuccessWithStatus:@"修改昵称成功"];
+            if (weakself.saveNickNameSuccess) {
+                weakself.saveNickNameSuccess(weakself.textField.text);
+            }
+        } failure:^{
+            [SVProgressHUD showSuccessWithStatus:@"修改昵称失败"];
+        }];
+    }
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

@@ -1,0 +1,196 @@
+//
+//  EvaluateListViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/22.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "EvaluateListViewController.h"
+#import "ProductEvaluateViewCell.h"
+#import "DetailReplyCommentViewCell.h"
+#import "DetailCommentModel.h"
+#import <MJRefresh.h>
+
+@interface EvaluateListViewController ()
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (nonatomic, strong) NSMutableArray *evaluateListArray;
+@property (nonatomic, assign) int pageNo;
+@property (nonatomic, assign) int pageSize;
+@end
+
+static NSString * const tableViewCellID_evaluate = @"ProductEvaluateViewCell";
+static NSString * const tableViewCellID_reply    = @"DetailReplyCommentViewCell";
+
+@implementation EvaluateListViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)evaluateListArray {
+    if (!_evaluateListArray) {
+        _evaluateListArray = [NSMutableArray array];
+    }
+    return _evaluateListArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self configViewController];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - 配置控制器
+- (void)configViewController {
+    self.title = @"评价";
+    
+    self.pageNo = 1;
+    self.pageSize = 20;
+    
+    UINib *nib_evaluate = [UINib nibWithNibName:tableViewCellID_evaluate bundle:nil];
+    [self.tableView registerNib:nib_evaluate forCellReuseIdentifier:tableViewCellID_evaluate];
+    
+    UINib *nib_reply = [UINib nibWithNibName:tableViewCellID_reply bundle:nil];
+    [self.tableView registerNib:nib_reply forCellReuseIdentifier:tableViewCellID_reply];
+    
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"返回-黑"]
+                                                                 style:UIBarButtonItemStylePlain
+                                                                target:self
+                                                                action:@selector(dismissViewController)];
+    leftItem.imageInsets = UIEdgeInsetsMake(0, -6, 0, 0);
+    self.navigationItem.leftBarButtonItem = leftItem;
+    self.navigationController.navigationBar.tintColor = [UIColor blackColor];
+    
+    // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingTarget:self
+                                                                     refreshingAction:@selector(loadNewData)];
+    
+    // 设置文字
+    [header setTitle:@"下拉刷新数据" forState:MJRefreshStateIdle];
+    [header setTitle:@"松开刷新" forState:MJRefreshStatePulling];
+    [header setTitle:@"加载中..." forState:MJRefreshStateRefreshing];
+    // 马上进入刷新状态
+    [header beginRefreshing];
+    // 设置刷新控件
+    self.tableView.mj_header = header;
+    
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self
+                                                                             refreshingAction:@selector(loadMoreData)];
+    // 设置文字
+    [footer setTitle:@"上拉刷新数据" forState:MJRefreshStateIdle];
+    [footer setTitle:@"加载更多..." forState:MJRefreshStateRefreshing];
+    [footer setTitle:@"到底了" forState:MJRefreshStateNoMoreData];
+    footer.automaticallyRefresh = NO;
+    // 设置footer
+    self.tableView.mj_footer = footer;
+}
+
+- (void)loadNewData {
+    _pageNo = 1;
+    [self loadCommentDataFromServer];
+}
+
+- (void)loadMoreData {
+    _pageNo++;
+    [self loadCommentDataFromServer];
+}
+
+
+- (void)loadCommentDataFromServer {
+    [NetworkTool getCommentListWithPageNO:@(_pageNo) pageSize:@(_pageSize) trendsId:_goodsId success:^(id result) {
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in result) {
+            DetailCommentModel *model = [DetailCommentModel detailCommentModelWithDict:dict];
+            [muArray addObject:model];
+        }
+        
+        if (_pageNo == 1) {
+            self.evaluateListArray = muArray;
+            [self.tableView reloadData];
+            [_tableView.mj_header endRefreshing];
+            [self.tableView.mj_footer resetNoMoreData];
+        } else {
+            [self.evaluateListArray addObjectsFromArray:muArray];
+            [self.tableView reloadData];
+            
+            if (muArray.count < _pageSize) {
+                [_tableView.mj_footer endRefreshingWithNoMoreData];
+            } else {
+                [_tableView.mj_footer endRefreshing];
+            }
+        }
+    }];
+}
+
+- (void)dismissViewController{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark -
+#pragma mark - Table view data source
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.evaluateListArray.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    //__weak typeof(self) weakself = self;
+    
+    if (indexPath.row == 0) {
+        ProductEvaluateViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_evaluate
+                                                                        forIndexPath:indexPath];
+        
+        return cell;
+    } else {
+        DetailReplyCommentViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_reply
+                                                                           forIndexPath:indexPath];
+        //        cell.tapCommentBlock = ^(DetailCommentModel *model) {
+        //            weakself.currentCommentID = model.commentId;
+        //            [weakself popupKeyBoard];
+        //        };
+        //        cell.longPressCommentBlock = ^(DetailCommentModel *model) {
+        //            NSUInteger type = MenuType_LongPressOtherComment;
+        //            if ([weakself.homeFocusModel.userId isEqualToString:USERID]) {
+        //                type = MenuType_LongPressSelfTrends;
+        //            } else if ([model.fromUserId isEqualToString:USERID]) {
+        //                type = MenuType_LongPressSelfComment;
+        //            }
+        //            
+        //            [[LongPressCommentHelp sharedInstance] showLongPressMenuWithType:type returnBlock:^(NSUInteger index) {
+        //                [weakself handelCommentOperationWithType:type index:index comment:model];
+        //            }];
+        //        };
+        //cell.detailCommentModel = model;
+        return cell;
+    }
+}
+
+#pragma mark -
+#pragma mark - Table View Delegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    DetailCommentModel *model = self.evaluateListArray[indexPath.row];
+    return model.cellHeight;
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

@@ -1,0 +1,133 @@
+//
+//  ChatViewController.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 2016/12/16.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "ChatViewController.h"
+#import "HelperUtil.h"
+#import "LCActionSheet.h"
+#import "ReportViewController.h"
+#import "AlertViewTool.h"
+#import "IMessageModel.h"
+#import "EMMessage.h"
+#import "SnapViewCell.h"
+
+@interface ChatViewController () <LCActionSheetDelegate>
+
+@end
+
+@implementation ChatViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setUpNavBar];
+}
+
+- (void) setUpNavBar {
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"返回"] style:UIBarButtonItemStylePlain target:self action:@selector(actionBack)];
+    self.navigationItem.leftBarButtonItem.tintColor = [HelperUtil colorWithHexString:@"#352007"];
+    
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"更多-竖"] style:UIBarButtonItemStylePlain target:self action:@selector(actionMore)];
+    self.navigationItem.rightBarButtonItem.tintColor = [HelperUtil colorWithHexString:@"#352007"];
+}
+
+- (void) viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+#pragma mark action
+
+- (void) actionBack {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void) actionMore {
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:nil
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"举报用户",@"加入黑名单",nil];
+    
+    [actionSheet show];
+}
+
+- (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (buttonIndex != 0) {
+        // 举报操作
+        if (buttonIndex == 1) {
+            UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+            ReportViewController *reportVC = [discoverySB instantiateViewControllerWithIdentifier:@"Report"];
+            reportVC.aboutId = @"sd";
+            reportVC.reportType = ReportType_Trends;
+            [self presentViewController:reportVC animated:YES completion:nil];
+        } else if(buttonIndex == 2) {
+            [AlertViewTool showAlertViewWithTitle:nil Message:@"拉黑对方后，对方将无法与您聊天，您也无法查看对方动态，是否继续？" sureBlock:^{
+                // 拉黑操作
+                [NetworkTool doOperationWithType:@"3" userId:@"12" operationType:@"1" success:^{
+                    [SVProgressHUD showSuccessWithStatus:@"已将对方拉黑"];
+                }];
+            }];
+        }
+    }
+}
+
+// 只处理阅后即焚
+- (UITableViewCell *)messageViewController:(UITableView *)tableView
+                       cellForMessageModel:(id<IMessageModel>)messageModel {
+    
+    //    BOOL isSnap = [messageModel.message.ext[@"fire"] boolValue];
+    //    if (isSnap) {
+    //        SnapViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"SnapViewCell"];
+    //        if (!cell) {
+    //            cell = [[SnapViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"SnapViewCell"];
+    //        }
+    //        
+    //        [cell configureContent:messageModel];
+    //        return cell;
+    //    }
+    
+    
+    
+    return nil;
+}
+
+
+
+- (CGFloat)messageViewController:(EaseMessageViewController *)viewController
+           heightForMessageModel:(id<IMessageModel>)messageModel
+                   withCellWidth:(CGFloat)cellWidth {
+    
+    //    BOOL isSnap = [messageModel.message.ext[@"fire"] boolValue];
+    //    if (isSnap) {
+    //        return [SnapViewCell cellHeight:messageModel];
+    //    }
+    
+    return 0;
+}
+
+
+- (void)messageViewController:(EaseMessageViewController *)viewController
+ didReceiveHasReadAckForModel:(id<IMessageModel>)messageModel {
+    
+}
+
+
+- (void)messageViewController:(EaseMessageViewController *)viewController
+  didSelectAvatarMessageModel:(id<IMessageModel>)messageModel {
+    
+}
+
+@end

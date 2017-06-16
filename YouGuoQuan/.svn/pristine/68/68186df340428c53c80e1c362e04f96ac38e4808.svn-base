@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_0" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="IndexBannerSubiew">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Auk-J3-jua">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                </imageView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6pq-eB-zoB">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </view>
+                <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7RL-Mo-lcF">
+                    <rect key="frame" x="0.0" y="0.0" width="34" height="45"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <state key="normal" title="推荐" backgroundImage="推荐背景">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                </button>
+                <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eto-JC-cgi">
+                    <rect key="frame" x="70.5" y="526.5" width="180.5" height="21.5"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="/imageName/" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nsn-xj-Db7">
+                            <rect key="frame" x="0.0" y="0.0" width="108.5" height="21.5"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="imageDesc" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="psK-52-0GW">
+                            <rect key="frame" x="108.5" y="0.0" width="72" height="21.5"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                </stackView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="Auk-J3-jua" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="BXP-Ec-WeA"/>
+                <constraint firstAttribute="bottom" secondItem="eto-JC-cgi" secondAttribute="bottom" constant="20" id="Jh9-wj-skb"/>
+                <constraint firstAttribute="bottom" secondItem="Auk-J3-jua" secondAttribute="bottom" id="R9G-we-Qd1"/>
+                <constraint firstItem="6pq-eB-zoB" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="ZNM-O0-vv2"/>
+                <constraint firstItem="6pq-eB-zoB" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="Zlk-Qc-OU0"/>
+                <constraint firstItem="7RL-Mo-lcF" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="alk-gh-bJn"/>
+                <constraint firstItem="6pq-eB-zoB" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="bma-LZ-Acr"/>
+                <constraint firstItem="7RL-Mo-lcF" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="cwb-08-i6T"/>
+                <constraint firstAttribute="trailing" secondItem="Auk-J3-jua" secondAttribute="trailing" id="eLD-re-qae"/>
+                <constraint firstItem="6pq-eB-zoB" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="hqB-Bg-wTE"/>
+                <constraint firstItem="Auk-J3-jua" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="q45-EW-hdV"/>
+                <constraint firstItem="eto-JC-cgi" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="zu0-0g-bKe"/>
+            </constraints>
+            <connections>
+                <outlet property="coverView" destination="6pq-eB-zoB" id="1b9-dy-5lw"/>
+                <outlet property="descLabel" destination="psK-52-0GW" id="g6b-LX-gyX"/>
+                <outlet property="mainImageView" destination="Auk-J3-jua" id="YqC-5T-2SP"/>
+                <outlet property="recommandButton" destination="7RL-Mo-lcF" id="dGb-Wu-y1H"/>
+                <outlet property="titleLabel" destination="Nsn-xj-Db7" id="X6S-0s-S9d"/>
+            </connections>
+            <point key="canvasLocation" x="-172.5" y="-46.5"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="推荐背景" width="34" height="45"/>
+    </resources>
+</document>

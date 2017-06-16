@@ -1,0 +1,119 @@
+//
+//  SearchResultViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "SearchResultViewCell.h"
+#import "SearchReaultModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "AlertViewTool.h"
+
+@interface SearchResultViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *auditImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *tyrantImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *sexImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *funsCountLabel;
+@property (weak, nonatomic) IBOutlet UIButton *concemButton;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *tyrantImageViewWidthConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *vipImageViewWidthConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *sexImageViewLeadingConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *vipImageViewLeadingConstraint;
+
+@end
+
+@implementation SearchResultViewCell
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    _headerImageView.layer.cornerRadius = _headerImageView.frame.size.width * 0.5;
+    _headerImageView.layer.masksToBounds = YES;
+}
+
+- (void)setSearchResultModel:(SearchReaultModel *)searchResultModel {
+    _searchResultModel = searchResultModel;
+    
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:searchResultModel.headImg
+                                                                  width:_headerImageView.bounds.size.width
+                                                                 height:_headerImageView.bounds.size.height];
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    _crownImageView.hidden = (searchResultModel.star != 6);
+    _auditImageView.hidden = (searchResultModel.audit != 1 && searchResultModel.audit != 3);
+    _auditImageView.image = searchResultModel.audit == 3 ? [UIImage imageNamed:@"列表头像团体认证"] : [UIImage imageNamed:@"头像加V"];
+
+    _nickNameLabel.text = searchResultModel.nickName;
+    
+    _tyrantImageView.image = searchResultModel.star == 6 ? [UIImage imageNamed:@"壕"] : nil;
+    _tyrantImageViewWidthConstraint.constant = searchResultModel.star == 6 ? 39 : 0;
+    _vipImageViewLeadingConstraint.constant = searchResultModel.star == 6 ? 4 : 0;
+    
+    _sexImageView.image = [UIImage imageNamed:searchResultModel.sex];
+    
+    _vipImageView.image = searchResultModel.isRecommend ? [UIImage imageNamed:@"VIP"] : nil;
+    _vipImageViewWidthConstraint.constant = searchResultModel.isRecommend ? 29 : 0;
+    _vipImageViewLeadingConstraint.constant = searchResultModel.isRecommend ? 4 : 0;
+    
+    _levelImageView.hidden = searchResultModel.star == 0;
+    if (searchResultModel.star != 0) {
+        _levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d", searchResultModel.star]];
+    }
+    
+    _concemButton.selected = searchResultModel.isMyFans;
+    _funsCountLabel.text = [NSString stringWithFormat:@"%@粉丝",searchResultModel.fansCount];
+}
+
+- (IBAction)focusButtonClicked:(UIButton *)sender {
+    if (![LoginData sharedLoginData].userId) {
+        if (_loginBlock) {
+            _loginBlock();
+        }
+        return;
+    }
+    
+    __weak typeof(self) weakself = self;
+    if (sender.isSelected) {
+        [AlertViewTool showAlertViewWithTitle:nil Message:@"是否取消关注？" cancelTitle:@"取消" sureTitle:@"确定" sureBlock:^{
+            // 取消关注
+            [NetworkTool doOperationWithType:@"1" userId:weakself.searchResultModel.userId operationType:@"0" success:^{
+                [SVProgressHUD showSuccessWithStatus:@"已取消关注Ta"];
+                sender.selected = NO;
+                weakself.searchResultModel.isMyFans = NO;
+                [weakself resetFunsNumWithFocus:NO];
+            }];
+        } cancelBlock:nil];
+    } else {
+        // 关注
+        [NetworkTool doOperationWithType:@"1" userId:weakself.searchResultModel.userId operationType:@"1" success:^{
+            [SVProgressHUD showSuccessWithStatus:@"已关注Ta"];
+            sender.selected = YES;
+            weakself.searchResultModel.isMyFans = YES;
+            [weakself resetFunsNumWithFocus:YES];
+        }];
+    }
+}
+
+- (void)resetFunsNumWithFocus:(BOOL)isFocus {
+    NSInteger fansCount = [_searchResultModel.fansCount integerValue] - 1;
+    if (isFocus) {
+        fansCount = [_searchResultModel.fansCount integerValue] + 1;
+    }
+    _searchResultModel.fansCount = @(fansCount);
+    _funsCountLabel.text = [NSString stringWithFormat:@"%zd  粉丝",fansCount];
+}
+
+@end

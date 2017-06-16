@@ -1,0 +1,320 @@
+//
+//  FocusVideoViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/6.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "FocusVideoViewCell.h"
+#import "HomeFocusModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "MoreMenuHelp.h"
+#import "WMPlayer.h"
+#import <Masonry.h>
+#import "NSDate+LXExtension.h"
+#import "PhotoBrowserHelp.h"
+
+@interface FocusVideoViewCell () <WMPlayerDelegate>
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *sexImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *publishTimeLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *publishTitleLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *videoCoverImageView;
+@property (weak, nonatomic) IBOutlet UIButton *playButton;
+@property (weak, nonatomic) IBOutlet UIView *videoBackgroundView;
+
+@property (weak, nonatomic) IBOutlet UIButton *favourButton;
+@property (weak, nonatomic) IBOutlet UIButton *commentButton;
+@property (weak, nonatomic) IBOutlet UIButton *playTimesButton;
+@property (weak, nonatomic) IBOutlet UIButton *moreButton;
+@property (nonatomic, strong) WMPlayer *wmPlayer;
+@end
+
+@implementation FocusVideoViewCell
+
+- (void)dealloc {
+    NSLog(@"%@ dealloc",[self class]);
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    [self releaseWMPlayer];
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    self.headerImageView.layer.cornerRadius = 20;
+    self.headerImageView.layer.masksToBounds = YES;
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(popupPhotoBrowser:)];
+    [self.videoBackgroundView addGestureRecognizer:tap];
+    
+    //获取设备旋转方向的通知,即使关闭了自动旋转,一样可以监测到设备的旋转方向
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    //旋转屏幕通知
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(onDeviceOrientationChange:)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
+}
+
+- (void)setHomeFocusModel:(HomeFocusModel *)homeFocusModel {
+    _homeFocusModel = homeFocusModel;
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:homeFocusModel.headImg] placeholderImage:nil];
+    
+    self.nickNameLabel.text = homeFocusModel.nickName;
+    self.crownImageView.hidden = !homeFocusModel.isRecommend;
+    self.vipImageView.hidden = !homeFocusModel.audit;
+    self.sexImageView.image = [UIImage imageNamed:homeFocusModel.sex];
+    self.levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",homeFocusModel.star]];
+    
+    self.publishTitleLabel.text = homeFocusModel.instro;
+    
+    NSTimeInterval timeInterval = [homeFocusModel.updateTime doubleValue];
+    NSDate *createDate = [NSDate dateWithTimeIntervalSince1970:timeInterval / 1000];
+    LXDateItem *item = [createDate lx_timeIntervalSinceDate:[NSDate date]];
+    self.publishTimeLabel.text = [NSString stringWithFormat:@"%@前",item.description];
+    
+    [self.videoCoverImageView sd_setImageWithURL:[NSURL URLWithString:homeFocusModel.videoEvelope]
+                                placeholderImage:nil];
+    
+    self.favourButton.selected = homeFocusModel.praise;
+    [self.favourButton setTitle:homeFocusModel.recommendCount forState:UIControlStateNormal];
+    [self.commentButton setTitle:homeFocusModel.commentCount forState:UIControlStateNormal];
+    [self.playTimesButton setTitle:@"0" forState:UIControlStateNormal];
+    
+    if (!_wmPlayer) {
+        _wmPlayer = [[WMPlayer alloc] init];
+        _wmPlayer.delegate = self;
+        _wmPlayer.isFullscreen = NO;
+        _wmPlayer.closeBtnStyle = CloseBtnStyleClose;
+        _wmPlayer.URLString = _homeFocusModel.videoUrl;
+        _wmPlayer.titleLabel.text = _homeFocusModel.instro;
+        [_wmPlayer hiddenControlView];
+        
+        [self.videoBackgroundView addSubview:_wmPlayer];
+        [self.videoBackgroundView bringSubviewToFront:_playButton.superview];
+        [_wmPlayer mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(self.videoBackgroundView);
+            make.left.equalTo(self.videoBackgroundView);
+            make.right.equalTo(self.videoBackgroundView);
+            make.bottom.equalTo(self.videoBackgroundView);
+        }];
+    }
+}
+
+/**
+ *  释放WMPlayer
+ */
+- (void)releaseWMPlayer {
+    if (_wmPlayer.state == WMPlayerStatePlaying) {
+        [_wmPlayer pause];
+    }
+    
+    [_wmPlayer.player replaceCurrentItemWithPlayerItem:nil];
+    [_wmPlayer.playerLayer removeFromSuperlayer];
+    [_wmPlayer removeFromSuperview];
+    
+    _wmPlayer.player = nil;
+    _wmPlayer.currentItem = nil;
+    //释放定时器，否侧不会调用WMPlayer中的dealloc方法
+    [_wmPlayer.autoDismissTimer invalidate];
+    _wmPlayer.autoDismissTimer = nil;
+    
+    _wmPlayer.playOrPauseBtn = nil;
+    _wmPlayer.playerLayer = nil;
+    _wmPlayer = nil;
+}
+
+/**
+ *  点击赞按钮
+ */
+- (IBAction)favourToOther:(UIButton *)sender {
+    if (sender.isSelected) {
+        // 取消赞
+        [NetworkTool cancelFavourWithFeedsID:_homeFocusModel.focusId userID:_homeFocusModel.userId success:^{
+            sender.selected = NO;
+            if (_favoursBlock) {
+                _favoursBlock();
+            }
+        }];
+    } else {
+        // 点赞
+        [NetworkTool doFavourWithFeedsID:_homeFocusModel.focusId userId:_homeFocusModel.userId success:^{
+            sender.selected = YES;
+            if (_favoursBlock) {
+                _favoursBlock();
+            }
+        }];
+    }
+}
+
+/**
+ *  评论
+ */
+- (IBAction)messageToOther:(UIButton *)sender {
+    if (self.commentBlock) {
+        self.commentBlock();
+    }
+}
+
+/**
+ *  更多按钮点击
+ */
+- (IBAction)moreButtonClicked {
+    [[MoreMenuHelp sharedInstance] showMoreMenu:^(NSUInteger index) {
+        if (_actionSheetItemClicked) {
+            _actionSheetItemClicked(index);
+        }
+    }];
+}
+
+/**
+ *  播放按钮
+ */
+- (IBAction)startPlayVideo:(UIButton *)sender {
+    // 判断当前网络
+    //_wmPlayer.URLString = _homeFocusModel.videoUrl;
+    _wmPlayer.placeholderImage = self.videoCoverImageView.image;
+    [_wmPlayer play];
+    [self.videoBackgroundView sendSubviewToBack:self.playButton.superview];
+}
+
+#pragma mark - 
+#pragma mark - WMPlayerDelegate
+// 点击关闭按钮
+- (void)wmplayer:(WMPlayer *)wmplayer clickedCloseButton:(UIButton *)closeBtn {
+    [self.videoBackgroundView bringSubviewToFront:self.playButton.superview];
+    if (wmplayer.isFullscreen) {
+        [self.videoBackgroundView addSubview:_wmPlayer];
+        [self toOrientation:UIInterfaceOrientationPortrait];
+        wmplayer.isFullscreen = NO;
+        wmplayer.closeBtnStyle = CloseBtnStyleClose;
+    }
+}
+
+// 点击全屏按钮
+- (void)wmplayer:(WMPlayer *)wmplayer clickedFullScreenButton:(UIButton *)fullScreenBtn {
+    [_wmPlayer removeFromSuperview];
+    if (_wmPlayer.isFullscreen) {//全屏
+        [self.videoBackgroundView addSubview:_wmPlayer];
+        [self toOrientation:UIInterfaceOrientationPortrait];
+        _wmPlayer.isFullscreen = NO;
+        _wmPlayer.closeBtnStyle = CloseBtnStyleClose;
+    } else {//非全屏
+        [[UIApplication sharedApplication].keyWindow addSubview:_wmPlayer];
+        [self toOrientation:UIInterfaceOrientationLandscapeRight];
+        _wmPlayer.isFullscreen = YES;
+        _wmPlayer.closeBtnStyle = CloseBtnStylePop;
+    }
+}
+
+// 结束播放
+- (void)wmplayerFinishedPlay:(WMPlayer *)wmplayer {
+    // 恢复视频视图
+    [self toOrientation:UIInterfaceOrientationPortrait];
+    [self.videoBackgroundView bringSubviewToFront:self.playButton.superview];
+    //[_wmPlayer removeFromSuperview];
+    
+    // 修改播放按钮为重播
+    
+    // 增加播放次数
+    [NetworkTool updatePlayTimesWithVideoTrendsID:_homeFocusModel.focusId success:^{
+        
+    }];
+}
+
+/**
+ *  旋转屏幕通知
+ */
+- (void)onDeviceOrientationChange:(NSNotification *)notification{
+    if (!_wmPlayer || !_wmPlayer.superview) {
+        return;
+    }
+    
+    UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+    UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)orientation;
+    switch (interfaceOrientation) {
+        case UIInterfaceOrientationPortrait: {
+            if (_wmPlayer.isFullscreen) {
+                [_wmPlayer removeFromSuperview];
+                [self.videoBackgroundView addSubview:_wmPlayer];
+                [self toOrientation:UIInterfaceOrientationPortrait];
+                _wmPlayer.isFullscreen = NO;
+                _wmPlayer.closeBtnStyle = CloseBtnStyleClose;
+            }
+        }
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight: {
+            if (!_wmPlayer.isFullscreen) {
+                [_wmPlayer removeFromSuperview];
+                [[UIApplication sharedApplication].keyWindow addSubview:_wmPlayer];
+                [self toOrientation:UIInterfaceOrientationLandscapeRight];
+                _wmPlayer.isFullscreen = YES;
+                _wmPlayer.closeBtnStyle = CloseBtnStylePop;
+            }
+        }
+            break;
+        default:
+            break;
+    }
+    //[self setNeedsStatusBarAppearanceUpdate];
+}
+
+//点击进入,退出全屏,或者监测到屏幕旋转去调用的方法
+- (void)toOrientation:(UIInterfaceOrientation)orientation {
+    //获取到当前状态条的方向
+    UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    
+    //根据要旋转的方向,使用Masonry重新修改限制
+    __weak typeof(self) weakself = self;
+    if (orientation == UIInterfaceOrientationPortrait) {
+        [_wmPlayer mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(weakself.videoBackgroundView).with.offset(0);
+            make.left.equalTo(weakself.videoBackgroundView).with.offset(0);
+            make.center.equalTo(weakself.videoBackgroundView);
+        }];
+        
+        [UIView animateWithDuration:0.5 animations:^{
+            _wmPlayer.transform = CGAffineTransformIdentity;
+        }];
+    } else {
+        //这个地方加判断是为了从全屏的一侧,直接到全屏的另一侧不用修改限制,否则会出错;
+        if (currentOrientation == UIInterfaceOrientationPortrait) {
+            [_wmPlayer mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.width.equalTo(@([UIScreen mainScreen].bounds.size.height));
+                make.height.equalTo(@([UIScreen mainScreen].bounds.size.width));
+                make.center.equalTo([UIApplication sharedApplication].keyWindow);
+            }];
+            [UIView animateWithDuration:0.5 animations:^{
+                _wmPlayer.transform = CGAffineTransformMakeRotation(M_PI_2);//[WMPlayer getCurrentDeviceOrientation];
+            }];
+        }
+    }
+}
+
+/**
+ *  打开图片浏览器
+ */
+- (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
+    if (_homeFocusModel.videoEvelope && _homeFocusModel.videoEvelope.length) {
+        NSArray *urlArray;
+        if ([_homeFocusModel.videoEvelope containsString:@";"]) {
+            urlArray = [_homeFocusModel.videoEvelope componentsSeparatedByString:@";"];
+        } else {
+            urlArray = @[_homeFocusModel.videoEvelope];
+        }
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray];
+    }
+}
+
+@end

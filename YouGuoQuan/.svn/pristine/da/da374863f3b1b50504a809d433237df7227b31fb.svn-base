@@ -1,0 +1,34 @@
+//
+//  HomeResourceViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "HomeResourceViewCell.h"
+
+@interface HomeResourceViewCell ()
+@property (weak, nonatomic) IBOutlet UILabel *photoNumLabel; //
+@property (weak, nonatomic) IBOutlet UIImageView *photoAlbumCoverImageView; //相册封面
+@property (weak, nonatomic) IBOutlet UILabel *userNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *cityNameLabel;
+
+@end
+
+@implementation HomeResourceViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    CGFloat labelHeight = _photoNumLabel.frame.size.height;
+    self.photoNumLabel.layer.cornerRadius = labelHeight * 0.5;
+    self.photoNumLabel.layer.masksToBounds = YES;
+    
+    self.photoNumLabel.text = [NSString stringWithFormat:@"%d",arc4random() % 100];
+    self.userNameLabel.text = @"MiuMiu";
+    self.cityNameLabel.text = @"南京";
+}
+
+@end

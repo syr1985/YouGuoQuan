@@ -1,0 +1,197 @@
+//
+//  UserCenterTrendsViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/6.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "UserCenterTrendsViewCell.h"
+#import "UserCenterModel.h"
+#import "PhotoBrowserHelp.h"
+#import "MoreMenuHelp.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "UIImage+Color.h"
+
+@interface UserCenterTrendsViewCell ()
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UIView *imageBackgroundView;
+@property (weak, nonatomic) IBOutlet UIButton *favourButton;
+@property (weak, nonatomic) IBOutlet UIButton *commentButton;
+@property (weak, nonatomic) IBOutlet UIButton *moreButton;
+
+@end
+
+NSString * const kUserCenterCommentSuccessNotification = @"UserCenterCommentSuccess";
+
+@implementation UserCenterTrendsViewCell
+
+- (void)dealloc {
+    NSLog(@"%@ dealloc",[self class]);
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(updateModelDataForComment:)
+                                                 name:kUserCenterCommentSuccessNotification
+                                               object:nil];
+}
+
+- (void)setUserCenterModel:(UserCenterModel *)userCenterModel {
+    _userCenterModel = userCenterModel;
+    
+    if (_imageBackgroundView.subviews.count) {
+        for (UIView *view in _imageBackgroundView.subviews) {
+            [view removeFromSuperview];
+        }
+    }
+    
+    NSUInteger margin = 5;
+    CGFloat defaultW = (WIDTH - 16 - 2 * margin) / 3;
+    UIImage *phImage = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]
+                                                     size:CGSizeMake(defaultW, defaultW)];
+    if (userCenterModel.imageUrl && userCenterModel.imageUrl.length) {
+        if ([userCenterModel.imageUrl containsString:@";"]) {
+            NSArray *urlArray = [userCenterModel.imageUrl componentsSeparatedByString:@";"];
+            
+            NSUInteger margin = 5;
+            NSUInteger count = urlArray.count;
+            NSUInteger col = 2;
+            if (count != 4) {
+                if (count > 2) {
+                    col = 3;
+                } else {
+                    col = count;
+                }
+            }
+            NSUInteger row = count / 3 + 1;
+            if (count % 3 == 0) {
+                row = count / 3;
+            }
+            
+            CGFloat viewW = (WIDTH - 16 - (col - 1) * margin) / col;
+            if (viewW > defaultW) {
+                viewW = defaultW;
+            }
+            CGFloat viewH = viewW;
+            for (NSUInteger i = 0; i < row; i++) {
+                CGFloat viewY = (viewH + margin) * i;
+                for (NSUInteger j = 0; j < col; j++) {
+                    CGFloat viewX = (viewH + margin) * j;
+                    NSUInteger index = i * col + j;
+                    if (index < count) {
+                        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                              action:@selector(popupPhotoBrowser:)];
+                        UIImageView *imageView = [[UIImageView alloc] init];
+                        imageView.tag = index;
+                        imageView.userInteractionEnabled = YES;
+                        imageView.frame = CGRectMake(viewX, viewY, viewW, viewH);
+                        [imageView sd_setImageWithURL:[NSURL URLWithString:urlArray[index]]
+                                     placeholderImage:phImage];
+                        [imageView addGestureRecognizer:tap];
+                        [_imageBackgroundView addSubview:imageView];
+                    }
+                }
+            }
+        } else {
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                  action:@selector(popupPhotoBrowser:)];
+            UIImageView *imageView = [[UIImageView alloc] init];
+            imageView.userInteractionEnabled = YES;
+            imageView.frame = CGRectMake(0, 0, defaultW, defaultW);
+            [imageView sd_setImageWithURL:[NSURL URLWithString:userCenterModel.imageUrl]
+                         placeholderImage:phImage];
+            [imageView addGestureRecognizer:tap];
+            [_imageBackgroundView addSubview:imageView];
+        }
+    }
+    
+    _titleLabel.text = userCenterModel.instro;
+    _moreButton.hidden = ![userCenterModel.userId isEqualToString:[LoginData sharedLoginData].userId];
+    _favourButton.selected = userCenterModel.praise;
+    [_favourButton setTitle:userCenterModel.recommendCount forState:UIControlStateNormal];
+    [_commentButton setTitle:userCenterModel.commentCount forState:UIControlStateNormal];
+}
+
+/**
+ *  点击赞按钮
+ */
+- (IBAction)favourToOther:(UIButton *)sender {
+    __weak typeof(self) weakself = self;
+    if (sender.isSelected) {
+        // 取消赞
+        [NetworkTool cancelFavourWithFeedsID:_userCenterModel.trendsId userID:_userCenterModel.userId success:^{
+            sender.selected = NO;
+            NSInteger priseCount = [weakself.userCenterModel.recommendCount integerValue];
+            NSString *newPriseCount = [NSString stringWithFormat:@"%ld",priseCount - 1];
+            weakself.userCenterModel.recommendCount = newPriseCount;
+            [weakself.favourButton setTitle:newPriseCount forState:UIControlStateNormal];
+            weakself.userCenterModel.praise = NO;
+        }];
+    } else {
+        // 点赞
+        [NetworkTool doFavourWithFeedsID:_userCenterModel.trendsId userId:_userCenterModel.userId success:^{
+            sender.selected = YES;
+            NSInteger priseCount = [weakself.userCenterModel.recommendCount integerValue];
+            NSString *newPriseCount = [NSString stringWithFormat:@"%ld",priseCount + 1];
+            weakself.userCenterModel.recommendCount = newPriseCount;
+            [weakself.favourButton setTitle:newPriseCount forState:UIControlStateNormal];
+            weakself.userCenterModel.praise = YES;
+        }];
+    }
+}
+
+/**
+ *  评论
+ */
+- (IBAction)messageToOther:(UIButton *)sender {
+    if (self.commentBlock) {
+        self.commentBlock(_userCenterModel);
+    }
+}
+
+/**
+ *  更多按钮点击
+ */
+- (IBAction)moreButtonClicked:(id)sender {
+    __weak typeof(self) weakself = self;
+    [MoreMenuHelp showMoreMenuForMineTrendsWithResult:^(NSUInteger buttonIndex) {
+        if (weakself.actionSheetItemClicked) {
+            weakself.actionSheetItemClicked(buttonIndex, weakself.userCenterModel.trendsId, weakself.userCenterModel.feedsType, weakself.indexPath);
+        }
+    }];
+}
+
+
+/**
+ *  打开图片浏览器
+ */
+- (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
+    UIView *tapView = sender.view;
+    if (_userCenterModel.imageUrl && _userCenterModel.imageUrl.length) {
+        NSArray *urlArray;
+        if ([_userCenterModel.imageUrl containsString:@";"]) {
+            urlArray = [_userCenterModel.imageUrl componentsSeparatedByString:@";"];
+        } else {
+            urlArray = @[_userCenterModel.imageUrl];
+        }
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:tapView.tag];
+    }
+}
+
+#pragma mark -
+#pragma mark - 评论后更新模型数据
+- (void)updateModelDataForComment:(NSNotification *)noti {
+    NSString *content = noti.userInfo[@"NewCommentTimes"];
+    NSString *focusId = noti.userInfo[@"CurrentFocusID"];
+    if ([_userCenterModel.trendsId isEqualToString:focusId]) {
+        [_commentButton setTitle:content forState:UIControlStateNormal];
+    }
+}
+
+@end

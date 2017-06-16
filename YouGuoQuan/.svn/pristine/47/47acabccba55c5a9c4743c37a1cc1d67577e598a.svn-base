@@ -1,0 +1,326 @@
+//
+//  CrowdfundingOrderViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/29.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CrowdfundingOrderViewController.h"
+#import "DiscoveryCrowdfundingModel.h"
+
+#import "OrderInfoViewCell.h"
+#import "CrowdfundingInfoViewCell.h"
+#import "PayTypeViewCell.h"
+
+#import "AlertViewTool.h"
+#import "NSString+StringSize.h"
+#import "FuqianlaPayTool.h"
+
+@interface CrowdfundingOrderViewController () <UITableViewDelegate,UITableViewDataSource>
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (nonatomic, strong) NSArray *inputArray;
+@property (nonatomic, strong) NSArray *payTypeArray;
+@property (nonatomic,   copy) NSString *inputTelNum;
+@property (nonatomic,   copy) NSString *inputEmail;
+@property (nonatomic,   copy) NSString *inputPrice;
+@property (nonatomic, assign) NSUInteger currentPayIndex;
+@property (nonatomic,   copy) NSString *maxPrice;
+@property (nonatomic,   copy) NSString *orderNo;
+@end
+
+static NSString * const tableViewCellID_OrderInput = @"OrderInfoViewCell";
+static NSString * const tableViewCellID_CrowdInfo  = @"CrowdfundingInfoViewCell";
+static NSString * const tableViewCellID_PayType    = @"PayTypeViewCell";
+
+@implementation CrowdfundingOrderViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSArray *)inputArray {
+    if (!_inputArray) {
+        _inputArray = @[@{@"title":@"电话：", @"placeholder":@"请输入电话"},
+                        @{@"title":@"邮箱：", @"placeholder":@"请输入邮箱"},
+                        @{@"title":@"金额：", @"placeholder":@"请输入众筹金额"}];
+    }
+    return _inputArray;
+}
+
+- (NSArray *)payTypeArray {
+    if (!_payTypeArray) {
+        _payTypeArray = @[@{@"imageName":@"支付宝支付", @"title":@"支付宝支付"},
+                          @{@"imageName":@"微信支付", @"title":@"微信支付"},
+                          @{@"imageName":@"钱包支付", @"title":@"钱包零钱支付"}];
+    }
+    return _payTypeArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.title = @"确认订单";
+    
+    self.navigationController.navigationBar.tintColor = FontColor;
+    self.navigationController.navigationBar.barTintColor = NavBackgroundColor;
+    [self.navigationController.navigationBar setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:FontColor,NSForegroundColorAttributeName,nil]];
+    
+    UIView *headView = [[UIView alloc] init];
+    headView.bounds = CGRectMake(0, 0, WIDTH, 40);
+    headView.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1];
+    
+    UILabel *waringLabel = [[UILabel alloc] init];
+    waringLabel.frame = CGRectMake(10, 0, WIDTH - 20, 40);
+    waringLabel.textColor = [UIColor redColor];
+    waringLabel.text = @"*请务必核对正确手机号码且保持手机畅通，若预留错误导致不能联系到您，平台与商户免责";
+    waringLabel.numberOfLines = 0;
+    waringLabel.font = [UIFont systemFontOfSize:12];
+    [headView addSubview:waringLabel];
+    self.tableView.tableHeaderView = headView;
+    
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+    
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"返回-黑"]
+                                                                 style:UIBarButtonItemStylePlain
+                                                                target:self
+                                                                action:@selector(dismissViewController)];
+    leftItem.imageInsets = UIEdgeInsetsMake(0, -6, 0, 0);
+    self.navigationItem.leftBarButtonItem = leftItem;
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool generateOrderNoWithGoodsType:@"CF" success:^(id result) {
+        weakself.orderNo = result;
+    } failure:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    self.navigationController.navigationBar.hidden = NO;
+    
+    if (![LoginData sharedLoginData].userId) {
+        self.tabBarController.selectedIndex = 0;
+    }
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)dismissViewController {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)payNowForCrowdfunding {
+    if (_inputTelNum == nil || _inputTelNum.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请输入手机号"];
+        return;
+    }
+    
+    if (![HelperUtil checkTelNumber:_inputTelNum]) {
+        [SVProgressHUD showInfoWithStatus:@"请输入有效手机号码"];
+        return;
+    }
+    
+    if (_inputEmail == nil || _inputEmail.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请输入邮箱号"];
+        return;
+    }
+    
+    if (![HelperUtil checkMailInput:_inputEmail]) {
+        [SVProgressHUD showInfoWithStatus:@"请输入有效邮箱号码"];
+        return;
+    }
+    
+    if (_inputPrice == nil || _inputPrice.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请输入众筹金额"];
+        return;
+    }
+    
+    NSString *payType = @"zfb";
+    switch (_currentPayIndex) {
+        case 0:
+            payType = @"zfb";
+            break;
+        case 1:
+            payType = @"wx";
+            break;
+        case 2:
+            payType = @"wallet";
+            break;
+    }
+    
+    __weak typeof(self) weakself = self;
+    [AlertViewTool showAlertViewWithTitle:@"" Message:@"直至活动结束，您预留的手机与邮箱不可变更，请您确认你预留的是正确号码" sureBlock:^{
+        [NetworkTool createCrowdfundingOrderWithCfId:_discoveryCrowdfundingModel.crowdfundingId payMethod:payType money:_inputPrice phone:_inputTelNum email:_inputEmail orderNo:_orderNo success:^(id result, id payOrderNo) {
+            if (weakself.currentPayIndex == 2) {
+                [NetworkTool payforCrowdfundingWithOrderNo:result success:^{
+                    [weakself payResultForSuccess];
+                } failure:^(NSError *error, NSString *msg){
+                    [SVProgressHUD showErrorWithStatus:@"支付失败"];
+                }];
+            } else {
+                // 第三方支付
+                NSDictionary *payInfo = @{@"orderNo" : payOrderNo,
+                                          @"amount"  : weakself.inputPrice,
+                                          @"subject" : result,
+                                          @"desc"    : @"打赏"};
+                [FuqianlaPayTool payWithType:payType dataParam:payInfo success:^{
+                    [weakself payResultForSuccess];
+                }];
+            }
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+        }];
+    }];
+}
+
+- (void)payResultForSuccess {
+    [SVProgressHUD showSuccessWithStatus:@"支付成功"];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(HUD_SHOW_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.navigationController popViewControllerAnimated:YES];
+    });
+}
+
+/**
+ *  凑一凑
+ */
+- (void)setMaxPrice {
+    
+}
+
+#pragma mark -
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 3;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (section == 1) {
+        return 1;
+    } else if (section == 0) {
+        return self.inputArray.count;
+    } else {
+        return self.payTypeArray.count;
+    }
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        OrderInfoViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_OrderInput forIndexPath:indexPath];
+        cell.index = indexPath.row;
+        cell.dict = self.inputArray[indexPath.row];
+        if (_maxPrice) {
+            cell.price = _maxPrice;
+        }
+        
+        __weak typeof(self) weakself = self;
+        cell.textFieldDidEndEdit = ^(NSString *text, NSUInteger index) {
+            if (index == 0) {
+                weakself.inputTelNum = text;
+            } else if (index == 1)  {
+                weakself.inputEmail = text;
+            } else {
+                weakself.inputPrice = text;
+            }
+        };
+        return cell;
+    } else if (indexPath.section == 1) {
+        CrowdfundingInfoViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_CrowdInfo forIndexPath:indexPath];
+        
+        // Configure the cell...
+        cell.crowdfundingModel = _discoveryCrowdfundingModel;
+        return cell;
+    } else {
+        PayTypeViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_PayType forIndexPath:indexPath];
+        
+        cell.index = indexPath.row;
+        cell.isSelected = (_currentPayIndex == indexPath.row);
+        cell.dict = self.payTypeArray[indexPath.row];
+        __weak typeof(self) weakself = self;
+        cell.selectPayType = ^(NSUInteger index) {
+            weakself.currentPayIndex = index;
+            [weakself.tableView reloadData];
+        };
+        
+        return cell;
+    }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 1) {
+        CGFloat cellH = 8;
+        cellH += [NSString heightWithString:_discoveryCrowdfundingModel.cTitle
+                                    maxSize:CGSizeMake(WIDTH - 145, 0)
+                                    strFont:[UIFont systemFontOfSize:17]];
+        cellH += 8;
+        
+        cellH += [NSString heightWithString:_discoveryCrowdfundingModel.descs
+                                    maxSize:CGSizeMake(WIDTH - 145, 0)
+                                    strFont:[UIFont systemFontOfSize:13]];
+        cellH += 8;
+        if (cellH < 130) {
+            cellH = 130;
+        }
+        return cellH;
+    } else {
+        return 58;
+    }
+}
+
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    UIView *footerView = [[UIView alloc] init];
+    footerView.bounds = CGRectMake(0, 0, WIDTH, 28);
+    footerView.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1];
+    if (section == 0) {
+        UILabel *waringLabel = [[UILabel alloc] init];
+        waringLabel.frame = CGRectMake(10, 0, 165, 28);
+        waringLabel.textColor = [UIColor darkGrayColor];
+        waringLabel.text = @"还有3000元即可超过第一名，";
+        waringLabel.font = [UIFont systemFontOfSize:12];
+        [footerView addSubview:waringLabel];
+        
+        CGFloat btnX = CGRectGetMaxX(waringLabel.frame);
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+        button.frame = CGRectMake(btnX, 0, 60, 28);
+        button.titleLabel.font = [UIFont systemFontOfSize:12];
+        [button setTitle:@"凑一凑" forState:UIControlStateNormal];
+        [button setTitleColor:[UIColor colorWithRed:1 green:150.f/255 blue:50.f/255 alpha:1] forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(setMaxPrice) forControlEvents:UIControlEventTouchUpInside];
+        
+        [footerView addSubview:button];
+    }
+    
+    return footerView;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    if (section == 0) {
+        return 28;
+    } else if (section == 1) {
+        return 10;
+    } else {
+        return 0;
+    }
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

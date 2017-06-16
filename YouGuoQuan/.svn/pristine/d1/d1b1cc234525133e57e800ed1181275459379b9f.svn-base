@@ -1,0 +1,14 @@
+//
+//  OfficiallyCertifiedViewController.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/6.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "BaseTableViewController.h"
+
+@class UserBaseInfoModel;
+@interface OfficiallyCertifiedViewController : BaseTableViewController
+@property (nonatomic, strong) UserBaseInfoModel *userBaseInfoModel;
+@end

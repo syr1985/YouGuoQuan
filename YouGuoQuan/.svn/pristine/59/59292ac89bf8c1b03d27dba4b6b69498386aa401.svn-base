@@ -1,0 +1,81 @@
+//
+//  HomeFocusModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/6.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+/**
+ audit = 0;
+ buyCommentGoodCount = "";
+ buyCount = "";
+ commentCount = "";
+ createTime = 1485072809000;
+ dateString = 20170122;
+ feedsType = 1;
+ goodsId = "";
+ goodsName = "";
+ headImg = "";
+ id = "2d05daba-68e6-4f8f-b86c-54020397dbdc";
+ imageUrl = "http://7xtk9y.com1.z0.glb.clouddn.com/bbe4387064d11e5f6019f02f2a338188.jpg;http://7xtk9y.com1.z0.glb.clouddn.com/c9d63e9062172550d307e1f8ffd1f645.jpg;http://7xtk9y.com1.z0.glb.clouddn.com/fe0a23268559f01e978236500a3f9fae.jpg";
+ instro = "\U7f8e\U5973\U6709\U6ca1\U6709";
+ isBuy = 0;
+ isDelete = "";
+ isRecommend = 1;
+ nickName = oklsnm;
+ playTimes = "";
+ praise = 0;
+ price = "";
+ recommendCount = 1;
+ sex = "\U7537";
+ star = 1;
+ updateTime = 1485072614000;
+ userId = "5be1369a-68c8-4c6a-b29d-3b0d042cae2f";
+ videoEvelope = "";
+ videoUrl = "";
+ */
+
+@interface HomeFocusModel : NSObject
+@property (nonatomic,   copy) NSString *focusId;
+@property (nonatomic,   copy) NSString *goodsId;
+@property (nonatomic,   copy) NSString *imageUrl;
+@property (nonatomic,   copy) NSString *goodsName;
+@property (nonatomic,   copy) NSString *price;
+@property (nonatomic,   copy) NSString *instro;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *commentCount;
+@property (nonatomic,   copy) NSString *buyCount;
+@property (nonatomic,   copy) NSString *buyCommentGoodCount;
+@property (nonatomic,   copy) NSString *recommendCount;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *updateTime;
+@property (nonatomic,   copy) NSString *videoEvelope;
+@property (nonatomic,   copy) NSString *videoUrl;
+@property (nonatomic,   copy) NSString *playTimes;
+@property (nonatomic,   copy) NSString *timeLineId;
+@property (nonatomic,   copy) NSString *auditResult;
+@property (nonatomic,   copy) NSString *sex;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *headImg;
+// 等级数
+@property (nonatomic, assign) int star;
+// 是否购买（红包、商品）
+@property (nonatomic, assign) BOOL isBuy;
+// 是否认证（vip）
+@property (nonatomic, assign) BOOL audit;
+// 是否贵族
+@property (nonatomic, assign) BOOL isRecommend;
+// 是否赞过
+@property (nonatomic, assign) BOOL praise;
+// 是否删除
+@property (nonatomic, assign) BOOL isDelete;
+// 动态类型 1、图文，2、视频，3、商品，4、红包
+@property (nonatomic, assign) int  feedsType;
+// Cell的高（自己根据数据计算的，不在返回字段里）
+@property (nonatomic, assign) CGFloat cellHeight;
+
++ (instancetype)homeFocusModelWithDict:(NSDictionary *)dict;
+- (instancetype)initHomeFocusModelWithDict:(NSDictionary *)dict;
+@end

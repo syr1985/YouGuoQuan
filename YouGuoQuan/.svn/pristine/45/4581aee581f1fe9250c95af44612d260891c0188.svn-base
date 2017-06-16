@@ -1,0 +1,107 @@
+//
+//  LookPhotosViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/4.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "LookPhotosViewController.h"
+#import <UIImageView+WebCache.h>
+#import "NSString+AttributedText.h"
+#import "PayTool.h"
+#import "IAPurchaseTool.h"
+
+@interface LookPhotosViewController ()
+@property (weak, nonatomic) IBOutlet UIImageView *backgroundImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *redbagImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+@property (nonatomic,   copy) NSString *orderNo;
+@end
+
+@implementation LookPhotosViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    //    self.redbagImageView.layer.cornerRadius = 10;
+    //    self.redbagImageView.layer.masksToBounds = YES;
+    
+    self.headerImageView.layer.cornerRadius = self.headerImageView.bounds.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+    
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:_headImg
+                                                                  width:self.headerImageView.bounds.size.width
+                                                                 height:self.headerImageView.bounds.size.height];
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    self.nickNameLabel.text = _nickName;
+    self.moneyLabel.text = [NSString stringWithFormat:@"%zd u币",_price];
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool generateOrderNoWithGoodsType:@"RP" success:^(id result) {
+        weakself.orderNo = result;
+    } failure:nil];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)dismissViewController:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)buyButtonClicked:(id)sender {
+    [PayTool payWithResult:^(NSString *payType) {
+        __weak typeof(self) weakself = self;
+        [NetworkTool createRedPacketOrderWithGoodsId:_goodsId
+                                             feedsId:_feedsId
+                                           payMethod:payType
+                                               phone:@""
+                                             orderNo:_orderNo
+                                             success:^(id result, id payOrderNo) {
+            if ([payType isEqualToString:@"wallet"]) {
+                // 钱包
+                [NetworkTool payForTrendsToUserDirectlyWithOrderNo:result success:^{
+                    [SVProgressHUD showSuccessWithStatus:@"支付成功"];
+                    [weakself successPayForBuyPhoto];
+                } failure:^{
+                    [SVProgressHUD showErrorWithStatus:@"支付失败"];
+                }];
+            } else {
+                NSString *productID = [NSString stringWithFormat:@"youguoquan.photo%zdu",_price];
+                [[IAPurchaseTool sharedInstance] purchaseWithProductID:productID];
+            }
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+        }];
+    }];
+}
+
+- (void)successPayForBuyPhoto {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kUserCenterBuyPhotoSuccessNotification
+                                                        object:nil
+                                                      userInfo:@{@"PhotoFeedsID":self.feedsId}];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(HUD_SHOW_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self dismissViewControllerAnimated:YES completion:nil];
+    });
+}
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

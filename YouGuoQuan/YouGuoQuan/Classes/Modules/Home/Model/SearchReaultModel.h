@@ -1,0 +1,25 @@
+//
+//  SearchReaultModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface SearchReaultModel : NSObject
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *sex;
+@property (nonatomic, strong) NSNumber *fansCount;
+@property (nonatomic, assign) BOOL isMyFans;
+@property (nonatomic, assign) BOOL isRecommend;
+@property (nonatomic, assign) int  audit;
+@property (nonatomic, assign) int  star;
+
++ (instancetype)searchReaultModelWithDict:(NSDictionary *)dict;
+- (instancetype)initSearchReaultModelWithDict:(NSDictionary *)dict;
+
+@end

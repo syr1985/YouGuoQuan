@@ -1,0 +1,33 @@
+//
+//  PhotoWallModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/3/30.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ createTime = 1490860940000;
+ id = "48e97b78-c3d1-4640-a45a-f767e24d6edb";
+ imageDesc = "";
+ imageTitle = "";
+ imageUrl = "http://7xtk9y.com1.z0.glb.clouddn.com/J6jZkdVdi7oVkDCn.jpg";
+ imageUserId = "3aaeebf8-d5f7-40c7-9580-8aa883fbdfe0";
+ isDelete = 0;
+ updateTime = 1490860940000;
+ */
+@interface PhotoWallModel : NSObject
+@property (nonatomic,   copy) NSString *imageId;
+@property (nonatomic,   copy) NSString *imageDesc;
+@property (nonatomic,   copy) NSString *imageTitle;
+@property (nonatomic,   copy) NSString *imageUrl;
+@property (nonatomic,   copy) NSString *imageUserId;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *updateTime;
+@property (nonatomic, assign) BOOL isDelete;
+
++ (instancetype)photoWallModelWithDict:(NSDictionary *)dict;
+- (instancetype)initPhotoWallModelWithDict:(NSDictionary *)dict;
+@end

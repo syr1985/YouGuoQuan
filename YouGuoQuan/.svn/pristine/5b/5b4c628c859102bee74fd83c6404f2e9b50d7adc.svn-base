@@ -1,0 +1,81 @@
+//
+//  DiscoveryViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "DiscoveryViewController.h"
+
+#import "SCNavTabBarController.h"
+#import "CrowdfundingViewController.h"
+#import "VideoViewController.h"
+#import "RecommendViewController.h"
+#import "NearbyPersonViewController.h"
+
+#import "UIImage+Color.h"
+
+@interface DiscoveryViewController ()
+
+@end
+
+@implementation DiscoveryViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self setupSubViewControllers];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:animated];
+}
+
+// 添加子控制器
+- (void)setupSubViewControllers {
+    
+    UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    flowLayout.minimumLineSpacing = 8;
+    flowLayout.minimumInteritemSpacing = 8;
+    flowLayout.sectionInset = UIEdgeInsetsMake(8, 8, 8, 8);
+    
+    CrowdfundingViewController *crowdVC = [[CrowdfundingViewController alloc] init];
+    crowdVC.title = @"众筹";
+    
+    VideoViewController *videoVC = [[VideoViewController alloc] initWithCollectionViewLayout:flowLayout];
+    videoVC.title = @"视频";
+    
+    RecommendViewController *recommendVC = [[RecommendViewController alloc] init];
+    recommendVC.title = @"推荐";
+    
+    UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+    NearbyPersonViewController *nearbyVC = [discoverySB instantiateViewControllerWithIdentifier:@"NearbyPerson"];
+    nearbyVC.title = @"附近";
+    
+    SCNavTabBarController *navTabBarController = [[SCNavTabBarController alloc] init];
+    navTabBarController.subViewControllers = @[crowdVC, videoVC, recommendVC, nearbyVC];
+    navTabBarController.navTabBarLineColor = [UIColor whiteColor];
+    navTabBarController.navType = NavType_Hidden;
+    [navTabBarController addParentController:self];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

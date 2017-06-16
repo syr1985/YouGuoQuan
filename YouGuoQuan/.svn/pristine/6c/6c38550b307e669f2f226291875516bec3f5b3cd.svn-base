@@ -1,0 +1,243 @@
+//
+//  MessageViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/11.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "MessageViewController.h"
+#import "UIScreen+Adapt.h"
+#import "HelperUtil.h"
+#import "UIImage+Color.h"
+#import "FollowMessageViewController.h"
+#import "CommentMessageViewController.h"
+#import "PraiseMessageViewController.h"
+#import "SystemMessageViewController.h"
+#import "RecentSessionCell.h"
+#import "EaseConversationModel.h"
+#import <Hyphenate_CN/EMSDKFull.h>
+#import "ConversionManager.h"
+#import "ChatViewController.h"
+
+@interface MessageViewController () {
+    
+}
+@property (nonatomic) CGFloat screenWidth;
+@property (nonatomic, strong) NSArray *textArray;
+@property (nonatomic, strong) NSArray *countArray;
+@property (nonatomic, strong) NSArray *iconArray;
+@property (nonatomic, strong) NSArray *controllerArray;
+@property(nonatomic, strong) NSMutableArray *dataArray;
+@end
+
+static NSString * const tableViewCellID_Notification = @"Notification";
+
+@implementation MessageViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [ConversionManager shareManager].messageViewController = self;
+    self.screenWidth = [UIScreen mainScreen].bounds.size.width;
+    self.tableView.rowHeight = [UIScreen adaptedLengthOf:66];
+    [self.tableView registerClass:[RecentSessionCell class] forCellReuseIdentifier:[RecentSessionCell reuseIdentifier]];
+    UIView *v = [[UIView alloc] initWithFrame:CGRectZero];
+    [self.tableView setTableFooterView:v];
+    [self requireData];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self refreshAndSortView];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 2;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (section == 0) {
+        return 4;
+    } else {
+        return self.dataArray.count;
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_Notification];
+        if (cell == nil) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:tableViewCellID_Notification];
+            
+            cell.textLabel.font = [UIFont adaptedFontOfSize:17];
+            cell.textLabel.textColor = [HelperUtil colorWithHexString:@"#352007"];
+            
+            UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(self.screenWidth - [UIScreen adaptedLengthOf:64], [UIScreen adaptedLengthOf:(64 - 20) / 2], [UIScreen adaptedLengthOf:20], [UIScreen adaptedLengthOf:20])];
+            label.layer.cornerRadius = [UIScreen adaptedLengthOf:10];
+            label.layer.backgroundColor = [HelperUtil colorWithHexString:@"#FF3654"].CGColor;
+            label.font = [UIFont adaptedFontOfSize:12];
+            label.textColor = [UIColor whiteColor];
+            label.tag = 20;
+            label.textAlignment = NSTextAlignmentCenter;
+            [cell.contentView addSubview:label];
+            cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        }
+        UILabel *rightLabel = [cell.contentView viewWithTag:20];
+        rightLabel.text = self.countArray[indexPath.row];
+        cell.imageView.image = [UIImage imageNamed:self.iconArray[indexPath.row]];
+        cell.textLabel.text = self.textArray[indexPath.row];
+        return cell;
+    } else {
+        RecentSessionCell *cell = [tableView dequeueReusableCellWithIdentifier:[RecentSessionCell reuseIdentifier] forIndexPath:indexPath];
+        cell.separatorInset = UIEdgeInsetsMake(0, [UIScreen adaptedLengthOf:60], 0, 0);
+        EaseConversationModel *conversationModel = self.dataArray[indexPath.row];
+        [cell refreshData:conversationModel];
+        return cell;
+    }
+}
+
+#pragma mark UITableView Delegate
+- (nullable UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    if (section == 1) {
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.screenWidth, [UIScreen adaptedLengthOf:34])];
+        view.backgroundColor = [HelperUtil colorWithHexString:@"#FAFAFA"];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake([UIScreen adaptedLengthOf:13], 0, self.screenWidth - [UIScreen adaptedLengthOf:13] * 2, [UIScreen adaptedLengthOf:34])];
+        label.font = [UIFont adaptedFontOfSize:12];
+        label.textColor = [HelperUtil colorWithHexString:@"#352007"];
+        label.text = @"最近联系人";
+        [view addSubview:label];
+        
+        UIView *topLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.screenWidth, 0.5)];
+        topLine.backgroundColor = self.tableView.separatorColor;
+        [view addSubview:topLine];
+        
+        UIView *bottomLine = [[UIView alloc] initWithFrame:CGRectMake(0, [UIScreen adaptedLengthOf:34] - 0.5, self.screenWidth, 0.5)];
+        bottomLine.backgroundColor = self.tableView.separatorColor;
+        [view addSubview:bottomLine];
+        
+        return view;
+    }
+    
+    return nil;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    if (section == 1) {
+        return [UIScreen adaptedLengthOf:34];
+    }
+    return 0;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (indexPath.section == 0) {
+        UIViewController *vc = [[NSClassFromString(self.controllerArray[indexPath.row]) alloc] init];
+        vc.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:vc animated:YES];
+    } else {
+        EaseConversationModel *conversationModel = self.dataArray[indexPath.row];
+        EMConversation *conversation = conversationModel.conversation;
+        ChatViewController *chatController = [[ChatViewController alloc] initWithConversationChatter:conversation.conversationId conversationType:conversation.type];
+        chatController.title = conversationModel.title;
+        chatController.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:chatController animated:YES];
+    }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [UIScreen adaptedLengthOf:66];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [UIScreen adaptedLengthOf:66];
+}
+
+#pragma mark data
+- (NSArray *) controllerArray {
+    if (!_controllerArray) {
+        _controllerArray = @[@"SystemMessageViewController", @"FollowMessageViewController", @"PraiseMessageViewController", @"CommentMessageViewController"];
+    }
+    return _controllerArray;
+}
+
+- (NSArray *) iconArray {
+    if (!_iconArray) {
+        _iconArray = @[@"message_main_system", @"message_main_follow", @"message_main_praise", @"message_main_comment"];
+    }
+    return _iconArray;
+}
+
+- (NSArray *)textArray {
+    if (_textArray == nil) {
+        _textArray = @[@"系统消息", @"关注", @"赞", @"评论"];
+    }
+    return _textArray;
+}
+
+- (NSArray *)countArray {
+    if (_countArray == nil) {
+        _countArray = @[@"35", @"2", @"18", @"12"];
+    }
+    return _countArray;
+}
+
+- (NSMutableArray *)dataArray
+{
+    if (_dataArray == nil) {
+        _dataArray = [NSMutableArray array];
+    }
+    return _dataArray;
+}
+
+-(void)refreshAndSortView
+{
+    if ([self.dataArray count] > 1) {
+        if ([[self.dataArray objectAtIndex:0] isKindOfClass:[EaseConversationModel class]]) {
+            NSArray* sorted = [self.dataArray sortedArrayUsingComparator:
+                               ^(EaseConversationModel *obj1, EaseConversationModel* obj2){
+                                   EMMessage *message1 = [obj1.conversation latestMessage];
+                                   EMMessage *message2 = [obj2.conversation latestMessage];
+                                   if(message1.timestamp > message2.timestamp) {
+                                       return(NSComparisonResult)NSOrderedAscending;
+                                   }else {
+                                       return(NSComparisonResult)NSOrderedDescending;
+                                   }
+                               }];
+            [self.dataArray removeAllObjects];
+            [self.dataArray addObjectsFromArray:sorted];
+        }
+    }
+    [self.tableView reloadData];
+}
+
+- (void) requireData {
+    NSArray *conversations = [[EMClient sharedClient].chatManager getAllConversations];
+    NSArray *sorted = [conversations sortedArrayUsingComparator:
+                       ^(EMConversation *obj1, EMConversation* obj2){
+                           EMMessage *message1 = [obj1 latestMessage];
+                           EMMessage *message2 = [obj2 latestMessage];
+                           if(message1.timestamp > message2.timestamp) {
+                               return(NSComparisonResult)NSOrderedAscending;
+                           } else {
+                               return(NSComparisonResult)NSOrderedDescending;
+                           }
+                       }];
+    [self.dataArray removeAllObjects];
+    for (EMConversation *converstion in sorted) {
+        EaseConversationModel *model = [[EaseConversationModel alloc] initWithConversation:converstion];
+        [self.dataArray addObject:model];
+    }
+    
+    [self.tableView reloadData];
+}
+
+
+@end

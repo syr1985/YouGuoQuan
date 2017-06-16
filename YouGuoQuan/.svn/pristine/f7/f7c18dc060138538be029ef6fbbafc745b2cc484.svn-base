@@ -1,0 +1,17 @@
+//
+//  HomeViewController.h
+//  RoomService
+//
+//  Created by YM on 15/12/26.
+//  Copyright © 2015年 SYR. All rights reserved.
+//
+
+//#import "BaseViewController.h"
+#import <UIKit/UIKit.h>
+
+extern NSString * const kNotification_ScrollViewDown;
+extern NSString * const kNotification_ScrollViewUp;
+
+@interface HomeViewController : UIViewController
+
+@end

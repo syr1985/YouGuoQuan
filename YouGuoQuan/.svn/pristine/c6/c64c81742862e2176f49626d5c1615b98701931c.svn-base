@@ -1,0 +1,61 @@
+//
+//  OrderMesageViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/29.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "OrderMessageViewCell.h"
+
+@interface OrderMessageViewCell () <UITextViewDelegate>
+@property (weak, nonatomic) IBOutlet UITextView *textView;
+@property (weak, nonatomic) UILabel  *placeholder;
+@end
+
+@implementation OrderMessageViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    UILabel *placeholder = [[UILabel alloc] init];
+    placeholder.text = @"给卖家留言（选填）";
+    placeholder.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+    placeholder.textColor = GaryFontColor;
+    placeholder.frame = CGRectMake(7, 5, _textView.frame.size.width - 14, 21);
+    placeholder.backgroundColor = [UIColor clearColor];
+    [self.textView addSubview:placeholder];
+    _placeholder = placeholder;
+}
+
+#pragma mark - textView delegate
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
+    if ([text isEqualToString:@"\n"]){ //判断输入的字是否是回车，即按下return
+        //在这里做你响应return键的代码
+        [self endEditing:YES];
+        return NO; //这里返回NO，就代表return键值失效，即页面上按下return，不会出现换行，如果为yes，则输入页面会换行
+    }
+    if (textView.text.length > 0) {
+        _placeholder.hidden = YES;
+    }
+    
+    return YES;
+}
+
+- (void)textViewDidChange:(UITextView *)textView {
+    if (textView.text.length == 0) {
+        _placeholder.hidden = NO;
+    } else {
+        _placeholder.hidden = YES;
+    }
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView {
+    if (_textViewDidEndEdit) {
+        _textViewDidEndEdit(textView.text);
+    }
+}
+
+@end

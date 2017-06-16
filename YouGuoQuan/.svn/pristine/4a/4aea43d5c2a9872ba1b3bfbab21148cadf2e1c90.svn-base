@@ -1,0 +1,52 @@
+//
+//  UserBaseInfoModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ 1	createTime	String
+ 2	updateTime	String
+ 3	id	String
+ 4	headImg	String		头像
+ 5	nickName	String		昵称
+ 6	sex	String		性别
+ 7	city	String		城市
+ 8	height	String		身高
+ 9	weight	String		体重
+ 10	constellatory	String		星座
+ 11	work	String		工作
+ 12	emotion	String		情感状态
+ 13	star	String		星级
+ 15	province	String		省份
+ 16	audit	String		加v
+ 17	auditResult	String		模特等
+ 18	realName	String		真实姓名
+ 19	isRecommend	String		是否推荐
+ */
+
+@interface UserBaseInfoModel : NSObject
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *sex;
+@property (nonatomic,   copy) NSString *city;
+@property (nonatomic,   copy) NSString *height;
+@property (nonatomic,   copy) NSString *weight;
+@property (nonatomic,   copy) NSString *constellatory;
+@property (nonatomic,   copy) NSString *work;
+@property (nonatomic,   copy) NSString *emotion;
+@property (nonatomic,   copy) NSString *province;
+@property (nonatomic,   copy) NSString *auditResult;
+@property (nonatomic,   copy) NSString *realName;
+@property (nonatomic, assign) BOOL audit;
+@property (nonatomic, assign) BOOL isRecommend;
+@property (nonatomic, assign) int star;
+
++ (instancetype)userBaseInfoModelWithDict:(NSDictionary *)dict;
+- (instancetype)initUserBaseInfoModelWithDict:(NSDictionary *)dict;
+@end

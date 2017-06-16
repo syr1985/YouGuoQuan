@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CrowdfundingDetailViewCell" id="gTV-IL-0wX" customClass="CrowdfundingDetailViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="252" height="145"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="252" height="145"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="unk-Yh-4W7">
+                        <rect key="frame" x="0.0" y="0.0" width="252" height="145"/>
+                    </imageView>
+                </subviews>
+            </view>
+            <constraints>
+                <constraint firstItem="unk-Yh-4W7" firstAttribute="centerY" secondItem="gTV-IL-0wX" secondAttribute="centerY" id="9Bn-1s-sFP"/>
+                <constraint firstItem="unk-Yh-4W7" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="Dpg-px-dTh"/>
+                <constraint firstItem="unk-Yh-4W7" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" id="HXP-zA-5zH"/>
+                <constraint firstItem="unk-Yh-4W7" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="YR2-Pj-oqm"/>
+            </constraints>
+            <size key="customSize" width="252" height="145"/>
+            <connections>
+                <outlet property="bannerImageView" destination="unk-Yh-4W7" id="nHV-Uh-Bkt"/>
+            </connections>
+            <point key="canvasLocation" x="-135" y="50.5"/>
+        </collectionViewCell>
+    </objects>
+</document>

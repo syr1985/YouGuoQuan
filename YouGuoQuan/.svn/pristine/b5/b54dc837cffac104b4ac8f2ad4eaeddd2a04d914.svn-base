@@ -1,0 +1,68 @@
+//
+//  LoginViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/11.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "LoginViewController.h"
+
+@interface LoginViewController () <UITextFieldDelegate>
+@property (weak, nonatomic) IBOutlet UITextField *telephoneNumberTextField;
+@property (weak, nonatomic) IBOutlet UITextField *loginPasswordTextField;
+@property (weak, nonatomic) IBOutlet UIButton *loginButton;
+
+@end
+
+@implementation LoginViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.titleLabel.text = @"尤果圈";
+    
+    _telephoneNumberTextField.layer.borderWidth = 1;
+    _telephoneNumberTextField.layer.cornerRadius = 5;
+    _telephoneNumberTextField.layer.borderColor = [UIColor lightGrayColor].CGColor;
+    
+    _loginPasswordTextField.layer.borderWidth = 1;
+    _loginPasswordTextField.layer.cornerRadius = 5;
+    _loginPasswordTextField.layer.borderColor = [UIColor lightGrayColor].CGColor;
+}
+
+/**
+ *  调取登录接口
+ */
+- (IBAction)loginButtonClicked {
+    [NetworkTool loginWithPhone:_telephoneNumberTextField.text Password:_loginPasswordTextField.text Success:^{
+        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+    }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - UITextFieldDelegate
+- (void)textFieldDidBeginEditing:(UITextField *)textField {
+    textField.layer.borderColor = NavColor.CGColor;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    textField.layer.borderColor = [UIColor lightGrayColor].CGColor;
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

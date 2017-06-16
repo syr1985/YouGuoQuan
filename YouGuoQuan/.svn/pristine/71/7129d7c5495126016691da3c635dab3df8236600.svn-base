@@ -1,0 +1,93 @@
+//
+//  WithdrawCashViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/6.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "WithdrawCashViewController.h"
+
+@interface WithdrawCashViewController () <UITextFieldDelegate>
+@property (weak, nonatomic) IBOutlet UITextField *zfbAccountTextField;
+@property (weak, nonatomic) IBOutlet UITextField *withdrawCashTextField;
+@property (weak, nonatomic) IBOutlet UILabel *withdrawCashTipsLabel;
+@property (nonatomic, assign) BOOL canWithcash;
+@end
+
+@implementation WithdrawCashViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"提现";
+    [self resetTipsContent];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)withdrawAllCashButtonClicked:(id)sender {
+    _withdrawCashTextField.text = [NSString stringWithFormat:@"%zd",[self.totalMoney integerValue] * 0.5];
+    [self resetTipsContent];
+}
+
+- (IBAction)withdrawCashSureButtonClicked:(id)sender {
+    if (!_zfbAccountTextField.text.length) {
+        [SVProgressHUD showInfoWithStatus:@"请输入支付宝账号"];
+        return;
+    }
+    if (!_withdrawCashTextField.text.length) {
+        [SVProgressHUD showInfoWithStatus:@"请输入提现金额"];
+        return;
+    }
+    if (!_canWithcash) {
+        [SVProgressHUD showInfoWithStatus:@"提现金额超过余额"];
+        return;
+    }
+    
+    [NetworkTool walletWithdrawCashWithMoney:_withdrawCashTextField.text type:@"zfb" relationValue:_zfbAccountTextField.text Success:^{
+        [SVProgressHUD showSuccessWithStatus:@"提现申请已发出，请耐心等待"];
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"提现申请提交失败"];
+    }];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    NSInteger inputMoney;
+    if (textField.text.length) {
+        inputMoney = [textField.text integerValue];
+    }
+    if (inputMoney > [_totalMoney integerValue] * 0.5) {
+        _canWithcash = NO;
+        _withdrawCashTipsLabel.text = @"提现金额已超过可提现金额";
+        _withdrawCashTipsLabel.textColor = [UIColor redColor];
+    } else {
+        _canWithcash = YES;
+        [self resetTipsContent];
+    }
+}
+
+- (void)resetTipsContent {
+    NSInteger halfMoney = [self.totalMoney integerValue] * 0.5;
+    _withdrawCashTipsLabel.text =  [NSString stringWithFormat:@"可用余额%@元，可提现%zd元",self.totalMoney, halfMoney];
+    _withdrawCashTipsLabel.textColor = [UIColor lightGrayColor];
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

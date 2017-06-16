@@ -1,0 +1,230 @@
+//
+//  OthersFavoursViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/2.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "OthersFavoursViewController.h"
+#import "ReportViewController.h"
+#import "UserCenterViewController.h"
+
+#import "FocusTrendsViewCell.h"
+#import "FocusVideoViewCell.h"
+#import "FocusProductViewCell.h"
+#import "FocusRedEnvelopeViewCell.h"
+
+#import "AlertViewTool.h"
+
+#import "HomeFocusModel.h"
+
+@interface OthersFavoursViewController ()
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UIView *noResultView;
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@end
+
+static NSString * const tableViewCellID_trends   = @"FocusTrendsViewCell";
+static NSString * const tableViewCellID_video    = @"FocusVideoViewCell";
+static NSString * const tableViewCellID_product  = @"FocusProductViewCell";
+static NSString * const tableViewCellID_envelope = @"FocusRedEnvelopeViewCell";
+
+@implementation OthersFavoursViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray array];
+    }
+    return _modelArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.title = @"TA赞过的";
+    
+    [self configViewController];
+    
+    [self loadDataFromServer];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - 配置控制器
+- (void)configViewController {
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    self.tableView.estimatedRowHeight = 100;
+    
+    
+    UINib *nib_trends = [UINib nibWithNibName:tableViewCellID_trends bundle:nil];
+    [self.tableView registerNib:nib_trends forCellReuseIdentifier:tableViewCellID_trends];
+    
+    UINib *nib_video  = [UINib nibWithNibName:tableViewCellID_video bundle:nil];
+    [self.tableView registerNib:nib_video forCellReuseIdentifier:tableViewCellID_video];
+    
+    UINib *nib_product = [UINib nibWithNibName:tableViewCellID_product bundle:nil];
+    [self.tableView registerNib:nib_product forCellReuseIdentifier:tableViewCellID_product];
+    
+    UINib *nib_envelope = [UINib nibWithNibName:tableViewCellID_envelope bundle:nil];
+    [self.tableView registerNib:nib_envelope forCellReuseIdentifier:tableViewCellID_envelope];
+}
+
+#pragma mark -
+#pragma mark - 从服务器加载数据
+- (void)loadDataFromServer {
+    [NetworkTool getOtherFavoursWithPageNo:@"1" pageSize:@"5" userID:_userId success:^(id result) {
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in result) {
+            HomeFocusModel *model = [HomeFocusModel homeFocusModelWithDict:dict];
+            [muArray addObject:model];
+        }
+        self.modelArray = muArray;
+        [self.tableView reloadData];
+        
+        self.noResultView.hidden = self.modelArray.count;
+    }];
+}
+
+#pragma mark -
+#pragma mark - 更多按钮点击底部弹出ActionSheet
+- (void)moreButtonClicked:(NSUInteger)buttonIndex toUser:(NSString *)userId {
+    if (buttonIndex == 1) {
+        // 拉黑警告
+        [AlertViewTool showAlertViewWithTitle:nil Message:@"拉黑对方后，对方将无法与您聊天，您也无法查看对方动态，是否继续？" sureBlock:^{
+            // 拉黑操作
+            [NetworkTool doOperationWithType:@"3" userId:userId operationType:@"1" success:^{
+                [SVProgressHUD showSuccessWithStatus:@"已将对方拉黑"];
+            }];
+        }];
+    } else if (buttonIndex == 2) {
+        // 举报操作
+        UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+        ReportViewController *reportVC = [discoverySB instantiateViewControllerWithIdentifier:@"Report"];
+        reportVC.userId = userId;
+        [self presentViewController:reportVC animated:YES completion:nil];
+    }
+}
+
+#pragma mark -
+#pragma mark - 跳转到详情页
+- (void)popToDetailViewController {
+    
+}
+
+#pragma mark -
+#pragma mark - 跳转到TA人中心
+- (void)popToUserCenterViewController:(NSString *)userId {
+    UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+    UserCenterViewController *userCenterVC = [homeSB instantiateViewControllerWithIdentifier:@"UserCenter"];
+    userCenterVC.userId = userId;
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:userCenterVC];
+    [self presentViewController:navController animated:YES completion:nil];
+}
+
+#pragma mark -
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.modelArray.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    HomeFocusModel *model = self.modelArray[indexPath.row];
+    __weak typeof(self) weakself = self;
+    if (model.feedsType == 1) {
+        FocusTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_trends forIndexPath:indexPath];
+        cell.tapHeaderView = ^(NSString *userId) {
+            [weakself popToUserCenterViewController:userId];
+        };
+        cell.commentBlock = ^(NSString *focusId) {
+            [weakself popToDetailViewController];
+        };
+        cell.actionSheetItemClicked = ^(NSUInteger index, NSString *userId) {
+            [weakself moreButtonClicked:index toUser:userId];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    } else if (model.feedsType == 2) {
+        FocusVideoViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_video forIndexPath:indexPath];
+        cell.tapHeaderView = ^(NSString *userId) {
+            [weakself popToUserCenterViewController:userId];
+        };
+        cell.commentBlock = ^(NSString *focusId) {
+            [weakself popToDetailViewController];
+        };
+        cell.actionSheetItemClicked = ^(NSUInteger index, NSString *userId) {
+            [weakself moreButtonClicked:index toUser:userId];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    } else if (model.feedsType == 3) {
+        FocusProductViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_product forIndexPath:indexPath];
+        cell.tapHeaderView = ^(NSString *userId) {
+            [weakself popToUserCenterViewController:userId];
+        };
+        cell.actionSheetItemClicked = ^(NSUInteger index, NSString *userId) {
+            [weakself moreButtonClicked:index toUser:userId];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    } else {
+        FocusRedEnvelopeViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_envelope forIndexPath:indexPath];
+        cell.tapHeaderView = ^(NSString *userId) {
+            [weakself popToUserCenterViewController:userId];
+        };
+        cell.commentBlock = ^(NSString *focusId) {
+            [weakself popToDetailViewController];
+        };
+        cell.actionSheetItemClicked = ^(NSUInteger index, NSString *userId) {
+            [weakself moreButtonClicked:index toUser:userId];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    }
+}
+
+#pragma mark -
+#pragma mark - Table View Delegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    HomeFocusModel *model = self.modelArray[indexPath.row];
+    return model.cellHeight;
+}
+
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
+    HomeFocusModel *model = self.modelArray[indexPath.row];
+    if (model.feedsType == 2) {
+        FocusVideoViewCell *videoCell = (FocusVideoViewCell *)cell;
+        [videoCell releaseWMPlayer];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    // 跳详情页
+    
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

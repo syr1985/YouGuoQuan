@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="PayTypeViewCell" rowHeight="58" id="Gzu-p2-wHD" customClass="PayTypeViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="58"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Gzu-p2-wHD" id="4k8-ve-lnI">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="57"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="支付宝支付" translatesAutoresizingMaskIntoConstraints="NO" id="e2q-0U-N3s">
+                        <rect key="frame" x="12" y="16.5" width="24" height="24"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="e2q-0U-N3s" secondAttribute="height" multiplier="1:1" id="JQG-3D-xBy"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="支付宝支付" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D2C-Bu-Bww">
+                        <rect key="frame" x="44" y="18" width="87" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Vt-Wl-rSV">
+                        <rect key="frame" x="288" y="18" width="20" height="20"/>
+                        <state key="normal" backgroundImage="支付未选中"/>
+                        <state key="selected" backgroundImage="图片选中 "/>
+                        <connections>
+                            <action selector="selectButtonClicked:" destination="Gzu-p2-wHD" eventType="touchUpInside" id="mH0-r5-M0u"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="2Vt-Wl-rSV" firstAttribute="trailing" secondItem="4k8-ve-lnI" secondAttribute="trailingMargin" constant="-4" id="8gm-Df-52M"/>
+                    <constraint firstItem="e2q-0U-N3s" firstAttribute="centerY" secondItem="4k8-ve-lnI" secondAttribute="centerY" id="Mgk-MH-213"/>
+                    <constraint firstItem="2Vt-Wl-rSV" firstAttribute="centerY" secondItem="4k8-ve-lnI" secondAttribute="centerY" id="W4Y-24-wE6"/>
+                    <constraint firstItem="D2C-Bu-Bww" firstAttribute="centerY" secondItem="4k8-ve-lnI" secondAttribute="centerY" id="eem-Vd-dqF"/>
+                    <constraint firstItem="e2q-0U-N3s" firstAttribute="leading" secondItem="4k8-ve-lnI" secondAttribute="leadingMargin" constant="4" id="s5x-5d-vNe"/>
+                    <constraint firstItem="D2C-Bu-Bww" firstAttribute="leading" secondItem="e2q-0U-N3s" secondAttribute="trailing" constant="8" id="sko-Gg-VEj"/>
+                </constraints>
+            </tableViewCellContentView>
+            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <connections>
+                <outlet property="payIconImageView" destination="e2q-0U-N3s" id="xBN-A9-D7k"/>
+                <outlet property="payTypeLabel" destination="D2C-Bu-Bww" id="Ob0-HY-Io8"/>
+                <outlet property="selectButton" destination="2Vt-Wl-rSV" id="4a0-Yt-tRk"/>
+            </connections>
+            <point key="canvasLocation" x="-183" y="-35"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="图片选中 " width="20" height="20"/>
+        <image name="支付宝支付" width="24" height="24"/>
+        <image name="支付未选中" width="20" height="20"/>
+    </resources>
+</document>

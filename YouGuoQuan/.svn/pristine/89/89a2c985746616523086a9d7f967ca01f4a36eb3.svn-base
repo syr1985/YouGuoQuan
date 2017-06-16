@@ -1,0 +1,67 @@
+//
+//  NearbyPersonViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "NearbyPersonViewCell.h"
+#import "UserBaseInfoModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+
+@interface NearbyPersonViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *userHeadImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *userVipImageView;
+@property (weak, nonatomic) IBOutlet UILabel *userNickNameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UILabel *userFunsCountLabel;
+@property (weak, nonatomic) IBOutlet UILabel *userDistanceLabel;
+
+@end
+
+@implementation NearbyPersonViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    self.userHeadImageView.layer.cornerRadius = self.userHeadImageView.frame.size.width * 0.5;
+    self.userHeadImageView.layer.masksToBounds = YES;
+}
+
+- (void)setNearbyUserModel:(UserBaseInfoModel *)nearbyUserModel {
+    _nearbyUserModel = nearbyUserModel;
+    
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:nearbyUserModel.headImg
+                                                                  width:self.userHeadImageView.bounds.size.width
+                                                                 height:self.userHeadImageView.bounds.size.height];
+    [self.userHeadImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                              placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.userVipImageView.hidden = (nearbyUserModel.audit != 1);
+    
+    self.userNickNameLabel.text = nearbyUserModel.nickName;
+    
+    self.levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",nearbyUserModel.star]];
+    
+    self.userFunsCountLabel.text = [NSString stringWithFormat:@"%@粉丝",nearbyUserModel.fansCount];
+    
+    CLLocationDegrees latitude = nearbyUserModel.latitude;
+    CLLocationDegrees longitude = nearbyUserModel.longitude;
+    CLLocation *userLocation = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
+    CLLocation *myLocation = [[CLLocation alloc] initWithLatitude:_myCoordinate.latitude longitude:_myCoordinate.longitude];
+    CLLocationDistance distance = [myLocation distanceFromLocation:userLocation];
+    
+    if (distance < 1000) {
+        self.userDistanceLabel.text = [NSString stringWithFormat:@"%.0f米以内",distance];
+    } else {
+        if (distance > 1000000) {
+            self.userDistanceLabel.text = @"1000公里以外";
+        } else {
+            self.userDistanceLabel.text = [NSString stringWithFormat:@"%.0f公里以内",distance / 1000];
+        }
+    }
+}
+
+@end

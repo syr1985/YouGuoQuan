@@ -1,0 +1,114 @@
+/************************************************************
+ *  * Hyphenate CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of Hyphenate Inc.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Hyphenate Inc.
+ */
+
+#import "EaseMessageTimeCell.h"
+#import "Masonry.h"
+CGFloat const EaseMessageTimeCellPadding = 5;
+
+@interface EaseMessageTimeCell()
+
+@property (strong, nonatomic) UILabel *titleLabel;
+@property (nonatomic, strong) UIView *titlelabelBackView;
+
+@end
+
+@implementation EaseMessageTimeCell
+
++ (void)initialize {
+    // UIAppearance Proxy Defaults
+    EaseMessageTimeCell *cell = [self appearance];
+    cell.titleLabelColor = [UIColor whiteColor];
+    cell.titleLabelFont = [UIFont systemFontOfSize:12];
+}
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style
+              reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        self.backgroundColor = [UIColor clearColor];
+        [self _setupSubview];
+    }
+    
+    return self;
+}
+
+#pragma mark - setup subviews
+
+- (void)_setupSubview {
+    [self.titlelabelBackView addSubview:self.titleLabel];
+    [self.contentView addSubview:self.titlelabelBackView];
+    
+    [self _setupTitleLabelConstraints];
+}
+
+- (UILabel *)titleLabel {
+    if (!_titleLabel) {
+        _titleLabel = [[UILabel alloc] init];
+        _titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        _titleLabel.textAlignment = NSTextAlignmentCenter;
+        _titleLabel.backgroundColor = [UIColor clearColor];
+        _titleLabel.textColor = _titleLabelColor;
+        _titleLabel.font = _titleLabelFont;
+    }
+    return _titleLabel;
+}
+
+- (UIView *)titlelabelBackView {
+    if (!_titlelabelBackView) {
+        _titlelabelBackView = [[UIView alloc] init];
+        _titlelabelBackView.clipsToBounds = YES;
+        _titlelabelBackView.layer.cornerRadius = 3;
+        _titlelabelBackView.backgroundColor = RGBA(0, 0, 0, 0.1);
+    }
+    return _titlelabelBackView;
+}
+
+#pragma mark - Setup Constraints
+
+- (void)_setupTitleLabelConstraints {
+    [self.titlelabelBackView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(self.contentView.mas_centerX);
+        make.centerY.mas_equalTo(self.contentView.mas_centerY);
+    }];
+    
+    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.titlelabelBackView.mas_top).with.offset(2);
+        make.bottom.mas_equalTo(self.titlelabelBackView.mas_bottom).with.offset(-2);
+        make.left.mas_equalTo(self.titlelabelBackView.mas_left).with.offset(5);
+        make.right.mas_equalTo(self.titlelabelBackView.mas_right).with.offset(-5);
+    }];
+}
+
+#pragma mark - setter
+
+- (void)setTitle:(NSString *)title {
+    _title = title;
+    _titleLabel.text = _title;
+}
+
+- (void)setTitleLabelFont:(UIFont *)titleLabelFont {
+    _titleLabelFont = titleLabelFont;
+    _titleLabel.font = _titleLabelFont;
+}
+
+- (void)setTitleLabelColor:(UIColor *)titleLabelColor {
+    _titleLabelColor = titleLabelColor;
+    _titleLabel.textColor = _titleLabelColor;
+}
+
+#pragma mark - public
+
++ (NSString *)cellIdentifier {
+    return @"MessageTimeCell";
+}
+
+@end

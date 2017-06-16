@@ -1,0 +1,175 @@
+//
+//  SCNavTabBarController.m
+//  SCNavTabBarController
+//
+//  Created by ShiCang on 14/11/17.
+//  Copyright (c) 2014年 SCNavTabBarController. All rights reserved.
+//
+
+#import "SCNavTabBarController.h"
+#import "CommonMacro.h"
+#import "SCNavTabBar.h"
+
+@interface SCNavTabBarController () <UIScrollViewDelegate, SCNavTabBarDelegate>
+{
+    //NSInteger       _currentIndex;              // current page index
+    NSMutableArray  *_titles;                   // array of children view controller's title
+    SCNavTabBar     *_navTabBar;                // NavTabBar: press item on it to exchange view
+    UIScrollView    *_mainView;                 // content view
+}
+
+@end
+
+@implementation SCNavTabBarController
+
+#pragma mark - Life Cycle
+#pragma mark -
+
+- (instancetype)initWithSubViewControllers:(NSArray *)subViewControllers {
+    self = [super init];
+    if (self) {
+        _subViewControllers = subViewControllers;
+    }
+    return self;
+}
+
+- (instancetype)initWithSubViewControllers:(NSArray *)subControllers andParentViewController:(UIViewController *)viewController showSpaceLine:(BOOL)bShowSpaceLine {
+    self = [self initWithSubViewControllers:subControllers];
+    _showSpaceLine = bShowSpaceLine;
+    [self addParentController:viewController];
+    return self;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.    
+    //[self viewInit];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Private Methods
+#pragma mark -
+
+- (void)viewInit {
+    // Load NavTabBar and content view to show on window
+    
+    _navTabBarColor = _navTabBarColor ? _navTabBarColor : NavTabbarColor;
+    
+    // Load all title of children view controllers
+    _titles = [[NSMutableArray alloc] initWithCapacity:_subViewControllers.count];
+    for (UIViewController *viewController in _subViewControllers) {
+        [_titles addObject:viewController.title];
+    }
+    
+    CGFloat navTabbarY = DOT_COORDINATE;
+    if (_navType == NavType_Hidden) {
+        navTabbarY = STATUS_BAR_HEIGHT;
+    } else if (_navType == NavType_Custom) {
+        navTabbarY = STATUS_BAR_HEIGHT + NAVIGATION_BAR_HEIGHT;
+    }
+    __weak typeof(self) weakself = self;
+    _navTabBar = [[SCNavTabBar alloc] initWithFrame:CGRectMake(DOT_COORDINATE, navTabbarY, SCREEN_WIDTH, NAVIGATION_BAR_HEIGHT)  showLine:YES showSpaceLine:_showSpaceLine];
+    _navTabBar.delegate = self;
+    _navTabBar.backgroundColor = _navTabBarColor;
+    _navTabBar.lineColor  = _navTabBarLineColor;
+    _navTabBar.itemTitles = _titles;
+    _navTabBar.titleFont  = _titleFont;
+    _navTabBar.isHomeFocusPage = _isHomeFocusPage;
+    _navTabBar.showLoginPage = ^{
+        [weakself login];
+    };
+    [_navTabBar updateData];
+    [self.view addSubview:_navTabBar];
+    
+    CGFloat viewY = CGRectGetMaxY(_navTabBar.frame);
+    CGFloat viewH = SCREEN_HEIGHT - viewY - STATUS_BAR_HEIGHT - NAVIGATION_BAR_HEIGHT - TAB_TAB_HEIGHT;
+    if (_navType == NavType_Hidden) {
+        viewH = SCREEN_HEIGHT - viewY - TAB_TAB_HEIGHT;
+    } else if (_navType == NavType_Custom) {
+        viewH = SCREEN_HEIGHT - 149;
+    }
+    _mainView = [[UIScrollView alloc] initWithFrame:CGRectMake(DOT_COORDINATE, viewY, SCREEN_WIDTH, viewH)];
+    _mainView.delegate = self;
+    _mainView.pagingEnabled = YES;
+    _mainView.bounces = NO;
+    _mainView.showsHorizontalScrollIndicator = NO;
+    _mainView.scrollEnabled = YES;
+    _mainView.contentSize = CGSizeMake(SCREEN_WIDTH * _subViewControllers.count, DOT_COORDINATE);
+    [self.view addSubview:_mainView];
+    
+    [_subViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop){
+        UIViewController *viewController = (UIViewController *)_subViewControllers[idx];
+        viewController.view.frame = CGRectMake(idx * SCREEN_WIDTH, DOT_COORDINATE, SCREEN_WIDTH, _mainView.frame.size.height);
+        [_mainView addSubview:viewController.view];
+        [self addChildViewController:viewController];
+    }];
+    
+    //[self scrollToTabAtIndex:_defaultIndex];
+}
+
+- (void)login {
+    UIStoryboard *loginSB = [UIStoryboard storyboardWithName:@"Login" bundle:nil];
+    UIViewController *loginVC = [loginSB instantiateViewControllerWithIdentifier:@"LoginVC"];
+    [self presentViewController:loginVC animated:YES completion:nil];
+}
+
+#pragma mark - Public Methods
+#pragma mark -
+- (void)resetIndex {
+    //1. 滚动scrollView offset.x == 0
+    [self scrollToTabAtIndex:0];
+    //2. 更改_navTabBar 的currentItemIndex更改状态
+    _navTabBar.currentItemIndex = 0;
+}
+
+- (void)addParentController:(UIViewController *)viewController {
+    // Close UIScrollView characteristic on IOS7 and later
+    if ([viewController respondsToSelector:@selector(edgesForExtendedLayout)]) {
+        viewController.edgesForExtendedLayout = UIRectEdgeNone;
+    }
+    [viewController addChildViewController:self];
+    [viewController.view addSubview:self.view];
+    
+    [self viewInit];
+}
+
+#pragma mark - Scroll View Delegate Methods
+#pragma mark -
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    _currentIndex = scrollView.contentOffset.x / SCREEN_WIDTH;
+    if (_isHomeFocusPage) {
+        if (_currentIndex == 2) {
+            if (![LoginData sharedLoginData].userId) {
+                [self login];
+                return;
+            }
+        }
+    }
+    _navTabBar.currentItemIndex = _currentIndex;
+}
+
+#pragma mark - SCNavTabBarDelegate Methods
+#pragma mark -
+- (void)itemDidSelectedWithIndex:(NSInteger)index {
+    _currentIndex = index;
+    [self scrollToTabAtIndex:index];
+}
+
+- (void)scrollToTabAtIndex:(NSInteger)index {
+    UIViewController *viewController = (UIViewController *)_subViewControllers[index];
+    if ([viewController parentViewController] == nil) {
+        [self addChildViewController:viewController];
+    }
+    if (![viewController isViewLoaded] || [viewController.view superview] == nil) {
+        viewController.view.frame = CGRectMake(index * SCREEN_WIDTH, DOT_COORDINATE, SCREEN_WIDTH, _mainView.frame.size.height);
+        [_mainView addSubview:viewController.view];
+    }
+    [_mainView setContentOffset:CGPointMake(index * SCREEN_WIDTH, DOT_COORDINATE) animated:NO];
+}
+
+@end
+

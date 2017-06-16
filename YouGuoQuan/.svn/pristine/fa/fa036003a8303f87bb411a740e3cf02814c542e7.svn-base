@@ -1,0 +1,309 @@
+/************************************************************
+ *  * Hyphenate CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of Hyphenate Inc.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Hyphenate Inc.
+ */
+
+#import "EaseBaseMessageCell.h"
+#import "IMessageModel.h"
+#import "EMMessage.h"
+#import "EaseLocalDefine.h"
+#import "UIImageView+EMWebCache.h"
+#import <Masonry.h>
+
+@interface EaseBaseMessageCell()
+
+@property (strong, nonatomic) UILabel *nameLabel;
+@property (strong, nonatomic) UIImageView *vipView;
+@property (strong, nonatomic) UIImageView *recommandView;
+
+@end
+
+@implementation EaseBaseMessageCell
+
+@synthesize nameLabel = _nameLabel;
+
++ (void)initialize {
+    // UIAppearance Proxy Defaults
+    EaseBaseMessageCell *cell = [self appearance];
+    //    cell.avatarSize = 40;
+    cell.avatarCornerRadius = 20;
+    
+    //    cell.messageNameColor = [UIColor grayColor];
+    //    cell.messageNameFont = [UIFont systemFontOfSize:10];
+    //    cell.messageNameHeight = 15;
+    //    cell.messageNameIsHidden = YES;
+    
+}
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style
+              reuseIdentifier:(NSString *)reuseIdentifier
+                        model:(id<IMessageModel>)model {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier model:model];
+    if (self) {
+        self.backgroundColor = [UIColor clearColor];
+        self.selectionStyle = UITableViewCellSelectionStyleNone;
+        
+        //        self.nameLabel = [[UILabel alloc] init];
+        //        self.nameLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        //        self.nameLabel.backgroundColor = [UIColor clearColor];
+        //        self.nameLabel.font = _messageNameFont;
+        //        self.nameLabel.textColor = _messageNameColor;
+        //        [self.contentView addSubview:self.nameLabel];
+        
+        _vipView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"头像加V"]];
+        _vipView.hidden = YES;
+        [self.contentView addSubview:_vipView];
+        __weak typeof(self) weakself = self;
+        [_vipView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.equalTo(weakself.avatarView.mas_right);
+            make.bottom.equalTo(weakself.avatarView.mas_bottom);
+        }];
+        _recommandView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"皇冠"]];
+        _recommandView.hidden = YES;
+        [self.contentView addSubview:_recommandView];
+        [_recommandView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(weakself.avatarView.mas_left).offset(-2);
+            make.top.equalTo(weakself.avatarView.mas_top).offset(-2);
+            make.width.mas_equalTo(15);
+            make.height.mas_equalTo(15);
+        }];
+        
+        if (model.isSender) {
+            [self configureSendLayoutConstraints];
+        } else {
+            [self configureRecvLayoutConstraints];
+        }
+        
+        UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc] initWithTarget:self
+                                                                                           action:@selector(handleLongPress:)];
+        [_bubbleView addGestureRecognizer:lpgr];
+        
+    }
+    return self;
+}
+
+- (void)handleLongPress:(UILongPressGestureRecognizer *)recognizer {
+    [self becomeFirstResponder];
+    
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        if (_longPressBlock) {
+            _longPressBlock(self.model, _bubbleView);
+        }
+    }
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _bubbleView.backgroundImageView.image = self.model.isSender ? self.sendBubbleBackgroundImage : self.recvBubbleBackgroundImage;
+    switch (self.model.bodyType) {
+        case EMMessageBodyTypeImage:
+        {
+            CGSize retSize = self.model.thumbnailImageSize;
+            if (retSize.width == 0 || retSize.height == 0) {
+                retSize.width = kEMMessageImageSizeWidth;
+                retSize.height = kEMMessageImageSizeHeight;
+            }
+            else if (retSize.width > retSize.height) {
+                CGFloat height =  kEMMessageImageSizeWidth / retSize.width * retSize.height;
+                retSize.height = height;
+                retSize.width = kEMMessageImageSizeWidth;
+            }
+            else {
+                CGFloat width = kEMMessageImageSizeHeight / retSize.height * retSize.width;
+                retSize.width = width;
+                retSize.height = kEMMessageImageSizeHeight;
+            }
+            
+            CGFloat margin = [EaseMessageCell appearance].leftBubbleMargin.left + [EaseMessageCell appearance].leftBubbleMargin.right;
+            
+            [self.bubbleView mas_updateConstraints:^(MASConstraintMaker *make) {
+                make.width.mas_equalTo(retSize.width + margin);
+            }];
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)configureSendLayoutConstraints {
+    //avatar view
+    __weak typeof(self) weakself = self;
+    [self.avatarView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(weakself.contentView.mas_top).with.offset(EaseMessageCellPadding);
+        make.right.equalTo(weakself.contentView.mas_right).with.offset(-EaseMessageCellPadding);
+        make.width.mas_equalTo(40);
+        make.height.mas_equalTo(40);
+    }];
+    
+    //name label
+    //    [self.nameLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    //        make.top.equalTo(weakself.contentView.mas_top);
+    //        make.right.equalTo(weakself.avatarView.mas_left).with.offset(-EaseMessageCellPadding);
+    //        make.height.mas_equalTo(15);
+    //    }];
+    
+    //bubble view
+    [self.bubbleView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(weakself.avatarView.mas_left).with.offset(-2);
+        make.top.equalTo(weakself.avatarView.mas_top);
+    }];
+    
+    //status button
+    [self.statusButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(weakself.bubbleView.mas_left).with.offset(-EaseMessageCellPadding);
+    }];
+    
+    //activity
+    [self.activity mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(weakself.bubbleView.mas_left).with.offset(-EaseMessageCellPadding);
+    }];
+    
+    //hasRead
+    [self.hasRead mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(weakself.bubbleView.mas_left).with.offset(-EaseMessageCellPadding);
+    }];
+}
+
+- (void)configureRecvLayoutConstraints {
+    //avatar view
+    __weak typeof(self) weakself = self;
+    [self.avatarView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(weakself.contentView.mas_top).with.offset(EaseMessageCellPadding);
+        make.left.equalTo(weakself.contentView.mas_left).with.offset(EaseMessageCellPadding);
+        make.width.mas_equalTo(40);
+        make.height.mas_equalTo(40);
+    }];
+    
+    //name label
+    //    [self.nameLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    //        make.top.equalTo(weakself.contentView.mas_top);
+    //        make.left.equalTo(weakself.avatarView.mas_right).with.offset(EaseMessageCellPadding);
+    //        make.height.mas_equalTo(15);
+    //    }];
+    
+    //bubble view
+    [self.bubbleView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(weakself.avatarView.mas_right).with.offset(2);
+        make.top.equalTo(weakself.avatarView.mas_top);
+    }];
+}
+
+#pragma mark - setter
+- (void)setInfoDict:(NSDictionary *)infoDict {
+    _infoDict = infoDict;
+    
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:infoDict[@"headImg"]
+                                                                  width:self.avatarView.bounds.size.width
+                                                                 height:self.avatarView.bounds.size.height];
+    [self.avatarView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                       placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.vipView.hidden = ![infoDict[@"vip"] boolValue];
+    self.vipView.image =  [infoDict[@"vip"] boolValue] ? [UIImage imageNamed:@"列表头像团体认证"] : [UIImage imageNamed:@"头像加V"];
+    self.recommandView.hidden = ![infoDict[@"nobility"] boolValue];
+}
+
+- (void)setModel:(id<IMessageModel>)model {
+    [super setModel:model];
+    
+    if (model.isSender) {
+        model.avatarURLPath = [LoginData sharedLoginData].headImg;
+        self.vipView.hidden = [LoginData sharedLoginData].audit != 1 && [LoginData sharedLoginData].audit != 3;
+        self.vipView.image =  [LoginData sharedLoginData].audit == 3 ? [UIImage imageNamed:@"列表头像团体认证"] : [UIImage imageNamed:@"头像加V"];
+        self.recommandView.hidden = [LoginData sharedLoginData].star != 6;
+        
+        self.hasRead.hidden = YES;
+        switch (self.model.messageStatus) {
+            case EMMessageStatusDelivering:
+            {
+                _statusButton.hidden = YES;
+                [_activity setHidden:NO];
+                [_activity startAnimating];
+            }
+                break;
+            case EMMessageStatusSuccessed:
+            {
+                _statusButton.hidden = YES;
+                [_activity stopAnimating];
+                if (self.model.isMessageRead) {
+                    _hasRead.hidden = NO;
+                }
+            }
+                break;
+            case EMMessageStatusPending:
+            case EMMessageStatusFailed:
+            {
+                [_activity stopAnimating];
+                [_activity setHidden:YES];
+                _statusButton.hidden = NO;
+            }
+                break;
+            default:
+                break;
+        }
+    }
+    
+    if (model.avatarURLPath) {
+        NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:model.avatarURLPath
+                                                                      width:self.avatarView.bounds.size.width
+                                                                     height:self.avatarView.bounds.size.height];
+        [self.avatarView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                           placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    } else {
+        self.avatarView.image = model.avatarImage;
+    }
+    //self.nameLabel.text = model.nickname;
+}
+
+- (void)setMessageNameFont:(UIFont *)messageNameFont {
+    _messageNameFont = messageNameFont;
+    if (self.nameLabel) {
+        self.nameLabel.font = _messageNameFont;
+    }
+}
+
+- (void)setMessageNameColor:(UIColor *)messageNameColor {
+    _messageNameColor = messageNameColor;
+    if (self.nameLabel) {
+        self.nameLabel.textColor = _messageNameColor;
+    }
+}
+
+- (void)setAvatarCornerRadius:(CGFloat)avatarCornerRadius {
+    if (_avatarCornerRadius != avatarCornerRadius) {
+        _avatarCornerRadius = avatarCornerRadius;
+        if (self.avatarView){
+            self.avatarView.layer.cornerRadius = avatarCornerRadius;
+        }
+    }
+}
+
+- (void)setMessageNameIsHidden:(BOOL)messageNameIsHidden {
+    _messageNameIsHidden = messageNameIsHidden;
+    if (self.nameLabel) {
+        self.nameLabel.hidden = messageNameIsHidden;
+    }
+}
+
+#pragma mark - public
++ (CGFloat)cellHeightWithModel:(id<IMessageModel>)model {
+    EaseBaseMessageCell *cell = [self appearance];
+    
+    CGFloat minHeight = cell.avatarSize + EaseMessageCellPadding * 2;
+    CGFloat height = cell.messageNameHeight;
+    
+    height += [EaseMessageCell cellHeightWithModel:model];
+    height = height > minHeight ? height : minHeight;
+    
+    return height;
+}
+
+@end

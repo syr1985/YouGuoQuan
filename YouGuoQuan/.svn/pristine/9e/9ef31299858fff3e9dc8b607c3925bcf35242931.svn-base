@@ -1,0 +1,71 @@
+//
+//  UIScreen+Adapt.h
+//  LoochaCampusMain
+//
+//  Created by zhang jinquan on 1/25/16.
+//  Copyright © 2016 Real Cloud. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+FOUNDATION_EXPORT NSInteger kScreenWidth;
+
+@interface UIScreen (Adapt)
+
+/**
+ *  适配基准，目前是375
+ *  @return
+ */
++ (CGFloat)adaptingBasedWidth;
+
+/**
+ *  适配因子
+ *  @return 屏幕实际宽度/adaptingBasedWidth
+ */
++ (CGFloat)adaptingFactor;
+
+/**
+ *  适配长度
+ *
+ *  @param length 基于adaptingBasedWidth屏幕的长度
+ *
+ *  @return 返回目标屏幕上的长度，即 length * adaptingFactor
+ */
++ (CGFloat)adaptedLengthOf:(CGFloat)length;
+
+/**
+ *  适配size
+ *
+ *  @param size 基于adaptingBasedWidth屏幕的size
+ *
+ *  @return 返回目标屏幕上的size
+ */
++ (CGSize)adaptedSizeOf:(CGSize)size;
+
+/**
+ *  适配bounds
+ *
+ *  @param bounds 基于adaptingBasedWidth屏幕的bounds
+ *
+ *  @return 返回目标屏幕上的bounds
+ */
++ (CGRect)adaptedBoundsOf:(CGRect)bounds;
+
++ (UIEdgeInsets)adaptedInsetsOf:(UIEdgeInsets)insets;
+
+/**
+ *  适配Frame  但y不做变化
+ *
+ *  @param frame   基于adaptingBasedWidth屏幕的frame
+ *
+ *  @return 返回目标屏幕上的frame
+ */
++ (CGRect)adaptedFrameOf:(CGRect)frame;
+
+@end
+
+@interface UIFont (Adapt)
+
++ (UIFont *)adaptedFontOfSize:(CGFloat)fontSize;
+
+@end

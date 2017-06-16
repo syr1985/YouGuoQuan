@@ -1,0 +1,124 @@
+//
+//  PersonCenterViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/3.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "PersonCenterViewController.h"
+#import "PersonDataViewController.h"
+#import "YouGuoNobilityViewController.h"
+
+#import "UserBaseInfoModel.h"
+#import <UIImageView+WebCache.h>
+
+@interface PersonCenterViewController ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *sexImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UILabel     *nicknameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *certifiedImageView;
+@property (weak, nonatomic) IBOutlet UILabel *certifiedLabel;
+
+@end
+
+static NSString * const KVO_KeyPath_HeadImg  = @"userBaseInfoModel.headImg";
+static NSString * const KVO_KeyPath_NickName = @"userBaseInfoModel.nickName";
+static NSString * const KVO_KeyPath_Sex      = @"userBaseInfoModel.sex";
+
+@implementation PersonCenterViewController
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+    [self removeObserver:self forKeyPath:KVO_KeyPath_HeadImg];
+    [self removeObserver:self forKeyPath:KVO_KeyPath_NickName];
+    [self removeObserver:self forKeyPath:KVO_KeyPath_Sex];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.titleString = @"个人中心";
+    self.headerImageView.layer.cornerRadius = self.headerImageView.frame.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:_userBaseInfoModel.headImg]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.nicknameLabel.text = _userBaseInfoModel.nickName;
+    self.sexImageView.image = [UIImage imageNamed:_userBaseInfoModel.sex];
+    self.levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",_userBaseInfoModel.star]];
+    self.crownImageView.hidden = !_userBaseInfoModel.isRecommend;
+    self.vipImageView.hidden = !_userBaseInfoModel.audit;
+    
+#warning -- 个人基本信息缺少一个关于审核状态的字段
+    
+    [self addObserver:self forKeyPath:KVO_KeyPath_HeadImg options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:KVO_KeyPath_NickName options:NSKeyValueObservingOptionNew context:NULL];
+    [self addObserver:self forKeyPath:KVO_KeyPath_Sex options:NSKeyValueObservingOptionNew context:NULL];
+}
+
+/**
+ *  KVO
+ */
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    NSLog(@"%@, %@",keyPath,change);
+    if ([keyPath isEqualToString:KVO_KeyPath_HeadImg]) {
+        [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:_userBaseInfoModel.headImg]
+                                placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    } else if ([keyPath isEqualToString:KVO_KeyPath_NickName]) {
+        self.nicknameLabel.text = _userBaseInfoModel.nickName;
+    } else if ([keyPath isEqualToString:KVO_KeyPath_Sex]) {
+        self.sexImageView.image = [UIImage imageNamed:_userBaseInfoModel.sex];
+    }
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - Table view data source
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 3;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 1;
+}
+
+#pragma mark -
+#pragma mark - Table view delegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        return 113;
+    } else if (indexPath.section == 1) {
+        return 58;
+    } else {
+        return WIDTH;
+    }
+}
+
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+    UIViewController *destVC = [segue destinationViewController];
+    if ([destVC isKindOfClass:[PersonDataViewController class]]) {
+        PersonDataViewController *personDataVC = (PersonDataViewController *)destVC;
+        personDataVC.userBaseInfoModel = _userBaseInfoModel;
+    } else if ([destVC isKindOfClass:[YouGuoNobilityViewController class]]) {
+        YouGuoNobilityViewController *youguoNobilityVC = (YouGuoNobilityViewController *)destVC;
+        youguoNobilityVC.userBaseInfoModel = _userBaseInfoModel;
+    }
+}
+
+@end

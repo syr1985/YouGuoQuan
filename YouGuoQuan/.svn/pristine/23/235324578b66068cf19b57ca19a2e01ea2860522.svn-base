@@ -1,0 +1,62 @@
+//
+//  PersonFuncViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "PersonFuncViewCell.h"
+#import "PersonModuleViewCell.h"
+
+@interface PersonFuncViewCell ()
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
+@property (nonatomic, strong) NSArray *dictArray;
+@end
+
+@implementation PersonFuncViewCell
+
+- (NSArray *)dictArray {
+    if (!_dictArray) {
+        _dictArray = @[@{@"image":@"个人中心-我的订单",@"title":@"我的订单"},
+                       @{@"image":@"个人中心-我的等级",@"title":@"我的等级"},
+                       @{@"image":@"个人中心-我的钱包",@"title":@"我的钱包"},
+                       @{@"image":@"个人中心-商城中心",@"title":@"商城中心"},
+                       @{@"image":@"个人中心-尤果贵族",@"title":@"尤果贵族"},
+                       @{@"image":@"个人中心-我售出的",@"title":@"我售出的"},
+                       @{@"image":@"个人中心-官方认证",@"title":@"官方认证"},
+                       @{@"image":@"",@"title":@""},
+                       @{@"image":@"",@"title":@""}];
+    }
+    return _dictArray;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    CGFloat itemW = (WIDTH - 4) / 3;
+    UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)_collectionView.collectionViewLayout;
+    flowLayout.itemSize = CGSizeMake(itemW, itemW);
+}
+
+#pragma mark -
+#pragma mark - Collection view data source
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.dictArray.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    PersonModuleViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"PersonModuleViewCell" forIndexPath:indexPath];
+    cell.dict = self.dictArray[indexPath.row];
+    return cell;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row < 7) {
+        if (_itemSelectedBlcok) {
+            _itemSelectedBlcok(indexPath.row);
+        }
+    }
+}
+
+@end

@@ -1,0 +1,92 @@
+//
+//  RechargeViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/6.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "RechargeViewController.h"
+#import "PayTool.h"
+#import "FuqianlaPayTool.h"
+
+@interface RechargeViewController ()
+@property (weak, nonatomic) IBOutlet UILabel *tipsLabel;
+@property (nonatomic, strong) UIButton *selectButton;
+@property (nonatomic,   copy) NSString *money;
+@property (nonatomic,   copy) NSString *orderNo;
+@end
+
+@implementation RechargeViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"充值";
+    
+    _tipsLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+    paragraphStyle.lineSpacing = 10;// 字体的行间距
+    _tipsLabel.attributedText = [[NSAttributedString alloc] initWithString:@"*细则：凡在本平台充值满1000元，即可以充值者名义在全平台送出价值充值额10%的欢乐大红包，更多欢乐更多关注，想成为大家心目中的明星吗？冲啊!" attributes:@{NSParagraphStyleAttributeName:paragraphStyle}];
+    [_tipsLabel sizeToFit];
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool generateOrderNoWithGoodsType:@"FW" success:^(id result) {
+        weakself.orderNo = result;
+    } failure:nil];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)selectRechargeAmountButtonClicked:(UIButton *)sender {
+    if (sender == _selectButton) {
+        return;
+    }
+    if (_selectButton) {
+        _selectButton.selected = NO;
+    }
+    sender.selected = YES;
+    _selectButton = sender;
+    _money = [NSString stringWithFormat:@"%zd",sender.tag];
+}
+
+- (IBAction)rechargeButtonClicked:(id)sender {
+    if (!_money) {
+        [SVProgressHUD showInfoWithStatus:@"请选择充值金额"];
+        return;
+    }
+    __weak typeof(self) weakself = self;
+    [PayTool rechargeWithResult:^(NSString *payType) {
+        [NetworkTool createRechargeOrderWithOrderNo:weakself.orderNo money:weakself.money payMethod:payType success:^(id result, id payOrderNo) {
+            NSDictionary *payInfo = @{@"orderNo" : payOrderNo,
+                                      @"amount"  : weakself.money,
+                                      @"subject" : result,
+                                      @"desc"    : @"尤果圈钱包充值"};
+            [FuqianlaPayTool payWithType:payType dataParam:payInfo success:^{
+                [SVProgressHUD showSuccessWithStatus:@"已成功充值"];
+                [weakself.navigationController popViewControllerAnimated:YES];
+            }];
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+        }];
+    }];
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

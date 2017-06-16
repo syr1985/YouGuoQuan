@@ -1,0 +1,95 @@
+//
+//  SearchResultViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "SearchResultViewCell.h"
+#import "SearchReaultModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "AlertViewTool.h"
+
+@interface SearchResultViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *funsCountLabel;
+@property (weak, nonatomic) IBOutlet UIButton *concemButton;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+
+@end
+
+@implementation SearchResultViewCell
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    _headerImageView.layer.cornerRadius = _headerImageView.frame.size.width * 0.5;
+    _headerImageView.layer.masksToBounds = YES;
+}
+
+- (void)setSearchResultModel:(SearchReaultModel *)searchResultModel {
+    _searchResultModel = searchResultModel;
+    
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:searchResultModel.headImg
+                                                                  width:self.headerImageView.bounds.size.width
+                                                                 height:self.headerImageView.bounds.size.height];
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    _nickNameLabel.text = searchResultModel.nickName;
+    
+    _levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",searchResultModel.star]];
+    
+    _crownImageView.hidden = !searchResultModel.isRecommend;
+    _vipImageView.hidden = (searchResultModel.audit != 1);
+    
+    _concemButton.selected = searchResultModel.isMyFans;
+    
+    _funsCountLabel.text = [NSString stringWithFormat:@"%@粉丝",searchResultModel.fansCount];
+}
+
+- (IBAction)focusButtonClicked:(UIButton *)sender {
+    __weak typeof(self) weakself = self;
+    if (sender.isSelected) {
+        [AlertViewTool showAlertViewWithTitle:nil Message:@"是否取消关注？" sureBlock:^{
+            // 取消关注
+            [NetworkTool doOperationWithType:@"1" userId:weakself.searchResultModel.userId operationType:@"0" success:^{
+                [SVProgressHUD showSuccessWithStatus:@"已取消关注TA"];
+                sender.selected = NO;
+                weakself.searchResultModel.isMyFans = NO;
+                [weakself resetFunsNumWithFocus:NO];
+            }];
+        }];
+    } else {
+        // 关注
+        [NetworkTool doOperationWithType:@"1" userId:weakself.searchResultModel.userId operationType:@"1" success:^{
+            [SVProgressHUD showSuccessWithStatus:@"已关注TA"];
+            sender.selected = YES;
+            weakself.searchResultModel.isMyFans = YES;
+            [weakself resetFunsNumWithFocus:YES];
+        }];
+    }
+}
+
+- (void)resetFunsNumWithFocus:(BOOL)isFocus {
+    if (isFocus) {
+        NSInteger fansCount = [_searchResultModel.fansCount integerValue] + 1;
+        _searchResultModel.fansCount = @(fansCount);//[NSString stringWithFormat:@"%zd",fansCount];
+        _funsCountLabel.text = [NSString stringWithFormat:@"%zd  粉丝",fansCount];
+    } else {
+        NSInteger fansCount = [_searchResultModel.fansCount integerValue] - 1;
+        _searchResultModel.fansCount = @(fansCount);//[NSString stringWithFormat:@"%zd",fansCount];
+        _funsCountLabel.text = [NSString stringWithFormat:@"%zd  粉丝",fansCount];
+    }
+}
+
+@end

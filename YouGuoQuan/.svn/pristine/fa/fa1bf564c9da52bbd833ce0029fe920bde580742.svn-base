@@ -1,0 +1,51 @@
+//
+//  LoginData.m
+//  ShakeAround
+//
+//  Created by YM on 15/11/20.
+//  Copyright © 2015年 erick. All rights reserved.
+//
+
+#import "LoginData.h"
+#import <MJExtension.h>
+#import "EMClient.h"
+
+@implementation LoginData
+
+static LoginData *loginData = nil;
++ (instancetype)sharedLoginData {
+    static dispatch_once_t once_token;
+    dispatch_once(&once_token, ^{
+        loginData = [LoginData alloc];
+    });
+    return loginData;
+}
+
++ (instancetype)loginDataWithDict:(NSDictionary *)dict {
+    [LoginData mj_setupReplacedKeyFromPropertyName:^NSDictionary *{
+        return @{@"userId" : @"id"};
+    }];
+    loginData = [[LoginData alloc] initLoginDataWithDict:dict];
+    [[EMClient sharedClient] loginWithUsername:loginData.hxu
+                                      password:loginData.hxp];
+    return loginData;
+}
+
+- (instancetype)initLoginDataWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self = [LoginData mj_objectWithKeyValues:dict];
+        
+        if (!self.headImg) {
+            self.headImg = @"";
+        }
+        if (!self.nickName) {
+            self.nickName = @"";
+        }
+        if (!self.auditResult) {
+            self.auditResult = @"";
+        }
+    }
+    return self;
+}
+
+@end

@@ -1,0 +1,336 @@
+//
+//  ChooseLocationViewController.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 2017/1/1.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+#import "ChooseLocationViewController.h"
+#import "UIViewController+HUD.h"
+#import "AlertViewTool.h"
+
+@interface ChooseLocationViewController ()<UISearchBarDelegate, MKMapViewDelegate, CLLocationManagerDelegate>
+@property (nonatomic,   weak) IBOutlet MKMapView *mapView;
+@property (nonatomic,   weak) IBOutlet UISearchBar *searchBar;
+@property (nonatomic,   weak) IBOutlet UITableView *tableView;
+@property (nonatomic,   weak) IBOutlet UIButton *locationBtn;
+@property (nonatomic, strong) CLLocationManager *locationManager;
+@property (nonatomic, strong) MKMapItem  *currentMapItem;
+@property (nonatomic, strong) CLLocation *locatedLocation;
+@property (nonatomic, strong) NSMutableArray *locationArray;
+@property (nonatomic, strong) NSMutableArray *annotationArray;
+@end
+
+@implementation ChooseLocationViewController
+
+- (void)dealloc {
+    _mapView.delegate = nil;
+    _mapView = nil;
+    NSLog(@"%s",__func__);
+}
+
+- (NSMutableArray *)locationArray {
+    if (!_locationArray) {
+        _locationArray = [NSMutableArray new];
+    }
+    return _locationArray;
+}
+
+- (NSMutableArray *)annotationArray {
+    if (!_annotationArray) {
+        _annotationArray = [NSMutableArray new];
+    }
+    return _annotationArray;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [self configViewController];
+}
+
+- (void)configViewController {
+    self.title = @"位置";
+    
+    self.navigationController.navigationBar.tintColor = FontColor;
+    self.navigationController.navigationBar.barTintColor = BackgroundColor;
+    self.navigationController.navigationBar.backgroundColor = NavBackgroundColor;
+    
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"返回-黑"]
+                                                                 style:UIBarButtonItemStylePlain
+                                                                target:self
+                                                                action:@selector(actionGoBack)];
+    leftItem.imageInsets = UIEdgeInsetsMake(0, -6, 0, 0);
+    self.navigationItem.leftBarButtonItem = leftItem;
+    self.navigationItem.leftBarButtonItem.tintColor = [UIColor darkTextColor];
+    
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"发送"
+                                                                  style:UIBarButtonItemStylePlain
+                                                                 target:self
+                                                                 action:@selector(actionSendLocation)];
+    self.navigationItem.rightBarButtonItem = rightItem;
+    self.navigationItem.rightBarButtonItem.tintColor = NavColor;
+    self.navigationItem.rightBarButtonItem.enabled = NO;
+    
+    _tableView.rowHeight = 56;
+    
+    _mapView.delegate = self;
+    _mapView.showsUserLocation = YES;
+    _mapView.userTrackingMode = MKUserTrackingModeFollow;
+    _mapView.userInteractionEnabled = YES;
+    [_mapView setCenterCoordinate:_mapView.userLocation.coordinate zoomLevel:14 animated:NO];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                          action:@selector(actionEndEditing)];
+    [_mapView addGestureRecognizer:tap];
+    
+    [_mapView bringSubviewToFront:_locationBtn];
+}
+
+- (void)actionGoBack {
+    //[self dismissViewControllerAnimated:YES completion:nil];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma mark - 发送位置
+- (void)actionSendLocation {
+    UIImage *image = [self imageWithUIView:_mapView];
+    NSData *imageData = UIImageJPEGRepresentation(image, 0.01);
+    __weak typeof(self) weakself = self;
+    [NetworkTool uploadImage:imageData progress:^(NSString *key, float percent) {
+        
+    } success:^(NSString *url) {
+        [weakself actionSendLocationInfoBlock:url];
+    } failure:^{
+        [weakself actionSendLocationInfoBlock:nil];
+    }];
+    
+    //[self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)actionSendLocationInfoBlock:(NSString *)url {
+    if (self.sendLocationInfo) {
+        self.sendLocationInfo(self.currentMapItem.placemark, url);
+    }
+    [self actionGoBack];
+}
+
+- (void)actionEndEditing {
+    [self.searchBar endEditing:YES];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+    //    self.locationArray = nil;
+    //    self.annotationArray = nil;
+}
+
+#pragma mark - 根据location搜索周边地点
+- (void)searchNearByRegion:(CLLocation *)location searchKey:(NSString *)searchKey {
+    MKLocalSearchRequest *req = [[MKLocalSearchRequest alloc] init];
+    if (location) {
+        req.region = MKCoordinateRegionMakeWithDistance(location.coordinate, 500, 500);
+    }
+    
+    if (!searchKey) {
+        req.naturalLanguageQuery = @"place";
+    } else {
+        req.naturalLanguageQuery = searchKey;
+    }
+    
+    MKLocalSearch *ser = [[MKLocalSearch alloc] initWithRequest:req];
+    
+    __weak typeof(self) weakself = self;
+    [ser startWithCompletionHandler:^(MKLocalSearchResponse *response, NSError *error) {
+        NSArray *array = [NSArray arrayWithArray:response.mapItems];
+        [weakself.annotationArray removeAllObjects];
+        for (int i = 0; i < array.count; i++) {
+            MKMapItem *item = array[i];
+            MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
+            point.title = item.name;
+            point.subtitle = item.phoneNumber;
+            point.coordinate = item.placemark.coordinate;
+            [weakself.mapView addAnnotation:point];
+            [weakself.annotationArray addObject:point];
+        }
+        [weakself.locationArray removeAllObjects];
+        [weakself.locationArray addObjectsFromArray:array];
+        [weakself.tableView reloadData];
+        
+        if (weakself.locationArray.count) {
+            [weakself moveToMapItem:weakself.locationArray[0]];
+        }
+    }];
+    [self hideHud];
+}
+
+- (void)moveToMapItem:(MKMapItem *)mapItem {
+    [self hideHud];
+    
+    _currentMapItem = mapItem;
+    
+    self.navigationItem.rightBarButtonItem.enabled = mapItem != nil;
+    
+    MKCoordinateRegion region = MKCoordinateRegionMake(mapItem.placemark.coordinate, MKCoordinateSpanMake(0.01, 0.01));
+    [_mapView setRegion:[_mapView regionThatFits:region] animated:YES];
+}
+
+- (UIImage *)imageWithUIView:(UIView *)view {
+    UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.opaque, [[UIScreen mainScreen] scale]);
+    [view.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
+}
+
+#pragma mark - 开始定位
+- (IBAction)startLocation {
+    if ([CLLocationManager locationServicesEnabled]) {
+        if (!_locationManager) {
+            _locationManager = [[CLLocationManager alloc] init];
+            _locationManager.delegate = self;
+            _locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+            _locationManager.distanceFilter = 0.1;
+            [_locationManager requestWhenInUseAuthorization];
+        }
+        // 开始时时定位
+        [_locationManager startUpdatingLocation];
+        [self showHudInView:self.view hint:@"正在定位..."];
+    } else {
+        //提示用户无法进行定位操作
+        [SVProgressHUD showInfoWithStatus:@"请确认开启定位功能"];
+    }
+}
+
+#pragma mark - CLLocationManagerDelegate
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
+    [self hideHud];
+    if (locations.count) {
+        _locationBtn.selected = YES;
+        [_locationManager stopUpdatingLocation];
+        CLLocationCoordinate2D coordinate = _mapView.userLocation.coordinate;
+        _locatedLocation = [[CLLocation alloc] initWithLatitude:coordinate.latitude longitude:coordinate.longitude];
+        
+        __weak typeof(self) weakself = self;
+        CLGeocoder *geocoder = [[CLGeocoder alloc] init];
+        [geocoder reverseGeocodeLocation:_locatedLocation
+                       completionHandler:^(NSArray *placemarks, NSError *error) {
+                           if (placemarks.count) {
+                               CLPlacemark *place = [placemarks firstObject];
+                               [weakself searchNearByRegion:weakself.locatedLocation searchKey:place.name];
+                           }
+                       }];
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    switch (status) {
+        case kCLAuthorizationStatusNotDetermined:
+        {
+            if ([_locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+                [_locationManager requestWhenInUseAuthorization];
+            }
+        }
+            break;
+        case kCLAuthorizationStatusDenied:
+        {
+            [SVProgressHUD showInfoWithStatus:@"请到设置页面打开应用的定位服务"];
+        }
+        default:
+            break;
+    }
+}
+
+#pragma mark - MKMapViewDelegate
+- (void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error {
+    [self hideHud];
+}
+
+- (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation {
+    [self hideHud];
+    //放大地图到自身的经纬度位置。
+    CLLocationCoordinate2D coordinate = _mapView.userLocation.coordinate;
+    _locatedLocation = [[CLLocation alloc] initWithLatitude:coordinate.latitude longitude:coordinate.longitude];
+}
+
+- (nullable MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
+    static NSString *annoId = @"Annotation";
+    
+    // 获取可重用的锚点控件
+    MKAnnotationView *annoView = [mapView dequeueReusableAnnotationViewWithIdentifier:annoId];
+    // 如果可重用的锚点控件不存在，创建新的可重用锚点控件
+    if (!annoView) {
+        annoView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:annoId];
+    }
+    if ([annotation isKindOfClass:[MKUserLocation class]]) {
+        annoView.image = [UIImage imageNamed:@"位置-定位"];
+    }
+    
+    return annoView;
+}
+
+#pragma mark - UITableViewDataSource & delegate
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.locationArray.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Location"];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Location"];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.textLabel.textColor = FontColor;
+        cell.detailTextLabel.textColor = GaryFontColor;
+        cell.textLabel.font = [UIFont systemFontOfSize:14];
+        cell.detailTextLabel.font = [UIFont systemFontOfSize:12];
+    }
+    
+    MKMapItem *item = self.locationArray[indexPath.row];
+    MKPlacemark *placemark = item.placemark;
+    cell.textLabel.text = item.name;
+    
+    cell.detailTextLabel.text =  [NSString stringWithFormat:@"%@ %@ %@ %@ %@ %@",
+                                  placemark.country ? placemark.country : @"",
+                                  placemark.administrativeArea ? placemark.administrativeArea : @"",
+                                  placemark.locality ? placemark.locality : @"",
+                                  placemark.subLocality ? placemark.subLocality : @"",
+                                  placemark.thoroughfare ? placemark.thoroughfare : @"",
+                                  placemark.subThoroughfare ? placemark.subThoroughfare : @""];
+    if (item == self.currentMapItem) {
+        cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"位置-选中"]];
+    } else {
+        cell.accessoryView = nil;
+    }
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [self.searchBar endEditing:YES];
+    [self moveToMapItem:self.locationArray[indexPath.row]];
+    [self.tableView reloadData];
+}
+
+#pragma mark - UISearchBarDelegate
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.searchBar setShowsCancelButton:YES];
+}
+
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar {
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+    [self.searchBar setShowsCancelButton:NO];
+}
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    [self searchNearByRegion:_locatedLocation searchKey:searchBar.text];
+    [self.searchBar resignFirstResponder];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    self.searchBar.text = @"";
+    [self actionEndEditing];
+    [self searchNearByRegion:_locatedLocation searchKey:nil];
+}
+
+@end

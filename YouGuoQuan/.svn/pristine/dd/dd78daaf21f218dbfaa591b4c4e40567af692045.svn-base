@@ -1,0 +1,81 @@
+//
+//  UserBaseInfoModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+
+/**
+ 
+ 6  createTime = 1481601749000;
+ 31 updateTime = 1479192322000;
+
+ 7  email = "";
+ 14 idCardNo = "";
+ 15 imageCount = 1;
+ 16 isDelete = "";
+ 17 isLock = "";
+ 21 mobile = 13115019603;
+ 23 passwd = a007a68f3f1c05782080a418f8ea8289;
+ 25 qq = "";
+ 30 tags = "";
+ 32 wechat = "";
+ 
+ */
+
+@interface UserBaseInfoModel : NSObject
+// 用户ID
+@property (nonatomic,   copy) NSString *userId;
+// 头像url
+@property (nonatomic,   copy) NSString *headImg;
+// 昵称
+@property (nonatomic,   copy) NSString *nickName;
+// 性别
+@property (nonatomic,   copy) NSString *sex;
+// 城市
+@property (nonatomic,   copy) NSString *city;
+// 身高
+@property (nonatomic,   copy) NSString *height;
+// 体重
+@property (nonatomic,   copy) NSString *weight;
+// 星座
+@property (nonatomic,   copy) NSString *constellatory;
+// 工作
+@property (nonatomic,   copy) NSString *work;
+// 情感
+@property (nonatomic,   copy) NSString *emotion;
+// 省份
+@property (nonatomic,   copy) NSString *province;
+// 尤果认证
+@property (nonatomic,   copy) NSString *auditResult;
+// 真实姓名
+@property (nonatomic,   copy) NSString *realName;
+// 粉丝数
+@property (nonatomic,   copy) NSString *fansCount;
+// 关注数
+@property (nonatomic,   copy) NSString *focusCount;
+// 赞数
+@property (nonatomic,   copy) NSString *zanCount;
+// 好评率
+@property (nonatomic,   copy) NSString *rateOfPraise;
+// 经度
+@property (nonatomic,   copy) NSString *longitude;
+// 纬度
+@property (nonatomic,   copy) NSString *latitude;
+
+@property (nonatomic,   copy) NSString *coverImgUrl;
+// 是否认证（vip）
+@property (nonatomic, assign) BOOL audit;
+// 是否贵族
+@property (nonatomic, assign) BOOL isRecommend;
+// 等级
+@property (nonatomic, assign) int  star;
+
+
++ (instancetype)userBaseInfoModelWithDict:(NSDictionary *)dict;
+- (instancetype)initUserBaseInfoModelWithDict:(NSDictionary *)dict;
+@end

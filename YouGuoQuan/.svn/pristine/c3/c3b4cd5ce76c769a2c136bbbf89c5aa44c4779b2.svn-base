@@ -1,0 +1,38 @@
+//
+//  CityHelp.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/8.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CityHelp.h"
+
+@implementation CityHelp
+
++ (void)updateCitiesForLocation:(NSString *)city {
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"cities" ofType:@"plist"];
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:path];
+    NSArray *lastUseCities = [dictionary objectForKey:@"最近"];
+    NSMutableArray *muArray = [NSMutableArray arrayWithArray:lastUseCities];
+    if (![lastUseCities containsObject:city]) {
+        [muArray addObject:city];
+        [dictionary setValue:muArray forKey:@"最近"];
+    }
+    [dictionary setValue:@[city] forKey:@"定位"];
+    [dictionary writeToFile:path atomically:YES];
+}
+
++ (void)updateCitiesForSelection:(NSString *)city {
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"cities" ofType:@"plist"];
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:path];
+    NSArray *lastUseCities = [dictionary objectForKey:@"最近"];
+    NSMutableArray *muArray = [NSMutableArray arrayWithArray:lastUseCities];
+    if (![lastUseCities containsObject:city]) {
+        [muArray addObject:city];
+        [dictionary setValue:muArray forKey:@"最近"];
+        [dictionary writeToFile:path atomically:YES];
+    }
+}
+
+@end

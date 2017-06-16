@@ -1,0 +1,683 @@
+//
+//  UserCenterViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "UserCenterViewController.h"
+
+#import "OthersInfoViewController.h"
+#import "ReportViewController.h"
+#import "OthersFocusViewController.h"
+#import "OthersFunsViewController.h"
+#import "OthersFavoursViewController.h"
+#import "LookPhotosViewController.h"
+#import "ProductOrderViewController.h"
+
+#import "TrendsDetailViewController.h"
+#import "ProductDetailViewController.h"
+#import "BuyWeiXinViewController.h"
+#import "RewardViewController.h"
+
+#import "UserCenterHeaderView.h"
+#import "UserCenterTrendsViewCell.h"
+#import "UserCenterVideoViewCell.h"
+#import "UserCenterProductViewCell.h"
+#import "UserCenterRedEnvelopeViewCell.h"
+
+#import "ShareView.h"
+#import "AlertViewTool.h"
+
+#import "UserBaseInfoModel.h"
+#import "UserCenterModel.h"
+#import "HomeFocusModel.h"
+
+#import <MJRefresh.h>
+
+@interface UserCenterViewController ()
+@property (nonatomic, strong) UserBaseInfoModel *userBaseInfoModel;
+@property (nonatomic, assign, setter=setFocusButtonStatus:) BOOL isFocus;
+@property (nonatomic, assign, setter=setMessageButtonStatus:) BOOL isPullBlack;
+@property (nonatomic, assign, setter=setSellWeiXinButtonStatus:) BOOL isSellWX;
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@property (nonatomic, strong) NSMutableArray *sectionTitleArray;
+@property (nonatomic, strong) NSMutableArray *btnArray;
+@property (nonatomic, assign) int pageNo;
+@property (nonatomic, assign) int pageSize;
+@end
+
+static NSString * const tableViewCellID_trends   = @"UserCenterTrendsViewCell";
+static NSString * const tableViewCellID_video    = @"UserCenterVideoViewCell";
+static NSString * const tableViewCellID_product  = @"UserCenterProductViewCell";
+static NSString * const tableViewCellID_envelope = @"UserCenterRedEnvelopeViewCell";
+
+@implementation UserCenterViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray array];
+    }
+    return _modelArray;
+}
+
+- (NSMutableArray *)sectionTitleArray {
+    if (!_sectionTitleArray) {
+        _sectionTitleArray = [NSMutableArray array];
+    }
+    return _sectionTitleArray;
+}
+
+- (NSMutableArray *)btnArray {
+    if (!_btnArray) {
+        _btnArray = [NSMutableArray array];
+    }
+    return _btnArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [self configNavigation];
+    
+    [self configTableView];
+    
+    [self getUserBaseInfo];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.navigationController setNavigationBarHidden:NO animated:NO];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - 
+#pragma mark - 根据数据设置控件状态
+- (void)setUserBaseInfoModel:(UserBaseInfoModel *)userBaseInfoModel {
+    _userBaseInfoModel = userBaseInfoModel;
+    
+    UserCenterHeaderView *headerView = (UserCenterHeaderView *)self.tableView.tableHeaderView;
+    headerView.userBaseInfoModel = _userBaseInfoModel;
+}
+
+- (void)setFocusButtonStatus:(BOOL)isFocus {
+    _isFocus = isFocus;
+    
+    NSArray *items = self.navigationItem.rightBarButtonItems;
+    UIBarButtonItem *item = items[1];
+    UIButton *btn = item.customView;
+    btn.selected = isFocus;
+    
+    if (isFocus) {
+        [btn setTitle:@"已关注" forState:UIControlStateNormal];
+        [btn setImage:[UIImage imageNamed:@"已关注"] forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [btn setBackgroundImage:[UIImage imageNamed:@"禁用button"] forState:UIControlStateNormal];
+    } else {
+        [btn setTitle:@"关注" forState:UIControlStateNormal];
+        [btn setImage:[UIImage imageNamed:@"+"] forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor darkTextColor] forState:UIControlStateNormal];
+        [btn setBackgroundImage:[UIImage imageNamed:@"黄色Button"] forState:UIControlStateNormal];
+    }
+}
+
+- (void)setMessageButtonStatus:(BOOL)isPullBlack {
+    _isPullBlack = isPullBlack;
+    
+    //NSLog(@"isPullBlack = %d",isPullBlack);
+    
+    NSArray *items = self.navigationItem.rightBarButtonItems;
+    UIBarButtonItem *item = items[0];
+    UIButton *btn = item.customView;
+    btn.selected = isPullBlack;
+    
+    if (isPullBlack) {
+        [btn setBackgroundImage:[UIImage imageNamed:@"禁用button"] forState:UIControlStateNormal];
+    }
+}
+
+- (void)setSellWeiXinButtonStatus:(BOOL)isSellWX {
+    _isSellWX = isSellWX;
+    
+    //NSLog(@"isSellWX = %d",isSellWX);
+    
+    NSArray *items = self.navigationItem.rightBarButtonItems;
+    UIBarButtonItem *item = items[3];
+    UIButton *btn = item.customView;
+    btn.selected = !isSellWX;
+    if (!isSellWX) {
+        [btn setBackgroundImage:[UIImage imageNamed:@"禁用button"] forState:UIControlStateNormal];
+    }
+}
+
+#pragma mark -
+#pragma mark - 配置导航栏
+- (void)configNavigation {
+    NSArray *titles = @[@"聊天", @"关注", @"打赏", @"购买微信"];
+    NSArray *images = @[@"聊天", @"+", @"打赏", @"微信"];
+    NSArray *withs  = @[@50, @60, @50, @80];
+    
+    NSMutableArray *items = [NSMutableArray array];
+    for (NSUInteger i = 0; i < titles.count; i++) {
+        CGFloat btnW = [withs[i] floatValue];
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.frame = CGRectMake(0, 8, btnW, 28);
+        btn.layer.cornerRadius = 5;
+        btn.layer.masksToBounds = YES;
+        
+        btn.adjustsImageWhenHighlighted = NO;
+        btn.titleLabel.font = [UIFont systemFontOfSize:12];
+        [btn setTitle:titles[i] forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor darkTextColor] forState:UIControlStateNormal];
+        [btn setImage:[UIImage imageNamed:images[i]] forState:UIControlStateNormal];
+        [btn setBackgroundImage:[UIImage imageNamed:@"黄色Button"] forState:UIControlStateNormal];
+        
+        // add sel
+        switch (i) {
+            case 3:
+                [btn addTarget:self action:@selector(buyWeixin:) forControlEvents:UIControlEventTouchUpInside];
+                break;
+            case 2:
+                [btn addTarget:self action:@selector(rewardUser) forControlEvents:UIControlEventTouchUpInside];
+                break;
+            case 1:
+                [btn addTarget:self action:@selector(concemUser:) forControlEvents:UIControlEventTouchUpInside];
+                break;
+            case 0:
+                [btn addTarget:self action:@selector(messageUser) forControlEvents:UIControlEventTouchUpInside];
+                break;
+        }
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView:btn];
+        [items addObject:item];
+    }
+    self.navigationItem.rightBarButtonItems = items;
+    
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"返回-黑"]
+                                                                 style:UIBarButtonItemStylePlain
+                                                                target:self
+                                                                action:@selector(dismissViewController)];
+    leftItem.imageInsets = UIEdgeInsetsMake(0, -6, 0, 0);
+    self.navigationItem.leftBarButtonItem = leftItem;
+}
+
+#pragma mark -
+#pragma mark - 返回
+- (void)dismissViewController {
+    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark -
+#pragma mark - 配置TableView
+- (void)configTableView {
+    self.pageNo = 1;
+    self.pageSize = 10;
+    
+    UINib *nib_trends = [UINib nibWithNibName:tableViewCellID_trends bundle:nil];
+    [self.tableView registerNib:nib_trends forCellReuseIdentifier:tableViewCellID_trends];
+    
+    UINib *nib_video  = [UINib nibWithNibName:tableViewCellID_video bundle:nil];
+    [self.tableView registerNib:nib_video forCellReuseIdentifier:tableViewCellID_video];
+    
+    UINib *nib_product = [UINib nibWithNibName:tableViewCellID_product bundle:nil];
+    [self.tableView registerNib:nib_product forCellReuseIdentifier:tableViewCellID_product];
+    
+    UINib *nib_envelope = [UINib nibWithNibName:tableViewCellID_envelope bundle:nil];
+    [self.tableView registerNib:nib_envelope forCellReuseIdentifier:tableViewCellID_envelope];
+    
+    /**
+     *  header
+     */
+    UserCenterHeaderView *headerView = [UserCenterHeaderView loadUserCenterHeaderView];
+    
+    __weak typeof(self) weakself = self;
+    headerView.tapHeaderImageViewBlock = ^(id userData) {
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        OthersInfoViewController *userInfoVC = [homeSB instantiateViewControllerWithIdentifier:@"UserInfo"];
+        userInfoVC.userBaseInfoModel = weakself.userBaseInfoModel;
+        [weakself.navigationController pushViewController:userInfoVC animated:YES];
+    };
+    
+    headerView.actionSheetItemClicked = ^(NSUInteger buttonIndex) {
+        if (buttonIndex == 1) {
+            // 拉黑警告
+            [AlertViewTool showAlertViewWithTitle:nil Message:@"拉黑对方后，对方将无法与您聊天，您也无法查看对方动态，是否继续？" sureBlock:^{
+                // 拉黑操作
+                [NetworkTool doOperationWithType:@"3" userId:_userBaseInfoModel.userId operationType:@"1" success:^{
+                    [SVProgressHUD showSuccessWithStatus:@"已将对方拉黑"];
+                }];
+            }];
+        } else if (buttonIndex == 2) {
+            // 举报操作
+            UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+            ReportViewController *reportVC = [discoverySB instantiateViewControllerWithIdentifier:@"Report"];
+            reportVC.aboutId = _userBaseInfoModel.userId;
+            reportVC.reportType = ReportType_Person;
+            [weakself presentViewController:reportVC animated:YES completion:nil];
+        }
+    };
+    
+    headerView.shareButtonClickedBlock = ^{
+        ShareView *shareView = [ShareView shareView];
+        shareView.tapShareItem = ^(NSUInteger index) {
+            YGQLog(@"tapShareItem%ld",(unsigned long)index);
+        };
+        [self.navigationController.view addSubview:shareView];
+    };
+    
+    headerView.concemButtonClickedBlock = ^{
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        OthersFocusViewController *othersFocusVC = [homeSB instantiateViewControllerWithIdentifier:@"OthersFocus"];
+        othersFocusVC.userId = _userId;
+        [weakself.navigationController pushViewController:othersFocusVC animated:YES];
+    };
+    
+    headerView.funsButtonClickedBlock = ^{
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        OthersFunsViewController *othersFunsVC = [homeSB instantiateViewControllerWithIdentifier:@"OthersFuns"];
+        othersFunsVC.userId = _userId;
+        [weakself.navigationController pushViewController:othersFunsVC animated:YES];
+    };
+    
+    headerView.favourButtonClickedBlock = ^{
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        OthersFavoursViewController *othersFavoursVC = [homeSB instantiateViewControllerWithIdentifier:@"OthersFavours"];
+        othersFavoursVC.userId = _userId;
+        [weakself.navigationController pushViewController:othersFavoursVC animated:YES];
+    };
+    
+    self.tableView.tableHeaderView = headerView;
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, CGFLOAT_MIN)];
+    
+    // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingTarget:self
+                                                                     refreshingAction:@selector(loadNewData)];
+    
+    // 设置文字
+    [header setTitle:@"下拉刷新数据" forState:MJRefreshStateIdle];
+    [header setTitle:@"松开刷新" forState:MJRefreshStatePulling];
+    [header setTitle:@"加载中..." forState:MJRefreshStateRefreshing];
+    // 马上进入刷新状态
+    [header beginRefreshing];
+    // 设置刷新控件
+    self.tableView.mj_header = header;
+    
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self
+                                                                             refreshingAction:@selector(loadMoreData)];
+    // 设置文字
+    [footer setTitle:@"上拉刷新数据" forState:MJRefreshStateIdle];
+    [footer setTitle:@"加载更多..." forState:MJRefreshStateRefreshing];
+    [footer setTitle:@"到底了" forState:MJRefreshStateNoMoreData];
+    footer.automaticallyRefresh = NO;
+    footer.hidden = YES;
+    // 设置footer
+    self.tableView.mj_footer = footer;
+}
+
+#pragma mark -
+#pragma mark - 调接口
+- (void)getUserBaseInfo {
+    /**
+     *  TA的基本信息
+     */
+    __weak typeof(self) weakself = self;
+    [NetworkTool getOthersInfoWithUserId:_userId success:^(id result) {
+        weakself.isFocus = [result[@"isFocus"] boolValue];
+        weakself.isPullBlack = [result[@"isPullBlack"] boolValue];
+        weakself.isSellWX = [result[@"isSellWX"] boolValue];
+        weakself.userBaseInfoModel = [UserBaseInfoModel userBaseInfoModelWithDict:result[@"list"]];
+    }];
+    /**
+     *  TA的照片墙
+     */
+    [NetworkTool getOtherPhotosWithUserID:_userId success:^(id result) {
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in result) {
+            [muArray addObject:dict[@"imageUrl"]];
+        }
+        UserCenterHeaderView *headerView = (UserCenterHeaderView *)weakself.tableView.tableHeaderView;
+        headerView.photoArray = [muArray copy];
+    }];
+}
+
+- (void)loadNewData {
+    _pageNo = 1;
+    [self getUserTrendsList];
+}
+
+- (void)loadMoreData {
+    _pageNo++;
+    [self getUserTrendsList];
+}
+/**
+ *  TA发的动态
+ */
+- (void)getUserTrendsList {
+    __weak typeof(self) weakself = self;
+    [NetworkTool getOtherTrendsWithPageNo:@(_pageNo) pageSize:@(_pageSize) userID:_userId success:^(id result) {
+        NSArray *dateArray = [result valueForKey:@"dateString"];
+        NSSet *dateSet = [NSSet setWithArray:dateArray];
+        
+        if (weakself.pageNo == 1) {
+            __block NSUInteger totalCount = 0;
+            __block NSMutableArray *resultArray = [NSMutableArray array];
+            __block NSMutableArray *titleArray = [NSMutableArray array];
+            [dateSet enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
+                [titleArray addObject:obj];
+                NSPredicate *predicate = [NSPredicate predicateWithFormat:@"dateString == %@",obj];
+                NSArray *newArray = [result filteredArrayUsingPredicate:predicate];
+                totalCount += newArray.count;
+                NSMutableArray *muArray = [NSMutableArray array];
+                for (NSDictionary *dict in newArray) {
+                    UserCenterModel *model = [UserCenterModel userCenterModelWithDict:dict];
+                    [muArray addObject:model];
+                }
+                [resultArray addObject:muArray];
+            }];
+            weakself.sectionTitleArray = titleArray;
+            weakself.modelArray = resultArray;
+            [weakself.tableView reloadData];
+            [weakself.tableView.mj_header endRefreshing];
+            weakself.tableView.mj_footer.hidden = resultArray.count == 0;
+            if (totalCount < weakself.pageSize) {
+                [weakself.tableView.mj_footer endRefreshingWithNoMoreData];
+            } else {
+                [weakself.tableView.mj_footer resetNoMoreData];
+            }
+        } else {
+            __block NSUInteger totalCount = 0;
+            __block NSMutableArray *resultArray = weakself.modelArray;
+            __block NSMutableArray *titlesArray = weakself.sectionTitleArray;
+            [dateSet enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
+                if ([titlesArray containsObject:obj]) {
+                    NSInteger index = [titlesArray indexOfObject:obj];
+                    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"dateString == %@",obj];
+                    NSArray *newArray = [result filteredArrayUsingPredicate:predicate];
+                    totalCount += newArray.count;
+                    NSAssert2(index >= 0 && index < resultArray.count, @"index 越界: %ld \n &@", index, resultArray);
+                    NSMutableArray *muArray = [NSMutableArray arrayWithArray:resultArray[index]];
+                    for (NSDictionary *dict in newArray) {
+                        UserCenterModel *model = [UserCenterModel userCenterModelWithDict:dict];
+                        [muArray addObject:model];
+                    }
+                    [resultArray replaceObjectAtIndex:index withObject:muArray];
+                } else {
+                    [titlesArray addObject:obj];
+                    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"dateString == %@",obj];
+                    NSArray *newArray = [result filteredArrayUsingPredicate:predicate];
+                    totalCount += newArray.count;
+                    NSMutableArray *muArray = [NSMutableArray array];
+                    for (NSDictionary *dict in newArray) {
+                        UserCenterModel *model = [UserCenterModel userCenterModelWithDict:dict];
+                        [muArray addObject:model];
+                    }
+                    [resultArray addObject:muArray];
+                }
+            }];
+            weakself.sectionTitleArray = titlesArray;
+            weakself.modelArray = resultArray;
+            [weakself.tableView reloadData];
+            if (totalCount < weakself.pageSize) {
+                [weakself.tableView.mj_footer endRefreshingWithNoMoreData];
+            } else {
+                [weakself.tableView.mj_footer endRefreshing];
+            }
+        }
+    } failure:^{
+        if (weakself.pageNo == 1) {
+            [weakself.tableView.mj_header endRefreshing];
+        } else {
+            [weakself.tableView.mj_footer endRefreshing];
+        }
+    }];
+}
+
+#pragma mark -
+#pragma mark - 导航按钮方法
+- (void)buyWeixin:(UIButton *)sender {
+    if (sender.isSelected) {
+        return;
+    }
+    UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+    BuyWeiXinViewController *buyWXVC = [homeSB instantiateViewControllerWithIdentifier:@"BuyWeiXin"];
+    buyWXVC.price = @"1314";
+    buyWXVC.salerID = _userBaseInfoModel.userId;
+    [self presentViewController:buyWXVC animated:YES completion:nil];
+}
+
+- (void)rewardUser {
+    UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+    RewardViewController *rewardVC = [homeSB instantiateViewControllerWithIdentifier:@"Reward"];
+    rewardVC.headImg = _userBaseInfoModel.headImg;
+    rewardVC.userID  = _userId;
+    [self presentViewController:rewardVC animated:YES completion:nil];
+}
+
+- (void)concemUser:(UIButton *)btn {
+    __weak typeof(self) weakself = self;
+    if (btn.isSelected) {
+        [AlertViewTool showAlertViewWithTitle:nil Message:@"是否取消关注？" sureBlock:^{
+            // 取消关注
+            [NetworkTool doOperationWithType:@"1" userId:weakself.userBaseInfoModel.userId operationType:@"0" success:^{
+                [SVProgressHUD showSuccessWithStatus:@"已取消关注TA"];
+                weakself.isFocus = NO;
+            }];
+        }];
+    } else {
+        // 关注
+        [NetworkTool doOperationWithType:@"1" userId:weakself.userBaseInfoModel.userId operationType:@"1" success:^{
+            [SVProgressHUD showSuccessWithStatus:@"已关注TA"];
+            weakself.isFocus = YES;
+        }];
+    }
+}
+
+- (void)messageUser {
+    
+}
+
+#pragma mark -
+#pragma mark - 跳转到详情页
+- (void)popToDetailViewController:(UserCenterModel *)model {
+    if (model.feedsType == 3) {
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        ProductDetailViewController *productDetailVC = [homeSB instantiateViewControllerWithIdentifier:@"ProductDetail"];
+        productDetailVC.hidesBottomBarWhenPushed = YES;
+        productDetailVC.homeFocusModel = [self UserFocusModelToHomeCenterModel:model];
+        [self presentViewController:productDetailVC animated:YES completion:nil];
+    } else {
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        TrendsDetailViewController *trendsDetailVC = [homeSB instantiateViewControllerWithIdentifier:@"TrendsDetail"];
+        trendsDetailVC.hidesBottomBarWhenPushed = YES;
+        trendsDetailVC.homeFocusModel = [self UserFocusModelToHomeCenterModel:model];
+        [self.navigationController pushViewController:trendsDetailVC animated:YES];
+    }
+}
+
+#pragma mark -
+#pragma mark - 跳转到购买红包页
+- (void)popToBuyPacketViewController:(NSUInteger)price goodsID:(NSString *)goodsId feedsID:(NSString *)feedsId {
+    UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+    LookPhotosViewController *buyRedPacketVC = [homeSB instantiateViewControllerWithIdentifier:@"BuyRedEnvelope"];
+    buyRedPacketVC.headImg = _userBaseInfoModel.headImg;
+    buyRedPacketVC.nickName = _userBaseInfoModel.nickName;
+    buyRedPacketVC.price = price;
+    buyRedPacketVC.goodsId = goodsId;
+    buyRedPacketVC.feedsId = feedsId;
+    [self presentViewController:buyRedPacketVC animated:YES completion:nil];
+}
+
+#pragma mark -
+#pragma mark - 跳转到购买商品页
+- (void)popToBuyProductViewController:(UserCenterModel *)model {
+    UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+    ProductOrderViewController *productOrderVC = [homeSB instantiateViewControllerWithIdentifier:@"ProductOrderVC"];
+    productOrderVC.homeFocusModel = [self UserFocusModelToHomeCenterModel:model];
+    UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:productOrderVC];
+    [self presentViewController:navVC animated:YES completion:nil];
+}
+
+- (HomeFocusModel *)UserFocusModelToHomeCenterModel:(UserCenterModel *)model {
+    HomeFocusModel *homeFocusModel = [[HomeFocusModel alloc] init];
+    homeFocusModel.focusId             = model.trendsId;
+    homeFocusModel.goodsId             = model.goodsId;
+    homeFocusModel.userId              = model.userId;
+    homeFocusModel.imageUrl            = model.imageUrl;
+    homeFocusModel.buyCount            = model.buyCount;
+    homeFocusModel.commentCount        = model.commentCount;
+    homeFocusModel.recommendCount      = model.recommendCount;
+    homeFocusModel.buyCommentGoodCount = model.buyCommentGoodCount;
+    homeFocusModel.instro              = model.instro;
+    homeFocusModel.createTime          = model.createTime;
+    homeFocusModel.updateTime          = model.updateTime;
+    homeFocusModel.playTimes           = model.playTimes;
+    homeFocusModel.videoUrl            = model.videoUrl;
+    homeFocusModel.videoEvelope        = model.videoEvelope;
+    homeFocusModel.feedsType           = model.feedsType;
+    homeFocusModel.timeLineId          = @"";
+    homeFocusModel.sex                 = _userBaseInfoModel.sex;
+    homeFocusModel.headImg             = _userBaseInfoModel.headImg;
+    homeFocusModel.nickName            = _userBaseInfoModel.nickName;
+    homeFocusModel.star                = _userBaseInfoModel.star;
+    homeFocusModel.isBuy               = NO;
+    homeFocusModel.isRecommend         = _userBaseInfoModel.isRecommend;
+    homeFocusModel.isDelete            = NO;
+    homeFocusModel.praise              = NO;
+    homeFocusModel.cellHeight          = model.cellHeight + 48;
+    return homeFocusModel;
+}
+
+#pragma mark -
+#pragma mark - Table view data source
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return self.modelArray.count;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return [self.modelArray[section] count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UserCenterModel *model = self.modelArray[indexPath.section][indexPath.row];
+    __weak typeof(self) weakself = self;
+    if (model.feedsType == 1) {
+        UserCenterTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_trends forIndexPath:indexPath];
+        cell.commentBlock = ^(UserCenterModel *userCenterModel) {
+            [weakself popToDetailViewController:userCenterModel];
+        };
+        cell.userCenterModel = model;
+        return cell;
+    } else if (model.feedsType == 2) {
+        UserCenterVideoViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_video forIndexPath:indexPath];
+        cell.commentBlock = ^(UserCenterModel *userCenterModel) {
+            [weakself popToDetailViewController:userCenterModel];
+        };
+        cell.userCenterModel = model;
+        return cell;
+    } else if (model.feedsType == 3) {
+        UserCenterProductViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_product forIndexPath:indexPath];
+        cell.buyButtonClickedBlock = ^(UserCenterModel *userCenterModel) {
+            [weakself popToBuyProductViewController:userCenterModel];
+        };
+        cell.userCenterModel = model;
+        return cell;
+    } else {
+        UserCenterRedEnvelopeViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_envelope forIndexPath:indexPath];
+        cell.buyRedPacketBlock =  ^(NSUInteger price, NSString *goodsId, NSString *feedsId) {
+            [weakself popToBuyPacketViewController:price goodsID:goodsId feedsID:feedsId];
+        };
+        cell.commentBlock = ^(UserCenterModel *userCenterModel) {
+            [weakself popToDetailViewController:userCenterModel];
+        };
+        cell.userCenterModel = model;
+        return cell;
+    }
+}
+
+#pragma mark -
+#pragma mark - Table View Delegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UserCenterModel *model = self.modelArray[indexPath.section][indexPath.row];
+    return model.cellHeight;
+}
+
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
+    if ([cell isKindOfClass:[UserCenterVideoViewCell class]]) {
+        UserCenterVideoViewCell *videoCell = (UserCenterVideoViewCell *)cell;
+        [videoCell releaseWMPlayer];
+    }
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 36)];
+    //headerView.backgroundColor = [UIColor lightGrayColor];
+    UIImageView *topImageView = [[UIImageView alloc] initWithFrame:CGRectMake(WIDTH - 36, 0, 36, 36)];
+    topImageView.image = [UIImage imageNamed:@"置顶"];
+    topImageView.hidden = section != 0;
+    [headerView addSubview:topImageView];
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_GB"];
+    dateFormatter.timeZone = [NSTimeZone timeZoneWithName:@"GMT"];
+    dateFormatter.dateFormat = @"yyyyMMdd";
+    NSString *sectionTitle = self.sectionTitleArray[section];
+    NSDate *oldDate = [dateFormatter dateFromString:sectionTitle];
+    dateFormatter.dateFormat = @"yyyy.MM.dd";
+    NSString *newDateString = [dateFormatter stringFromDate:oldDate];
+    UILabel *dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, 15, 100, 21)];
+    dateLabel.text = newDateString;
+    dateLabel.textColor = [UIColor darkTextColor];
+    dateLabel.font = [UIFont systemFontOfSize:17];
+    [headerView addSubview:dateLabel];
+    return headerView;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    UIView *footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 12)];
+    footerView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
+    return footerView;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 36;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    return 12;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    if ([cell isKindOfClass:[UserCenterVideoViewCell class]]) {
+        UserCenterVideoViewCell *videoCell = (UserCenterVideoViewCell *)cell;
+        [videoCell stopWMPlayer];
+    }
+    // 跳详情页
+    UserCenterModel *userCenterModel = self.modelArray[indexPath.section][indexPath.row];
+    [self popToDetailViewController:userCenterModel];
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

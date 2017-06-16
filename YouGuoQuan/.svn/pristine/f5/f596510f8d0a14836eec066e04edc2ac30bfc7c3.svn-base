@@ -1,0 +1,61 @@
+//
+//  MyDailyTaskModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/16.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ list =     {
+ createTime = 1484552778676;
+ id = "64842e13-1518-4dbd-b77a-9a5ac2b66fe2";
+ isComplete = "";
+ isDelete = 0;
+ lastOperateDate = "";
+ taskComment = 0;
+ taskCommentLimit = 10;
+ taskCommentNum = "<null>";
+ taskRedBagPhoto = 0;
+ taskRedBagPhotoLimit = 2;
+ taskRedBagPhotoNum = "<null>";
+ taskReward = 0;
+ taskRewardLimit = 2;
+ taskRewardNum = "<null>";
+ taskZan = 0;
+ taskZanLimit = 10;
+ taskZanNum = "<null>";
+ updateTime = 1484552778676;
+ userId = "";
+ };
+ */
+@interface MyDailyTaskModel : NSObject
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *updateTime;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *lastOperateDate;
+
+@property (nonatomic, assign) int taskComment;
+@property (nonatomic, assign) int taskCommentLimit;
+@property (nonatomic, assign) int taskCommentNum;
+
+@property (nonatomic, assign) int taskRedBagPhoto;
+@property (nonatomic, assign) int taskRedBagPhotoLimit;
+@property (nonatomic, assign) int taskRedBagPhotoNum;
+
+@property (nonatomic, assign) int taskReward;
+@property (nonatomic, assign) int taskRewardLimit;
+@property (nonatomic, assign) int taskRewardNum;
+
+@property (nonatomic, assign) int taskZan;
+@property (nonatomic, assign) int taskZanLimit;
+@property (nonatomic, assign) int taskZanNum;
+
+@property (nonatomic, assign) BOOL isComplete;
+@property (nonatomic, assign) BOOL isDelete;
+
++ (instancetype)myDailyTaskModelWithDict:(NSDictionary *)dict;
+- (instancetype)initMyDailyTaskModelWithDict:(NSDictionary *)dict;
+@end

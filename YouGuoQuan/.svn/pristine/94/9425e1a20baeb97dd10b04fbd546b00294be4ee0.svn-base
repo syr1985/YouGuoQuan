@@ -1,0 +1,25 @@
+//
+//  MyDailyTaskModel.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/16.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "MyDailyTaskModel.h"
+#import <MJExtension.h>
+
+@implementation MyDailyTaskModel
+
++ (instancetype)myDailyTaskModelWithDict:(NSDictionary *)dict {
+    return [[MyDailyTaskModel alloc] initMyDailyTaskModelWithDict:dict];
+}
+
+- (instancetype)initMyDailyTaskModelWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self = [MyDailyTaskModel mj_objectWithKeyValues:dict];
+    }
+    return self;
+}
+
+@end

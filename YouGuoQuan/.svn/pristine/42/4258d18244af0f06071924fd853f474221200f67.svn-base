@@ -1,0 +1,288 @@
+//
+//  FocusViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/5.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "FocusViewController.h"
+
+#import "FocusTrendsViewCell.h"
+#import "FocusVideoViewCell.h"
+#import "FocusProductViewCell.h"
+#import "FocusRedEnvelopeViewCell.h"
+
+#import "SCNavTabBar.h"
+#import "AlertViewTool.h"
+//#import "ZMLKeyboardView.h"
+#import "ChatKeyBoard.h"
+#import "FaceSourceManager.h"
+
+#import "HomeFocusModel.h"
+#import <Masonry.h>
+
+@interface FocusViewController () <SCNavTabBarDelegate, UITableViewDelegate, UITableViewDataSource, ChatKeyBoardDelegate, ChatKeyBoardDataSource>
+@property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) SCNavTabBar *navTabBar;
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@property (nonatomic, strong) ChatKeyBoard *keyBoard;
+@property (nonatomic,   copy) NSString *currentCommentFocusId;
+@end
+
+static NSString * const tableViewCellID_trends   = @"FocusTrendsViewCell";
+static NSString * const tableViewCellID_video    = @"FocusVideoViewCell";
+static NSString * const tableViewCellID_product  = @"FocusProductViewCell";
+static NSString * const tableViewCellID_envelope = @"FocusRedEnvelopeViewCell";
+
+@implementation FocusViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (UITableView *)tableView {
+    if (!_tableView) {
+        _tableView = [[UITableView alloc] init];
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+        _tableView.showsVerticalScrollIndicator = NO;
+        _tableView.showsHorizontalScrollIndicator = NO;
+        [self.view addSubview:_tableView];
+        [_tableView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(self.view.mas_top);
+            make.left.equalTo(self.view.mas_left);
+            make.right.equalTo(self.view.mas_right);
+            make.bottom.equalTo(self.view.mas_bottom);
+        }];
+    }
+    return _tableView;
+}
+
+- (SCNavTabBar *)navTabBar {
+    if (!_navTabBar) {
+        _navTabBar = [[SCNavTabBar alloc] initWithFrame:CGRectMake(0, 0, WIDTH, 40) showArrowButton:NO];
+        _navTabBar.delegate = self;
+        _navTabBar.backgroundColor = NavColor;
+        _navTabBar.itemTitles = @[@"尤果", @"关注"];
+        _navTabBar.bHandleItem = YES;
+        [_navTabBar updateData];
+    }
+    return _navTabBar;
+}
+
+- (ChatKeyBoard *)keyBoard {
+    if (!_keyBoard) {
+        _keyBoard = [ChatKeyBoard keyBoardWithParentViewBounds:self.view.bounds];
+        _keyBoard.delegate = self;
+        _keyBoard.dataSource = self;
+        _keyBoard.allowFace = true;
+        _keyBoard.allowVoice = false;
+        _keyBoard.allowMore = false;
+        _keyBoard.tabbarHidden = YES;
+        _keyBoard.placeHolder = @"说点什么吧";
+        _keyBoard.keyBoardStyle = KeyBoardStyleComment;
+        
+        [self.view addSubview:_keyBoard];
+    }
+    return _keyBoard;
+}
+
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray array];
+    }
+    return _modelArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [self configViewController];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    _navTabBar.currentItemIndex = 1;
+    
+    [self loadDataFromServer];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+#pragma mark -
+#pragma mark - 配置控制器
+- (void)configViewController {
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    self.tableView.estimatedRowHeight = 100;
+    
+    self.tableView.tableHeaderView = self.navTabBar;
+    
+    UINib *nib_trends = [UINib nibWithNibName:tableViewCellID_trends bundle:nil];
+    [self.tableView registerNib:nib_trends forCellReuseIdentifier:tableViewCellID_trends];
+    
+    UINib *nib_video  = [UINib nibWithNibName:tableViewCellID_video bundle:nil];
+    [self.tableView registerNib:nib_video forCellReuseIdentifier:tableViewCellID_video];
+    
+    UINib *nib_product = [UINib nibWithNibName:tableViewCellID_product bundle:nil];
+    [self.tableView registerNib:nib_product forCellReuseIdentifier:tableViewCellID_product];
+    
+    UINib *nib_envelope = [UINib nibWithNibName:tableViewCellID_envelope bundle:nil];
+    [self.tableView registerNib:nib_envelope forCellReuseIdentifier:tableViewCellID_envelope];
+}
+
+#pragma mark -
+#pragma mark - 从服务器加载数据
+- (void)loadDataFromServer {
+    [NetworkTool getHomeFocusListWithPageNo:@"1" pageSize:@"10" success:^(id result) {
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in result) {
+            HomeFocusModel *model = [HomeFocusModel homeFocusModelWithDict:dict];
+            [muArray addObject:model];
+        }
+        self.modelArray = muArray;
+        [self.tableView reloadData];
+    }];
+}
+
+#pragma mark -
+#pragma mark - 更多按钮点击底部弹出ActionSheet
+- (void)moreButtonClicked:(NSUInteger)buttonIndex {
+    if (buttonIndex == 1) {
+        // 拉黑警告
+        [AlertViewTool showAlertViewWithTitle:nil Message:@"拉黑对方后，对方将无法与您聊天，您也无法查看对方动态，是否继续？" sureBlock:^{
+            // 拉黑操作
+        }];
+    } else if (buttonIndex == 2) {
+        // 举报操作
+        UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+        UIViewController *reportVC = [discoverySB instantiateViewControllerWithIdentifier:@"Report"];
+        [self presentViewController:reportVC animated:YES completion:nil];
+    }
+}
+
+#pragma mark -
+#pragma mark - 评论弹出自定义键盘
+- (void)popupKeyboard {
+    [self.keyBoard beginComment];
+}
+
+#pragma mark -
+#pragma mark - ChatKeyBoardDataSource
+- (NSArray<ChatToolBarItem *> *)chatKeyBoardToolbarItems {
+    return [FaceSourceManager loadToolBarItems];
+}
+
+- (NSArray<FaceSubjectModel *> *)chatKeyBoardFacePanelSubjectItems {
+    return [FaceSourceManager loadFaceSource];
+}
+
+#pragma mark -
+#pragma mark - 发送文本
+- (void)chatKeyBoardSendText:(NSString *)text {
+    NSLog(@"SendText : %@",text);
+    [[NSNotificationCenter defaultCenter] postNotificationName:kCommentSuccessNotification
+                                                        object:nil
+                                                      userInfo:@{@"CommentContent":text,
+                                                                 @"CurrentFocusID":_currentCommentFocusId}];
+}
+
+#pragma mark -
+#pragma mark - SCNavTabBarDelegate
+- (void)itemDidSelectedWithIndex:(NSInteger)index {
+    if (index != 1) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"TopNavItem"
+                                                            object:nil
+                                                          userInfo:@{@"ItemIndex":@(index)}];
+    }
+}
+
+#pragma mark -
+#pragma mark - Table view data source
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.modelArray.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    HomeFocusModel *model = self.modelArray[indexPath.row];
+    __weak typeof(self) weakself = self;
+    if (model.feedsType == 1) {
+        FocusTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_trends forIndexPath:indexPath];
+        cell.commentBlock = ^(NSString *focusId){
+            weakself.currentCommentFocusId = focusId;
+            [weakself popupKeyboard];
+        };
+        cell.actionSheetItemClicked = ^(NSUInteger index) {
+            [weakself moreButtonClicked:index];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    } else if (model.feedsType == 2) {
+        FocusVideoViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_video forIndexPath:indexPath];
+        cell.favoursBlock = ^{
+            
+        };
+        cell.commentBlock = ^{
+            [weakself popupKeyboard];
+        };
+        cell.actionSheetItemClicked = ^(NSUInteger index) {
+            [weakself moreButtonClicked:index];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    } else if (model.feedsType == 3) {
+        FocusProductViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_product forIndexPath:indexPath];
+        cell.actionSheetItemClicked = ^(NSUInteger index) {
+            [weakself moreButtonClicked:index];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    } else {
+        FocusRedEnvelopeViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_envelope forIndexPath:indexPath];
+        cell.favoursBlock = ^{
+            
+        };
+        cell.commentBlock = ^{
+            [weakself popupKeyboard];
+        };
+        cell.actionSheetItemClicked = ^(NSUInteger index) {
+            [weakself moreButtonClicked:index];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    }
+}
+
+#pragma mark - UITableViewDelegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    HomeFocusModel *model = self.modelArray[indexPath.row];
+    return model.cellHeight;
+}
+
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
+    HomeFocusModel *model = self.modelArray[indexPath.row];
+    if (model.feedsType == 2) {
+        FocusVideoViewCell *videoCell = (FocusVideoViewCell *)cell;
+        [videoCell releaseWMPlayer];
+    }
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

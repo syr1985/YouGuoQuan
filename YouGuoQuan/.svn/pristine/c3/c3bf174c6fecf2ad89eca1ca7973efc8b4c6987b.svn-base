@@ -1,0 +1,180 @@
+//
+//  PersonDataViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "PersonDataViewController.h"
+#import "LocationViewController.h"
+#import "ModifyNameViewController.h"
+#import <UIImageView+WebCache.h>
+#import "TakePhotoHelp.h"
+#import "UserBaseInfoModel.h"
+#import <LCActionSheet.h>
+
+@interface PersonDataViewController ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sexLabel;
+@property (weak, nonatomic) IBOutlet UILabel *cityLabel;
+@property (weak, nonatomic) IBOutlet UILabel *heightLabel;
+@property (weak, nonatomic) IBOutlet UILabel *weightLabel;
+@property (weak, nonatomic) IBOutlet UILabel *zodiacLabel;
+@property (weak, nonatomic) IBOutlet UILabel *workLabel;
+@property (weak, nonatomic) IBOutlet UILabel *motionLabel;
+
+@end
+
+@implementation PersonDataViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.titleString = @"个人资料";    
+    self.headerImageView.layer.cornerRadius = self.headerImageView.frame.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:_userBaseInfoModel.headImg]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.nickNameLabel.text = _userBaseInfoModel.nickName;
+    self.sexLabel.text      = _userBaseInfoModel.sex;
+    self.cityLabel.text     = _userBaseInfoModel.city;
+    self.heightLabel.text   = _userBaseInfoModel.height;
+    self.weightLabel.text   = _userBaseInfoModel.weight;
+    self.zodiacLabel.text   = _userBaseInfoModel.constellatory;
+    self.workLabel.text     = _userBaseInfoModel.work;
+    self.motionLabel.text   = _userBaseInfoModel.emotion;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 4;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (section == 0) {
+        return 1;
+    } else if (section == 3) {
+        return 2;
+    } else  {
+        return 3;
+    }
+}
+
+//我的-单项修改我的资料 mtype取值headImg nickName sex city height weight constellatory work emotion coverImgUrl
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    __weak typeof(self) weakself = self;
+    if (indexPath.section == 0) {
+        [[TakePhotoHelp sharedInstance] showActionSheetWithTitle:@"修改头像" viewController:self returnBlock:^(BOOL isCover, NSArray<UIImage *> *photos) {
+            if (photos.count) {
+                NSData *imageDate = UIImageJPEGRepresentation(photos[0], 0.1);
+                [NetworkTool uploadImage:imageDate progress:^(NSString *key, float percent) {
+                    [SVProgressHUD showProgress:percent];
+                } success:^(NSString *url) {
+                    [SVProgressHUD dismiss];
+                    [NetworkTool modifyPersonInfoWithType:@"headImg" value:url success:^{
+                        [SVProgressHUD showSuccessWithStatus:@"修改头像成功"];
+                        weakself.userBaseInfoModel.headImg = url;
+                        [LoginData sharedLoginData].headImg = url;
+                        [weakself.headerImageView sd_setImageWithURL:[NSURL URLWithString:url]
+                                                    placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+                    } failure:^{
+                        [SVProgressHUD showSuccessWithStatus:@"修改头像失败"];
+                    }];
+                } failure:^{
+                    [SVProgressHUD showErrorWithStatus:@"上传图片失败"];
+                }];
+            }
+        }];
+    } else if (indexPath.section == 1) {
+        if (indexPath.row == 1) {
+            LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:@"修改性别" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+                if (buttonIndex != 0) {
+                    NSString *sex = buttonIndex == 1 ? @"男" : @"女";
+                    [NetworkTool modifyPersonInfoWithType:@"sex" value:sex success:^{
+                        [SVProgressHUD showSuccessWithStatus:@"修改性别成功"];
+                        weakself.userBaseInfoModel.sex = sex;
+                        weakself.sexLabel.text = sex;
+                    } failure:^{
+                        [SVProgressHUD showSuccessWithStatus:@"修改性别失败"];
+                    }];
+                }
+            } otherButtonTitles:@"男",@"女", nil];
+            [actionSheet show];
+        } else if (indexPath.row == 2) {
+            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+            LocationViewController *locationVC = [storyboard instantiateViewControllerWithIdentifier:@"LocationVC"];
+            locationVC.hidesBottomBarWhenPushed = YES;
+            __weak typeof(self) weakself = self;
+            locationVC.cityBlock = ^(NSString *city) {
+                [NetworkTool modifyPersonInfoWithType:@"city" value:city success:^{
+                    [SVProgressHUD showSuccessWithStatus:@"修改城市成功"];
+                    weakself.userBaseInfoModel.city = city;
+                    weakself.cityLabel.text = city;
+                } failure:^{
+                    [SVProgressHUD showSuccessWithStatus:@"修改城市失败"];
+                }];
+            };
+            [self.navigationController pushViewController:locationVC animated:YES];
+        } else {
+            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Center" bundle:nil];
+            ModifyNameViewController *modifyVC = [storyboard instantiateViewControllerWithIdentifier:@"ModifyNameVC"];
+            modifyVC.hidesBottomBarWhenPushed = YES;
+            __weak typeof(self) weakself = self;
+            modifyVC.saveNickNameSuccess = ^(NSString *nickName) {
+                weakself.userBaseInfoModel.nickName = nickName;
+                [LoginData sharedLoginData].nickName = nickName;
+                weakself.nickNameLabel.text = nickName;
+            };
+            [self.navigationController pushViewController:modifyVC animated:YES];
+        }
+    } else if (indexPath.section == 3) {
+        if (indexPath.row == 1) {
+            LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:@"修改情感状态" cancelButtonTitle:@"取消" clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+                if (buttonIndex != 0) {
+                    NSString *emotion = @"";
+                    switch (buttonIndex) {
+                        case 1:
+                            emotion = @"单身";
+                            break;
+                        case 2:
+                            emotion = @"恋爱";
+                            break;
+                        case 3:
+                            emotion = @"保密";
+                            break;
+                    }
+                    [NetworkTool modifyPersonInfoWithType:@"emotion" value:emotion success:^{
+                        [SVProgressHUD showSuccessWithStatus:@"修改情感状态成功"];
+                        weakself.userBaseInfoModel.emotion = emotion;
+                        weakself.motionLabel.text = emotion;
+                    } failure:^{
+                        [SVProgressHUD showSuccessWithStatus:@"修改情感状态失败"];
+                    }];
+                }
+            } otherButtonTitles:@"单身",@"恋爱",@"保密", nil];
+            [actionSheet show];
+        }
+    }
+}
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

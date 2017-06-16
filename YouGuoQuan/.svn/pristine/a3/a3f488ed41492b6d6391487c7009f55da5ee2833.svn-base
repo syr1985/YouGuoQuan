@@ -1,0 +1,65 @@
+//
+//  LongPressCommentHelp.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "LongPressCommentHelp.h"
+#import <LCActionSheet.h>
+
+@interface LongPressCommentHelp () <LCActionSheetDelegate>
+@property (nonatomic, assign) MenuType menuType;
+@property (nonatomic, assign) BOOL isShowing;
+@end
+
+@implementation LongPressCommentHelp
+
+static LongPressCommentHelp *_instance;
++ (instancetype)sharedInstance {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _instance = [[self alloc] init];
+    });
+    return _instance;
+}
+
+- (void)showLongPressMenuWithType:(MenuType)type returnBlock:(void (^)(NSUInteger index))returnBlock {
+    if (!_isShowing) {
+        _menuType = type;
+        LCActionSheet *actionSheet = nil;
+        if (type == MenuType_LongPressSelfTrends) {
+            actionSheet = [LCActionSheet sheetWithTitle:nil
+                                               delegate:self
+                                      cancelButtonTitle:@"取消"
+                                      otherButtonTitles:@"复制评论",@"举报评论",@"删除评论",nil];
+        } else if (type == MenuType_LongPressSelfComment) {
+            actionSheet = [LCActionSheet sheetWithTitle:nil
+                                               delegate:self
+                                      cancelButtonTitle:@"取消"
+                                      otherButtonTitles:@"删除评论",nil];
+        } else {
+            actionSheet = [LCActionSheet sheetWithTitle:nil
+                                               delegate:self
+                                      cancelButtonTitle:@"取消"
+                                      otherButtonTitles:@"复制评论",@"举报评论",nil];
+        }
+        
+        if (returnBlock) {
+            _actionSheetItemClicked = [returnBlock copy];
+        }
+        [actionSheet show];
+        _isShowing = YES;
+    }
+}
+
+#pragma mark - LCActionSheet Delegate
+
+- (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    _isShowing = NO;
+    if (_actionSheetItemClicked) {
+        _actionSheetItemClicked(buttonIndex);
+    }
+}
+@end

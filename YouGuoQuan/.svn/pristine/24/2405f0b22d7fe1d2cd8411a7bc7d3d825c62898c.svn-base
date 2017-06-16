@@ -1,0 +1,32 @@
+//
+//  OthersFocusModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/16.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+//audit = 1;
+//headImg = "http://7xtk9y.com1.z0.glb.clouddn.com/ff66285ddfdf6ba9254558c176373d33.jpg";
+//id = "86d1051e-0cf6-4010-9f87-a660d67c7b3d";
+//isMyFans = 1;
+//isRecommend = 1;
+//nickName = an;
+//star = 1;
+//work = "\U6a21\U7279";
+
+@interface OthersFocusModel : NSObject
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *work;
+@property (nonatomic, assign) BOOL audit;
+@property (nonatomic, assign) BOOL isMyFans;
+@property (nonatomic, assign) BOOL isRecommend;
+@property (nonatomic, assign) int  star;
+
++ (instancetype)othersFocusModelWithDict:(NSDictionary *)dict;
+- (instancetype)initOthersFocusModelWithDict:(NSDictionary *)dict;
+@end

@@ -1,0 +1,87 @@
+//
+//  PayTool.m
+//  RoomService
+//
+//  Created by YM on 16/4/27.
+//  Copyright © 2016年 SYR. All rights reserved.
+//
+
+#import "FuqianlaPayTool.h"
+#import "FuqianlaPay.h"
+
+#define FUQIANLA_APP_ID  @"2y7httSuYAc6UdmYqeewjQ"
+#define FUQIANLA_APP_URL @"http://121.40.159.39:8080/YGQ/notify/payNotice"
+
+/**
+ kCEPayResultSuccess 支付成功
+ kCEPayResultFail 支付失败
+ kCEPayResultProcessing 支付进行中
+ kCEPayResultCancel 支付取消
+ kCEPayResultParamError 参量错误
+ kCEPayResultUnknow 其他错误
+ 
+ 微信支付 kPTWeixinPay
+ 支付宝支付 kPTAlipay
+ 
+ {"payMethod":"wx","busi":"mid"}         payMethod:zfb wx      busi:midpay immpay fillmoney tranmoney
+ */
+
+@implementation FuqianlaPayTool
+
++ (void)payWithType:(NSString *)payType dataParam:(NSDictionary *)dataInfo success:(void (^)())success {
+    
+    CEPayType payMethod = [payType isEqualToString:@"zfb"] ? kPTAlipay : kPTWeixinPay;
+    // 付钱啦入口
+    FuqianlaPay *manager = [FuqianlaPay sharedPayManager];
+    
+    NSString *orderNo = dataInfo[@"orderNo"];
+    NSString *payTarget = nil;
+    if ([orderNo hasPrefix:@"RE"]) {
+        payTarget  = @"tranmoney";
+    } else if ([orderNo hasPrefix:@"CF"] || [orderNo hasPrefix:@"RP"] || [orderNo hasPrefix:@"NB"]) {
+        payTarget  = @"immpay";
+    } else if ([orderNo hasPrefix:@"NM"] || [orderNo hasPrefix:@"WX"] || [orderNo hasPrefix:@"DT"]) {
+        payTarget  = @"midpay";
+    } else {
+        payTarget  = @"fillwallet";
+    }
+    
+    NSString *optional = [NSString stringWithFormat:@"busi:%@;payMethod:%@",payTarget,payType];
+    
+    // 参量设置
+    manager.transactionParams = @{@"app_id":FUQIANLA_APP_ID,
+                                  @"order_no":dataInfo[@"orderNo"],
+                                  @"pmtTp":@(payMethod),
+                                  @"amount":@"0.01",//dataInfo[@"amount"]
+                                  @"subject":dataInfo[@"orderNo"],// 商品标题
+                                  @"body":dataInfo[@"desc"],//商品描述
+                                  @"notify_url":FUQIANLA_APP_URL,
+                                  @"optional":optional};//
+    
+    NSLog(@"%@",manager.transactionParams);
+    
+    // 支付结果
+    manager.payStatusCallBack = ^(CEPaymentStatus payStatus, NSString *result){
+        if (payStatus == kCEPayResultSuccess) {
+            if (success) {
+                success();
+            }
+            NSLog(@"%@",dataInfo[@"orderNo"]);
+            [NetworkTool checkOrderStatusOrderNo:dataInfo[@"orderNo"] success:^{
+                
+            } failure:^{
+                NSLog(@"failure - %@",dataInfo[@"orderNo"]);
+            }];
+        }
+    };
+    // 开始支付
+    [manager startPayAction];
+}
+
+//+ (NSString *)dictionaryToJson:(NSDictionary *)dic {
+//    NSError *error = nil;
+//    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:&error];
+//    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+//}
+
+@end

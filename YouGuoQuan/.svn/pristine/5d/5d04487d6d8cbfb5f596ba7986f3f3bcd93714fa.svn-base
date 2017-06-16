@@ -1,0 +1,34 @@
+//
+//  BaseTabBarController.m
+//  ShakeAround
+//
+//  Created by erick on 15/11/18.
+//  Copyright © 2015年 erick. All rights reserved.
+//
+
+#import "BaseTabBarController.h"
+
+@interface BaseTabBarController ()
+
+@end
+
+@implementation BaseTabBarController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.tabBar.tintColor = NavColor;
+    //self.tabBar.backgroundColor = [UIColor whiteColor];
+    
+    NSArray *itemsArray = self.tabBar.items;
+    
+    for (UITabBarItem *item in itemsArray) {
+        if ([item.title isEqualToString:@"发布"]) {
+            item.image = [[UIImage imageNamed:@"发布"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];//这里用原图       
+            item.imageInsets = UIEdgeInsetsMake(6, 0, -6, 0);
+        } 
+    }
+}
+
+@end

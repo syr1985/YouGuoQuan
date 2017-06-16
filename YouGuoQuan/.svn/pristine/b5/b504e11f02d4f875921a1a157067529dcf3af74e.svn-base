@@ -1,0 +1,19 @@
+//
+//  SystemMessageCellTableViewCell.h
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/9.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SystemMessageCell : UITableViewCell
+
+
+- (void) refreshContent:(id) content;
+
++ (CGFloat) cellHeightWithText : (NSString *) text;
+
+
+@end

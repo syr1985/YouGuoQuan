@@ -1,0 +1,15 @@
+//
+//  MyIncomeViewCell.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/17.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@class MyConsumeModel;
+@interface MyConsumeViewCell : UITableViewCell
+@property (nonatomic, strong) MyConsumeModel *myConsumeModel;
+@property (nonatomic,   copy) NSString *consumeType;
+@end

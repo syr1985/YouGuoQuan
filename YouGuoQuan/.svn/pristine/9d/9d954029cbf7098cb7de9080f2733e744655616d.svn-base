@@ -1,0 +1,173 @@
+//
+//  ExpendRecordViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/5.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "ConsumeRecordViewController.h"
+#import <MJRefresh.h>
+#import "MyConsumeModel.h"
+#import "MyConsumeViewCell.h"
+
+@interface ConsumeRecordViewController ()
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@property (nonatomic, assign) int pageNo;
+@property (nonatomic, assign) int pageSize;
+@end
+
+@implementation ConsumeRecordViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray new];
+    }
+    return _modelArray;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.titleString = [self.type isEqualToString:@"1"] ? @"收入明细" : @"支出记录";
+    
+    [self configTableView];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+    
+    //    self.modelArray = nil;
+}
+#pragma mark -
+#pragma mark - 配置TableView
+- (void)configTableView {
+    self.pageNo = 1;
+    self.pageSize = 10;
+    
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+    
+    //    UINib *nib_trends = [UINib nibWithNibName:tableViewCellID_trends bundle:nil];
+    //    [self.tableView registerNib:nib_trends forCellReuseIdentifier:tableViewCellID_trends];
+    
+    // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingTarget:self
+                                                                     refreshingAction:@selector(loadNewData)];
+    // 设置文字
+    [header setTitle:@"下拉刷新数据" forState:MJRefreshStateIdle];
+    [header setTitle:@"松开刷新" forState:MJRefreshStatePulling];
+    [header setTitle:@"加载中..." forState:MJRefreshStateRefreshing];
+    // 马上进入刷新状态
+    [header beginRefreshing];
+    // 设置刷新控件
+    self.tableView.mj_header = header;
+    
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self
+                                                                             refreshingAction:@selector(loadMoreData)];
+    // 设置文字
+    [footer setTitle:@"上拉刷新数据" forState:MJRefreshStateIdle];
+    [footer setTitle:@"加载更多..." forState:MJRefreshStateRefreshing];
+    [footer setTitle:@"到底了" forState:MJRefreshStateNoMoreData];
+    footer.automaticallyRefresh = NO;
+    footer.hidden = YES;
+    // 设置footer
+    self.tableView.mj_footer = footer;
+}
+
+#pragma mark -
+#pragma mark - 调接口
+
+- (void)loadNewData {
+    _pageNo = 1;
+    [self getMyExpendRecordList];
+}
+
+- (void)loadMoreData {
+    _pageNo++;
+    [self getMyExpendRecordList];
+}
+
+- (void)getMyExpendRecordList {
+    __weak typeof(self) weakself = self;
+    [NetworkTool getIncomeOrExpenditureInfoWithType:_type pageNo:@(_pageNo) pageSize:@(_pageSize) Success:^(id result){
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in result) {
+            MyConsumeModel *model = [MyConsumeModel myConsumeModelWithDict:dict];
+            [muArray addObject:model];
+        }
+        if (weakself.pageNo == 1) {
+            weakself.modelArray = muArray;
+            [weakself.tableView reloadData];
+            [weakself.tableView.mj_header endRefreshing];
+            weakself.tableView.mj_footer.hidden = muArray.count == 0;
+            if (muArray.count < weakself.pageSize) {
+                [weakself.tableView.mj_footer endRefreshingWithNoMoreData];
+            } else {
+                [weakself.tableView.mj_footer resetNoMoreData];
+            }
+        } else {
+            [weakself.modelArray addObjectsFromArray:muArray];
+            [weakself.tableView reloadData];
+            if (muArray.count < weakself.pageSize) {
+                [weakself.tableView.mj_footer endRefreshingWithNoMoreData];
+            } else {
+                [weakself.tableView.mj_footer endRefreshing];
+            }
+        }
+    } failure:^{
+        if (weakself.pageNo == 1) {
+            [weakself.tableView.mj_header endRefreshing];
+        } else {
+            [weakself.tableView.mj_footer endRefreshing];
+        }
+        if ([weakself.type isEqualToString:@"1"]) {
+            [SVProgressHUD showErrorWithStatus:@"获取收入明细失败"];
+        } else {
+            [SVProgressHUD showErrorWithStatus:@"获取支出记录失败"];
+        }
+    }];
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.modelArray.count;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    MyConsumeViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyConsumeViewCell" forIndexPath:indexPath];
+    
+    // Configure the cell...
+    cell.consumeType = _type;
+    cell.myConsumeModel = self.modelArray[indexPath.row];
+    
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 66;
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

@@ -1,0 +1,24 @@
+//
+//  ChooseLocationViewController.h
+//  YouGuoQuan
+//
+//  Created by liushuai on 2017/1/1.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+
+@protocol ChooseLocationViewControllerDelegate <NSObject>
+
+-(void)sendLocationLatitude:(double)latitude
+                  longitude:(double)longitude
+                 andAddress:(NSString *)address;
+@end
+
+
+@interface ChooseLocationViewController : UITableViewController
+
+@property(nonatomic, weak) id<ChooseLocationViewControllerDelegate> delegate;
+
+@end

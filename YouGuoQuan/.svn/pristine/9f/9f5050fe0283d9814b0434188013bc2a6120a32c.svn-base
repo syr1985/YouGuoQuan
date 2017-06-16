@@ -1,0 +1,223 @@
+//
+//  PublishTrendsViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/28.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "PublishTrendsViewController.h"
+#import "PublishTrendsHeaderView.h"
+#import "PublishProductFooterView.h"
+#import "ProductPhotoViewCell.h"
+
+#import "TakePhotoHelp.h"
+#import "AlertViewTool.h"
+
+@interface PublishTrendsViewController ()
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
+@property (weak, nonatomic) IBOutlet UIButton *publishButton;
+@property (nonatomic, strong) NSMutableArray *photoArray;
+@property (nonatomic,   copy) NSString       *photosSize;
+@property (nonatomic,   copy) NSString       *imageUrl;
+@property (nonatomic,   copy) NSString       *trendsContent;
+@property (nonatomic, assign) BOOL           isUploadOrignalPhoto;
+
+@end
+
+static NSString * const collectionViewCellID_Header = @"PublishTrendsHeaderView";
+static NSString * const collectionViewCellID_Footer = @"PublishProductFooterView";
+static NSString * const collectionViewCellID_Photo  = @"ProductPhotoViewCell";
+
+@implementation PublishTrendsViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)photoArray {
+    if (!_photoArray) {
+        _photoArray = [NSMutableArray array];
+        [_photoArray addObject:[UIImage imageNamed:@"发布-添加"]];
+    }
+    return _photoArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    UICollectionViewFlowLayout *flowLaout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+    flowLaout.minimumLineSpacing = 6;
+    flowLaout.minimumInteritemSpacing = 6;
+    flowLaout.sectionInset = UIEdgeInsetsMake(0, 12, 0, 12);
+    CGFloat itemW = (WIDTH - 36) / 3;
+    flowLaout.itemSize = CGSizeMake(itemW, itemW);;
+    flowLaout.headerReferenceSize = CGSizeMake(WIDTH, 150);
+    flowLaout.footerReferenceSize = CGSizeMake(WIDTH, 30);
+    
+    UINib *nib_photo  = [UINib nibWithNibName:collectionViewCellID_Photo bundle:nil];
+    [self.collectionView registerNib:nib_photo forCellWithReuseIdentifier:collectionViewCellID_Photo];
+    
+    UINib *nib_header = [UINib nibWithNibName:collectionViewCellID_Header bundle:nil];
+    [self.collectionView registerNib:nib_header forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:collectionViewCellID_Header];
+    
+    UINib *nib_footer = [UINib nibWithNibName:collectionViewCellID_Footer bundle:nil];
+    [self.collectionView registerNib:nib_footer forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:collectionViewCellID_Footer];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - 关闭页面
+- (IBAction)dismissViewController {
+    __weak typeof(self) weakself = self;
+    [AlertViewTool showAlertViewWithTitle:nil Message:@"您确认放弃此次操作吗？" sureBlock:^{
+        [weakself dismissViewControllerAnimated:YES completion:nil];
+    }];
+}
+
+- (IBAction)publishTrends:(id)sender {
+    if (!self.trendsContent || !self.trendsContent.length) {
+        [SVProgressHUD showInfoWithStatus:@"请输入文字描述"];
+        return;
+    }
+    
+    if (self.photoArray.count < 2) {
+        [SVProgressHUD showInfoWithStatus:@"请至少上传一张图片"];
+        return;
+    }
+    
+    /**
+     *  上传图片
+     */
+    NSMutableArray *muArray = [NSMutableArray array];
+    for (NSUInteger i = 0 ; i < self.photoArray.count - 1; i++) {
+        UIImage *image = self.photoArray[i];
+        NSData *imageData = UIImageJPEGRepresentation(image,0.1);
+        if (!_isUploadOrignalPhoto) {
+            imageData = UIImageJPEGRepresentation(image,0.01);
+        }
+        [muArray addObject:imageData];
+    }
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool uploadImages:muArray progress:^(CGFloat percent) {
+        //[SVProgressHUD showProgress:percent status:@"上传图片"];
+    } success:^(NSArray *urlArray) {
+        //[SVProgressHUD dismiss];
+        
+        NSMutableString *urlString = [NSMutableString string];
+        for (NSString *url in urlArray) {
+            [urlString appendString:url];
+            [urlString appendString:@";"];
+        }
+        
+        NSUInteger maxRange = NSMaxRange([urlString rangeOfComposedCharacterSequenceAtIndex:urlString.length - 2]);
+        weakself.imageUrl = [urlString substringToIndex:maxRange];
+        //NSLog(@"weakself.imageUrl %@",weakself.imageUrl);
+        
+        [NetworkTool publishTrends:weakself.imageUrl intro:weakself.trendsContent video:nil cover:nil trendsType:@"1" success:^{
+            [SVProgressHUD showSuccessWithStatus:@"发布图文动态成功"];
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakself dismissViewControllerAnimated:YES completion:^{
+                    weakself.tabBarController.selectedIndex = 0;
+                }];
+            });
+        } failure:^{
+            [SVProgressHUD showSuccessWithStatus:@"发布图文动态失败"];
+        }];
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"上传图片失败"];
+    }];
+}
+
+
+#pragma mark -
+#pragma mark - UICollectionView DataSource and Delegate
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.photoArray.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    ProductPhotoViewCell *cell_photo = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Photo forIndexPath:indexPath];
+    cell_photo.photo = self.photoArray[indexPath.row];
+    cell_photo.index = indexPath.row;
+    cell_photo.isShowDeleteButton = (indexPath.row == (self.photoArray.count - 1));
+    
+    __weak typeof(self) weakself = self;
+    cell_photo.deletePhotoBlock = ^(NSUInteger index) {
+        [weakself.photoArray removeObjectAtIndex:index];
+        [weakself.collectionView reloadData];
+    };
+    
+    return cell_photo;
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    UICollectionReusableView *reusableview = nil;
+    
+    if ([kind isEqualToString:UICollectionElementKindSectionFooter]) {
+        PublishProductFooterView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                                  withReuseIdentifier:collectionViewCellID_Footer
+                                                                                         forIndexPath:indexPath];
+        footerview.photosSize = self.photosSize;
+        __weak typeof(self) weakself = self;
+        footerview.setUploadOrignalPhoto = ^(BOOL isUploadOrignalPhoto) {
+            weakself.isUploadOrignalPhoto = isUploadOrignalPhoto;
+        };
+        reusableview = footerview;
+    } else {
+        PublishTrendsHeaderView *headerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                                 withReuseIdentifier:collectionViewCellID_Header
+                                                                                        forIndexPath:indexPath];
+        __weak typeof(self) weakself = self;
+        headerview.setContent = ^(NSString *content) {
+            weakself.trendsContent = content;
+            if (content.length) {
+                weakself.publishButton.enabled = YES;
+            }
+        };
+        reusableview = headerview;
+    }
+    
+    return reusableview;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row == self.photoArray.count - 1) {
+        __weak typeof(self) weakself = self;
+        [[TakePhotoHelp sharedInstance] showActionSheetWithTitle:@"配置动态图片" photosCount:_photoArray.count viewController:self returnBlock:^(BOOL isCover, NSArray<UIImage *> *photos) {
+            if (!isCover) {
+                NSArray *oldArray = weakself.photoArray;
+                NSMutableArray *muArray = [NSMutableArray array];
+                [muArray addObjectsFromArray:photos];
+                [muArray addObjectsFromArray:oldArray];
+                weakself.photoArray = muArray;
+            }
+            [weakself.collectionView reloadData];
+        }];
+    }
+}
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

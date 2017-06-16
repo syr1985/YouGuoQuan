@@ -1,0 +1,114 @@
+//
+//  HomeBannerViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/9.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "HomeBannerViewCell.h"
+#import "NewPagedFlowView.h"
+#import "IndexBannerSubiew.h"
+#import "UIImage+Color.h"
+#import "HomeBannerModel.h"
+
+@interface HomeBannerViewCell () <NewPagedFlowViewDataSource, NewPagedFlowViewDelegate>
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (nonatomic, strong) NewPagedFlowView *pageFlowView;
+@property (nonatomic, strong) NSMutableArray *bannerModelArray;
+@end
+
+@implementation HomeBannerViewCell
+
+- (void)dealloc {
+    [self.pageFlowView releasePageFlowView];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    NSLog(@"%s",__func__);
+}
+
+#pragma mark --懒加载
+- (NSMutableArray *)bannerModelArray {
+    if (!_bannerModelArray) {
+        _bannerModelArray = [NSMutableArray new];
+    }
+    return _bannerModelArray;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(reloadData)
+                                                 name:@"kReloadBannerData"
+                                               object:nil];
+    
+    CGFloat heght = WIDTH * 198 / 322;
+    NewPagedFlowView *pageFlowView = [[NewPagedFlowView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, heght)];
+    pageFlowView.delegate = self;
+    pageFlowView.dataSource = self;
+    pageFlowView.minimumPageAlpha = 0.5;
+    pageFlowView.minimumPageScale = 0.95;
+    pageFlowView.orientation = NewPagedFlowViewOrientationHorizontal;
+    pageFlowView.isOpenAutoScroll = YES;
+    
+    CGRect pageControlRect = CGRectMake(0, pageFlowView.frame.size.height - 20, WIDTH, 3);
+    SMPageControl *pageControl = [[SMPageControl alloc] initWithFrame:pageControlRect];
+    pageControl.pageIndicatorImage = [UIImage imageFromContextWithColor:[HelperUtil colorWithHexString:@"#D8D8D8"]
+                                                                   size:CGSizeMake(10,3)];
+    pageControl.currentPageIndicatorImage = [UIImage imageFromContextWithColor:NavColor size:CGSizeMake(10, 3)];
+    pageFlowView.pageControl = pageControl;
+    [pageFlowView addSubview:pageControl];
+    
+    /****************************
+     使用导航控制器(UINavigationController)
+     如果控制器中不存在UIScrollView或者继承自UIScrollView的UI控件
+     请使用UIScrollView作为NewPagedFlowView的容器View,才会显示正常,如下
+     *****************************/
+    [self.scrollView addSubview:pageFlowView];
+    _pageFlowView = pageFlowView;
+    
+    [self loadBannerData];
+}
+
+- (void)reloadData {
+    if (self.bannerModelArray.count == 0) {
+        [self loadBannerData];
+    }
+}
+
+- (void)loadBannerData {
+    __weak typeof(self) weakself = self;
+    [NetworkTool getBannerListWithPageNo:@"1" pageSize:@"5" success:^(NSArray *dataArray) {
+        if (dataArray.count) {
+            NSMutableArray *muArray = [NSMutableArray array];
+            for (NSDictionary *dict in dataArray) {
+                HomeBannerModel *homeBannerModel = [HomeBannerModel homeBannerModelWithDict:dict];
+                [muArray addObject:homeBannerModel];
+            }
+            weakself.bannerModelArray = muArray;
+            [weakself.pageFlowView reloadData];
+        }
+    } failure:nil];
+}
+
+#pragma mark NewPagedFlowView Delegate
+- (CGSize)sizeForPageInFlowView:(NewPagedFlowView *)flowView {
+    return CGSizeMake(WIDTH - 54, (WIDTH - 54) * 198 / 322);
+}
+
+#pragma mark NewPagedFlowView Datasource
+- (NSInteger)numberOfPagesInFlowView:(NewPagedFlowView *)flowView {
+    return self.bannerModelArray.count;
+}
+
+- (UIView *)flowView:(NewPagedFlowView *)flowView cellForPageAtIndex:(NSInteger)index {
+    IndexBannerSubiew *bannerView = (IndexBannerSubiew *)[flowView dequeueReusableCell];
+    if (!bannerView) {
+        bannerView = [[IndexBannerSubiew alloc] initWithFrame:CGRectMake(0, 0, WIDTH - 54, (WIDTH - 54) * 198 / 322)];
+    }
+    bannerView.homeBannerModel = self.bannerModelArray[index];
+    return bannerView;
+}
+
+@end

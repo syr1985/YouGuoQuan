@@ -1,0 +1,13 @@
+//
+//  HomeViewController.h
+//  RoomService
+//
+//  Created by YM on 15/12/26.
+//  Copyright © 2015年 SYR. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@interface HomeViewController : BaseViewController
+
+@end

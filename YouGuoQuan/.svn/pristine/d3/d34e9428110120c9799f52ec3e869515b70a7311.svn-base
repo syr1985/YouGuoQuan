@@ -1,0 +1,106 @@
+//
+//  MyLevelViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/5.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "MyLevelViewController.h"
+
+@interface MyLevelViewController ()
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (weak, nonatomic) IBOutlet UIImageView *myLevelImageView;
+@property (weak, nonatomic) IBOutlet UILabel *myScoreLabel;
+@property (weak, nonatomic) IBOutlet UIProgressView *myLevelProgressView;
+@property (weak, nonatomic) IBOutlet UILabel *currentLevelLabel;
+@property (weak, nonatomic) IBOutlet UILabel *nextLevelLabel;
+@end
+
+@implementation MyLevelViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"我的等级";
+    
+    if (_present) {
+        UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"返回-黑"]
+                                                                     style:UIBarButtonItemStylePlain
+                                                                    target:self
+                                                                    action:@selector(dismissViewController)];
+        leftItem.imageInsets = UIEdgeInsetsMake(0, -6, 0, 0);
+        self.navigationItem.leftBarButtonItem = leftItem;
+    }
+
+    __weak typeof(self) weakself = self;
+    [NetworkTool getMyLevelScoreInfoSuccess:^(id result){
+        NSDictionary *levelDict = result[@"LVInfo"];
+        NSDictionary *levelInfo = result[@"list"];
+        NSNumber *userLevel = result[@"star"];
+        [LoginData sharedLoginData].star = [userLevel intValue];
+        float userScore = [levelInfo[@"userScore"] floatValue];
+        
+        weakself.myLevelImageView.hidden = userLevel.intValue == 0;
+        if (userLevel.intValue != 0) {
+            NSString *userLevelImageName = [NSString stringWithFormat:@"我的-等级 %@", userLevel];
+            weakself.myLevelImageView.image = [UIImage imageNamed:userLevelImageName];
+        }
+        weakself.myScoreLabel.text = [NSString stringWithFormat:@"当前累计消费额度：%.0f u币",userScore];
+        
+        int nextLevel = [userLevel intValue] + 1;
+        if (userLevel.intValue == 0) {
+            NSString *nextKey = [NSString stringWithFormat:@"LV%d",nextLevel];
+            NSString *nextLevelScore = levelDict[nextKey];
+            
+            weakself.currentLevelLabel.text = @"LV.0(0 u币)";
+            weakself.nextLevelLabel.text = [NSString stringWithFormat:@"%@(%@ u币)",[NSString stringWithFormat:@"LV.%d",nextLevel],nextLevelScore];
+            weakself.myLevelProgressView.progress = userScore / [nextLevelScore integerValue];
+        } else if (nextLevel < 7) {
+            NSString *currentKey = [NSString stringWithFormat:@"LV%d",[userLevel intValue]];
+            NSString *currentLevelScore = levelDict[currentKey];
+            NSString *nextKey = [NSString stringWithFormat:@"LV%d",nextLevel];
+            NSString *nextLevelScore = levelDict[nextKey];
+            
+            weakself.currentLevelLabel.text = [NSString stringWithFormat:@"%@(%@ u币)",[NSString stringWithFormat:@"LV.%d",userLevel.intValue], currentLevelScore];
+            weakself.nextLevelLabel.text = [NSString stringWithFormat:@"%@(%@ u币)",[NSString stringWithFormat:@"LV.%d",nextLevel],nextLevelScore];
+            weakself.myLevelProgressView.progress = userScore / [nextLevelScore integerValue];
+        } else if (nextLevel == 7) {
+            NSString *currentKey = [NSString stringWithFormat:@"LV%d",nextLevel - 2];
+            NSString *currentLevelScore = levelDict[currentKey];
+            NSString *nextKey = [NSString stringWithFormat:@"LV%d",nextLevel - 1];
+            NSString *nextLevelScore = levelDict[nextKey];
+            
+            weakself.currentLevelLabel.text = [NSString stringWithFormat:@"%@(%@ u币)",[NSString stringWithFormat:@"LV.%d",nextLevel - 2],currentLevelScore];
+            weakself.nextLevelLabel.text = [NSString stringWithFormat:@"%@(%@ u币)",[NSString stringWithFormat:@"LV.%d",nextLevel - 1],nextLevelScore];
+            weakself.myLevelProgressView.progress = userScore / [nextLevelScore integerValue];
+        }
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"获取我的等级信息失败"];
+    }];
+}
+
+- (void)dismissViewController {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

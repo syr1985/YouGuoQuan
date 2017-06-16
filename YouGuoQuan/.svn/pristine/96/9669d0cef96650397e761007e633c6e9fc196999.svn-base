@@ -1,0 +1,46 @@
+//
+//  DiscoveryVideoModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/26.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface DiscoveryVideoModel : NSObject
+@property (nonatomic,   copy) NSString *videoId;
+@property (nonatomic,   copy) NSString *imageUrl;
+@property (nonatomic,   copy) NSString *instro;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *commentCount;
+@property (nonatomic,   copy) NSString *buyCount;
+@property (nonatomic,   copy) NSString *buyCommentGoodCount;
+@property (nonatomic,   copy) NSString *recommendCount;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *videoEvelope;
+@property (nonatomic,   copy) NSString *videoUrl;
+//@property (nonatomic,   copy) NSString *playTimes;
+@property (nonatomic,   copy) NSString *timeLineId;
+@property (nonatomic,   copy) NSString *tags;
+@property (nonatomic,   copy) NSString *auditResult;
+
+@property (nonatomic,   copy) NSString *sex;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *headImg;
+// 等级数
+@property (nonatomic, assign) int  star;
+// 是否认证（vip）
+@property (nonatomic, assign) BOOL audit;
+// 是否贵族
+@property (nonatomic, assign) BOOL isRecommend;
+// 是否赞过
+@property (nonatomic, assign) BOOL isMyZan;
+// 动态类型 1、图文，2、视频，3、商品，4、红包
+@property (nonatomic, assign) int  feedsType;
+// Cell的高（自己根据数据计算的，不在返回字段里，用于转换传值）
+@property (nonatomic, assign) CGFloat cellHeight;
+
++ (instancetype)discoveryVideoModelWithDict:(NSDictionary *)dict;
+- (instancetype)initDiscoveryVideoModelWithDict:(NSDictionary *)dict;
+@end

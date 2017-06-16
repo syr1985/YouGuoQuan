@@ -1,0 +1,59 @@
+//
+//  NetworkTool.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/15.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+
+@interface NetworkTool : NSObject
+
+//@property (nonatomic,   copy) void (^GetResultBlock)(id result);
+
+//+ (instancetype)sharedInstance;
+
+/**
+ *  获取验证码
+ *
+ *  @param phoneNumber  手机号
+ *  @param reset        是否是重设密码
+ *  @param returnResult 回调block
+ */
++ (void)getMsgAuthCode:(NSString *)phoneNumber RetsetPassword:(BOOL)reset Result:(void (^)(NSString *code))returnResult;
+
+/**
+ *  用户注册
+ *
+ *  @param phoneNumber 手机号
+ *  @param password    密码
+ *  @param nickName    昵称
+ *  @param sex         性别
+ *  @param city        城市
+ *  @param fail        回调block
+ */
++ (void)registerWithPhone:(NSString *)phoneNumber Password:(NSString *)password NickName:(NSString *)nickName Sex:(NSString *)sex City:(NSString *)city Failed:(void (^)())fail;
+
+/**
+ *  重置密码
+ *
+ *  @param phoneNumber 手机号
+ *  @param newPassword 新密码
+ *  @param returnResult 回调block
+ */
++ (void)resetPasswordWithPhone:(NSString *)phoneNumber Password:(NSString *)newPassword Result:(void (^)())returnResult;
+
+/**
+ *  用户登录
+ *
+ *  @param phoneNumber 手机号
+ *  @param password    密码
+ *  @param success     回调block
+ */
++ (void)loginWithPhone:(NSString *)phoneNumber Password:(NSString *)password Success:(void (^)())success;
+
+
+
+@end

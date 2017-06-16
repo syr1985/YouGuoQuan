@@ -1,0 +1,50 @@
+//
+//  PGIndexBannerSubiew.m
+//  NewPagedFlowViewDemo
+//
+//  Created by Mars on 16/6/18.
+//  Copyright © 2016年 Mars. All rights reserved.
+//  Designed By PageGuo,
+//  QQ:799573715
+//  github:https://github.com/PageGuo/NewPagedFlowView
+
+#import "IndexBannerSubiew.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "HomeBannerModel.h"
+
+@interface IndexBannerSubiew ()
+/**
+ *  推荐标记
+ */
+@property (weak, nonatomic) IBOutlet UIButton *recommandButton;
+
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *descLabel;
+
+@end
+
+@implementation IndexBannerSubiew
+
++ (instancetype)loadIndexBannerSubiew {
+    NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"IndexBannerSubview" owner:self options:nil];
+    IndexBannerSubiew *bannerSubiew = [nib objectAtIndex:0];
+    bannerSubiew.frame = CGRectMake(0, 0, WIDTH - 50, (WIDTH - 50) * 198 / 322);
+    bannerSubiew.layer.cornerRadius = 4;
+    bannerSubiew.layer.masksToBounds = YES;
+    return bannerSubiew;
+}
+
+- (void)setHomeBannerModel:(HomeBannerModel *)homeBannerModel {
+    _homeBannerModel = homeBannerModel;
+    
+    [_mainImageView sd_setImageWithURL:[NSURL URLWithString:homeBannerModel.imageUrl]];
+    
+    _recommandButton.hidden = !homeBannerModel.isRecommend;
+    
+    _titleLabel.text = [NSString stringWithFormat:@"/%@/",homeBannerModel.imageName];
+    
+    _descLabel.text = homeBannerModel.imageDesc;
+}
+
+@end

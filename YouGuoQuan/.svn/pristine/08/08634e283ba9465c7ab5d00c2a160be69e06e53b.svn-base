@@ -1,0 +1,401 @@
+//
+//  PersonOrderListViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "AllOrderListViewController.h"
+#import "EvaluationViewController.h"
+
+#import "WaitingForPayTrendsViewCell.h"
+#import "WaitingForPayMeetingViewCell.h"
+#import "OngoingForPayTrendsViewCell.h"
+#import "OngoingForPayMeetingViewCell.h"
+#import "CompletedForPayTrendsViewCell.h"
+#import "CompletedForPayMeetingViewCell.h"
+#import "RefundingForPayTrendsViewCell.h"
+#import "RefundingForPayMeetingViewCell.h"
+
+#import <MJRefresh.h>
+#import "PayTool.h"
+#import "MyOrderModel.h"
+#import "IAPurchaseTool.h"
+#import "AlertViewTool.h"
+
+@interface AllOrderListViewController () <UITableViewDelegate, UITableViewDataSource>
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UIView *noResultView;
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@property (nonatomic, assign) int pageNo;
+@property (nonatomic, assign) int pageSize;
+@end
+
+@implementation AllOrderListViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray new];
+    }
+    return _modelArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(refreshTableView)
+                                                 name:kNotification_RefreshTableView
+                                               object:nil];
+    
+    self.pageNo = 1;
+    self.pageSize = 10;
+    
+    self.tableView.tableHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, CGFLOAT_MIN)];
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, CGFLOAT_MIN)];
+    
+    // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingTarget:self
+                                                                     refreshingAction:@selector(loadNewData)];
+    // 设置文字
+    [header setTitle:@"下拉刷新数据" forState:MJRefreshStateIdle];
+    [header setTitle:@"松开刷新" forState:MJRefreshStatePulling];
+    [header setTitle:@"加载中..." forState:MJRefreshStateRefreshing];
+    // 马上进入刷新状态
+    [header beginRefreshing];
+    // 设置刷新控件
+    self.tableView.mj_header = header;
+    
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self
+                                                                             refreshingAction:@selector(loadMoreData)];
+    // 设置文字
+    [footer setTitle:@"上拉刷新数据" forState:MJRefreshStateIdle];
+    [footer setTitle:@"加载更多..." forState:MJRefreshStateRefreshing];
+    [footer setTitle:@"到底了" forState:MJRefreshStateNoMoreData];
+    footer.automaticallyRefresh = NO;
+    footer.hidden = YES;
+    // 设置footer
+    self.tableView.mj_footer = footer;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+    //    self.modelArray = nil;
+}
+
+- (void)refreshTableView {
+    [self.tableView.mj_header beginRefreshing];
+}
+
+#pragma mark -
+#pragma mark - 数据接口
+- (void)loadNewData {
+    _pageNo = 1;
+    [self getMyOrderList];
+}
+
+- (void)loadMoreData {
+    _pageNo++;
+    [self getMyOrderList];
+}
+
+- (void)getMyOrderList {
+    __weak typeof(self) weakself = self;
+    [NetworkTool getMyOrderListWithType:@(_type) pageNo:@(_pageNo) pageSize:@(_pageSize) success:^(id result) {
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in result) {
+            MyOrderModel *model = [MyOrderModel myOrderModelWithDict:dict];
+            [muArray addObject:model];
+        }
+
+        weakself.tableView.mj_footer.hidden = muArray.count < weakself.pageSize;
+        if (weakself.pageNo == 1) {
+            [weakself.tableView.mj_header endRefreshing];
+            weakself.modelArray = muArray;
+            [weakself.tableView reloadData];
+            weakself.noResultView.hidden = muArray.count != 0;
+        } else {
+            [weakself.tableView.mj_footer endRefreshing];
+            [weakself.modelArray addObjectsFromArray:muArray];
+            [weakself.tableView reloadData];
+        }
+    } failure:^{
+        if (weakself.pageNo == 1) {
+            [weakself.tableView.mj_header endRefreshing];
+        } else {
+            [weakself.tableView.mj_footer endRefreshing];
+        }
+    }];
+}
+
+#pragma mark - 订单操作
+#pragma mark - 取消订单
+- (void)cancelOrder:(NSString *)orderNo {
+    [AlertViewTool showAlertViewWithTitle:nil Message:@"您是否取消该订单？" cancelTitle:@"放弃" sureTitle:@"确定" sureBlock:^{
+        [NetworkTool cancelOrder:orderNo success:^{
+            [SVProgressHUD showSuccessWithStatus:@"取消订单成功"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_RefreshTableView object:nil];
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"取消订单失败"];
+        }];
+    } cancelBlock:nil];
+}
+
+#pragma mark - 删除订单
+- (void)deleteOrder:(NSString *)orderNo {
+    [AlertViewTool showAlertViewWithTitle:nil Message:@"您是否删除该订单？" cancelTitle:@"取消" sureTitle:@"确定" sureBlock:^{
+        [NetworkTool deleteOrder:orderNo operator:@"B" success:^{
+            [SVProgressHUD showSuccessWithStatus:@"删除订单成功"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_RefreshTableView object:nil];
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"删除订单失败"];
+        }];
+    } cancelBlock:nil];
+}
+
+#pragma mark - 确认支付
+- (void)surePay:(NSString *)orderNo {
+    [NetworkTool payForConfirmOrderWithOrderNo:orderNo success:^{
+        [SVProgressHUD showSuccessWithStatus:@"确认支付成功"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_RefreshTableView object:nil];
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"确认支付失败"];
+    }];
+}
+#pragma mark - 申请退款
+- (void)applyForRefund:(NSString *)orderNo {
+    [NetworkTool applyForRefundWithOrderId:orderNo success:^{
+        [SVProgressHUD showSuccessWithStatus:@"申请退款成功"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_RefreshTableView object:nil];
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"申请退款失败"];
+    }];
+}
+#pragma mark - 继续支付
+- (void)goonPay:(NSString *)orderNo price:(NSNumber *)price {
+    [PayTool payWithResult:^(NSString *payType) {
+        if ([payType isEqualToString:@"wallet"]) {
+            [self payByWalletWithOrderNo:orderNo];
+        } else {
+//            [NetworkTool refreshPayOrderNoWithOrderNo:orderNo success:^(id result) {
+//                NSString *prefix = @"yuoguoquan.";
+//                if ([orderNo hasPrefix:@"NM"]) {
+//                    prefix = [prefix stringByAppendingString:@"product"];
+//                } else if ([orderNo hasPrefix:@"WX"]) {
+//                    prefix = [prefix stringByAppendingString:@"weixin"];
+//                } else if ([orderNo hasPrefix:@"RE"]) {
+//                    prefix = [prefix stringByAppendingString:@"reward"];
+//                } else if ([orderNo hasPrefix:@"RP"]) {
+//                    prefix = [prefix stringByAppendingString:@"photo"];
+//                } else if ([orderNo hasPrefix:@"DT"]) {
+//                    prefix = [prefix stringByAppendingString:@"dating"];
+//                }
+//                NSString *productID = [NSString stringWithFormat:@"%@%@u",prefix,price];
+//                [[IAPurchaseTool sharedInstance] purchaseWithProductID:productID orderNo:orderNo];
+//            } failure:^{
+//                [SVProgressHUD showErrorWithStatus:@"支付失败"];
+//            }];
+        }
+    }];
+}
+#pragma mark - 继续支付--零钱钱包方式
+- (void)payByWalletWithOrderNo:(NSString *)orderNo {
+    if ([orderNo hasPrefix:@"CF"]) {
+        [NetworkTool payforCrowdfundingWithOrderNo:orderNo success:^{
+            [SVProgressHUD showSuccessWithStatus:@"支付成功"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_RefreshTableView object:nil];
+        } failure:^(NSError *error, NSString *msg){
+            [self payFailureByWalletWithOrderNo:orderNo error:error message:msg];
+        }];
+    } else if ([orderNo hasPrefix:@"RE"]) {
+        [NetworkTool payForRewardWithOrderNo:orderNo success:^{
+            [SVProgressHUD showSuccessWithStatus:@"支付成功"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_RefreshTableView object:nil];
+        } failure:^(NSError *error, NSString *msg){
+            [self payFailureByWalletWithOrderNo:orderNo error:error message:msg];
+        }];
+    } else if ([orderNo hasPrefix:@"RP"]) {
+        [NetworkTool payForTrendsToUserDirectlyWithOrderNo:orderNo success:^{
+            [SVProgressHUD showSuccessWithStatus:@"支付成功"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_RefreshTableView object:nil];
+        } failure:^(NSError *error, NSString *msg){
+            [self payFailureByWalletWithOrderNo:orderNo error:error message:msg];
+        }];
+    } else {
+        [NetworkTool payForTrendsToMiddleAccountWithOrderNo:orderNo success:^{
+            if ([orderNo hasPrefix:@"DT"]) {
+                [SVProgressHUD showSuccessWithStatus:@"您的约见请求已送出，请耐心等待"];
+            } else {
+                [SVProgressHUD showSuccessWithStatus:@"支付成功"];
+            }
+            [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_RefreshTableView object:nil];
+        } failure:^(NSError *error, NSString *msg){
+            [self payFailureByWalletWithOrderNo:orderNo error:error message:msg];
+        }];
+    }
+}
+#pragma mark - 继续支付--失败处理--余额不足等
+- (void)payFailureByWalletWithOrderNo:(NSString *)orderNo error:(NSError *)error message:(NSString *)msg {
+    if (error) {
+        [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+    } else if ([msg isEqualToString:@"金额不足"]) {
+        [PayTool payFailureTranslateToRechargeVC:self rechargeSuccess:^{
+            [self payByWalletWithOrderNo:orderNo];
+        } rechargeFailure:nil];
+    } else {
+        [SVProgressHUD showErrorWithStatus:@"支付失败"];
+    }
+}
+#pragma mark - 评价订单
+- (void)evaluateOrderWithOrderID:(NSString *)orderId goodsID:(NSString *)goodsId goodsName:(NSString *)goodsName {
+    UIStoryboard *orderSB = [UIStoryboard storyboardWithName:@"Order" bundle:nil];
+    EvaluationViewController *evaluateVC = [orderSB instantiateViewControllerWithIdentifier:@"EvaluationVC"];
+    evaluateVC.orderId = orderId;
+    evaluateVC.goodsId = goodsId;
+    evaluateVC.goodsName = goodsName;
+    [self presentViewController:evaluateVC animated:YES completion:nil];
+}
+
+#pragma mark - Table view
+#pragma mark - Table view data source
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return self.modelArray.count;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 1;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    __weak typeof(self) weakself = self;
+    MyOrderModel *model = self.modelArray[indexPath.section];
+    // RP(红包照片)NM(普通商品)WX(购买微信)CF(众筹)RB(红包)RE(打赏)
+    BOOL isTrends = ![model.orderNo hasPrefix:@"DT"];
+    // goodsDetailType 1待付款 2购买进行中 3退款进行中 4购买成功 5 退款成功 6 交易关闭
+    
+    int goodsDetailType = model.goodsDetailType;
+    if (goodsDetailType == 3) {
+        // 退款中
+        if (isTrends) {
+            RefundingForPayTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RefundingForPayTrendsViewCell" forIndexPath:indexPath];
+            // Configure the cell...
+            cell.deleteOrderBlock = ^(NSString *orderNo) {
+                [weakself deleteOrder:orderNo];
+            };
+            cell.orderModel = model;
+            return cell;
+        } else {
+            RefundingForPayMeetingViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RefundingForPayMeetingViewCell" forIndexPath:indexPath];
+            // Configure the cell...
+            cell.deleteOrderBlock = ^(NSString *orderNo) {
+                [weakself deleteOrder:orderNo];
+            };
+            cell.orderModel = model;
+            return cell;
+        }
+    } else if (goodsDetailType == 2) {
+        // 已支付
+        if (isTrends) {
+            OngoingForPayTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"OngoingForPayTrendsViewCell" forIndexPath:indexPath];
+            // Configure the cell...
+            cell.surePayBlock = ^(NSString *orderNo) {
+                [AlertViewTool showAlertViewWithTitle:nil Message:@"是否同意付款？" cancelTitle:@"取消" sureTitle:@"确定" sureBlock:^{
+                    [weakself surePay:orderNo];
+                } cancelBlock:nil];
+            };
+            cell.applyForRefundBlock = ^(NSString *orderNo) {
+                [weakself applyForRefund:orderNo];
+            };
+            cell.orderModel = model;
+            return cell;
+        } else {
+            OngoingForPayMeetingViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"OngoingForPayMeetingViewCell" forIndexPath:indexPath];
+            // Configure the cell...
+            cell.surePayBlock = ^(NSString *orderNo) {
+                [AlertViewTool showAlertViewWithTitle:nil Message:@"是否同意付款？" cancelTitle:@"取消" sureTitle:@"确定" sureBlock:^{
+                    [weakself surePay:orderNo];
+                } cancelBlock:nil];
+            };
+            cell.applyForRefundBlock = ^(NSString *orderNo) {
+                [weakself applyForRefund:orderNo];
+            };
+            cell.orderModel = model;
+            return cell;
+        }
+    } else if (goodsDetailType == 1) {
+        // 待支付
+        if (isTrends) {
+            WaitingForPayTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"WaitingForPayTrendsViewCell" forIndexPath:indexPath];
+            // Configure the cell...
+            cell.cancelOrderBlock = ^(NSString *orderNo){
+                [weakself cancelOrder:orderNo];
+            };
+            cell.goonPayBolck = ^(NSString *orderNo, NSNumber *price, NSString *goodsName, NSString *goodsDesc) {
+                [weakself goonPay:orderNo price:price];
+            };
+            cell.orderModel = model;
+            return cell;
+        } else {
+            WaitingForPayMeetingViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"WaitingForPayMeetingViewCell" forIndexPath:indexPath];
+            // Configure the cell...
+            cell.cancelOrderBlock = ^(NSString *orderNo){
+                [weakself cancelOrder:orderNo];
+            };
+            cell.goonPayBolck = ^(NSString *orderNo, NSNumber *price, NSString *goodsName, NSString *goodsDesc) {
+                [weakself goonPay:orderNo price:price];
+            };
+            cell.orderModel = model;
+            return cell;
+        }
+    } else  {//if (goodsDetailType == 4)
+        if (isTrends) {
+            CompletedForPayTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CompletedForPayTrendsViewCell" forIndexPath:indexPath];
+            // Configure the cell...
+            cell.deleteOrderBlock = ^(NSString *orderNo){
+                [weakself deleteOrder:orderNo];
+            };
+            cell.evaluateOrderBlock = ^(NSString *orderId, NSString *goodsId, NSString *goodsName){
+                [weakself evaluateOrderWithOrderID:orderId goodsID:goodsId goodsName:goodsName];
+            };
+            cell.orderModel = model;
+            return cell;
+        } else {
+            CompletedForPayMeetingViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CompletedForPayMeetingViewCell" forIndexPath:indexPath];
+            // Configure the cell...
+            cell.deleteOrderBlock = ^(NSString *orderNo){
+                [weakself deleteOrder:orderNo];
+            };
+            cell.evaluateOrderBlock = ^(NSString *orderId, NSString *goodsId, NSString *goodsName){
+                [weakself evaluateOrderWithOrderID:orderId goodsID:goodsId goodsName:goodsName];
+            };
+            cell.orderModel = model;
+            return cell;
+        }
+    }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    MyOrderModel *model = self.modelArray[indexPath.section];
+    if ([model.orderNo hasPrefix:@"DT"]) {
+        return 223;
+    } else {
+        return 174;
+    }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    return 12;
+}
+
+@end

@@ -1,0 +1,66 @@
+//
+//  UIScreen+Adapt.m
+//  LoochaCampusMain
+//
+//  Created by zhang jinquan on 1/25/16.
+//  Copyright © 2016 Real Cloud. All rights reserved.
+//
+
+#import "UIScreen+Adapt.h"
+
+static const CGFloat adapting_based_width = 375;
+@implementation UIScreen (Adapt)
+
++ (CGFloat)adaptedLengthOf:(CGFloat)length {
+    return length * [self adaptingFactor];
+}
+
++ (CGSize)adaptedSizeOf:(CGSize)size {
+    CGFloat adaptingFactor = [self adaptingFactor];
+    return CGSizeMake(size.width * adaptingFactor, size.height * adaptingFactor);
+}
+
++ (CGFloat)adaptingBasedWidth {
+    return adapting_based_width;
+}
+
++ (CGFloat)adaptingFactor {
+    static CGFloat adaptingFactor;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        adaptingFactor = [[UIScreen mainScreen] bounds].size.width/[self adaptingBasedWidth];
+    });
+    return adaptingFactor;
+}
+
++ (CGRect)adaptedBoundsOf:(CGRect)bounds {
+    CGRect r;
+    r.origin = bounds.origin;
+    r.size = [self adaptedSizeOf:bounds.size];
+    return r;
+}
+
++ (CGRect)adaptedFrameOf:(CGRect)frame {
+    CGRect r;
+    r.origin.x = frame.origin.x - ([UIScreen adaptedLengthOf:frame.size.width]- frame.size.width)/2;
+    r.origin.y = frame.origin.y;
+    r.size = [self adaptedSizeOf:frame.size];
+    return r;
+}
+
++ (UIEdgeInsets)adaptedInsetsOf:(UIEdgeInsets)insets {
+    return UIEdgeInsetsMake([self adaptedLengthOf:insets.top],
+                            [self adaptedLengthOf:insets.left],
+                            [self adaptedLengthOf:insets.bottom],
+                            [self adaptedLengthOf:insets.right]);
+}
+
+@end
+
+@implementation UIFont (Adapt)
+
++ (UIFont *)adaptedFontOfSize:(CGFloat)fontSize {
+    return [self systemFontOfSize:[UIScreen adaptedLengthOf:fontSize]];
+}
+
+@end

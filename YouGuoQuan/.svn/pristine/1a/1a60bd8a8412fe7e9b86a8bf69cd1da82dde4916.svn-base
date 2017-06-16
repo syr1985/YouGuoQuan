@@ -1,0 +1,16 @@
+//
+//  FavorerListViewCell.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/16.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface FavorerListViewCell : UITableViewCell
+@property (nonatomic,   copy) void (^tapUserHeadImageBlock)(NSString *userId);
+@property (nonatomic,   copy) void (^pushFavorerListViewControllerBlock)();
+@property (nonatomic, strong) NSArray *favorerArray;
+@property (nonatomic, strong) NSNumber *totalCount;
+@end

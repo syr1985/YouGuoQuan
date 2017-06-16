@@ -1,0 +1,138 @@
+/************************************************************
+ *  * Hyphenate CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of Hyphenate Inc.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Hyphenate Inc.
+ */
+
+#import "EaseBubbleView+Voice.h"
+#import <Masonry.h>
+#define ISREAD_VIEW_SIZE 10.f
+
+@implementation EaseBubbleView (Voice)
+
+#pragma mark - private
+
+- (void)_setupVoiceBubbleMarginConstraints {
+    //image view
+    __weak typeof(self) weakself = self;
+    [self.voiceImageView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(weakself.backgroundImageView.mas_top).with.offset(weakself.margin.top);
+        make.bottom.equalTo(weakself.backgroundImageView.mas_bottom).with.offset(-weakself.margin.bottom);
+    }];
+    
+    //duration label
+    [self.voiceDurationLabel mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(weakself.backgroundImageView.mas_top).with.offset(weakself.margin.top);
+        make.bottom.equalTo(weakself.backgroundImageView.mas_bottom).with.offset(-weakself.margin.bottom);
+    }];
+    
+    if (self.isSender) {
+        [self.voiceImageView mas_updateConstraints:^(MASConstraintMaker *make) {
+            make.right.equalTo(weakself.backgroundImageView.mas_right).with.offset(-weakself.margin.right);
+        }];
+        [self.voiceDurationLabel mas_updateConstraints:^(MASConstraintMaker *make) {
+            make.right.equalTo(weakself.voiceImageView.mas_left).with.offset(-EaseMessageCellPadding);
+            make.left.equalTo(weakself.backgroundImageView.mas_left).with.offset(weakself.margin.left);
+        }];
+    } else {
+        [self.voiceImageView mas_updateConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(weakself.backgroundImageView.mas_left).with.offset(weakself.margin.left);
+        }];
+        [self.voiceDurationLabel mas_updateConstraints:^(MASConstraintMaker *make) {
+            //make.left.equalTo(weakself.voiceImageView.mas_right).with.offset(EaseMessageCellPadding);
+            make.right.equalTo(weakself.backgroundImageView.mas_right).with.offset(-weakself.margin.right);
+        }];
+    }
+}
+
+//- (void)_setupVoiceBubbleConstraints {
+//    if (self.isSender) {
+//        self.isReadView.hidden = YES;
+//    }
+//    [self _setupVoiceBubbleMarginConstraints];
+//}
+
+#pragma mark - public
+
+- (void)setupVoiceSnapView {
+    __weak typeof(self) weakself = self;
+    self.backgroundImageView.userInteractionEnabled = YES;
+    
+    // 添加右上角的锁
+    self.countDownButton = [[JKCountDownButton alloc] init];
+    self.countDownButton.enabled = NO;
+    self.countDownButton.titleLabel.font = [UIFont systemFontOfSize:12];
+    [self.countDownButton setBackgroundColor:RGBA(224, 224, 224, 1)];
+    [self.countDownButton setImage:[UIImage imageNamed:@"阅后即焚-锁"] forState:UIControlStateNormal];
+    self.countDownButton.layer.cornerRadius = 10;
+    self.countDownButton.layer.masksToBounds = YES;
+    [self.backgroundImageView addSubview:self.countDownButton];
+    [self.countDownButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.equalTo(weakself.backgroundImageView.mas_right);
+        make.centerY.equalTo(weakself.backgroundImageView.mas_top);
+        make.width.mas_equalTo(20);
+        make.height.mas_equalTo(20);
+    }];
+    
+    [self.isReadView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(weakself.backgroundImageView.mas_right).with.offset(ISREAD_VIEW_SIZE);
+        make.centerY.equalTo(weakself.backgroundImageView.mas_top);
+    }];
+}
+
+- (void)setupVoiceBubbleView {
+    self.voiceImageView = [[UIImageView alloc] init];
+    self.voiceImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.voiceImageView.backgroundColor = [UIColor clearColor];
+    self.voiceImageView.animationDuration = 1;
+    self.voiceImageView.userInteractionEnabled = YES;
+    self.voiceImageView.contentMode = UIViewContentModeCenter;
+    [self.backgroundImageView addSubview:self.voiceImageView];
+    
+    self.voiceDurationLabel = [[UILabel alloc] init];
+    self.voiceDurationLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    self.voiceDurationLabel.backgroundColor = [UIColor clearColor];
+    [self.backgroundImageView addSubview:self.voiceDurationLabel];
+    
+    self.isReadView = [[UIImageView alloc] init];
+    self.isReadView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.isReadView.layer.cornerRadius = ISREAD_VIEW_SIZE/2;
+    self.isReadView.clipsToBounds = YES;
+    self.isReadView.backgroundColor = [UIColor redColor];
+    [self.backgroundImageView addSubview:self.isReadView];
+    
+    __weak typeof(self) weakself = self;
+    [self.isReadView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(weakself.backgroundImageView.mas_right).with.offset(ISREAD_VIEW_SIZE / 2);
+        make.centerY.equalTo(weakself.backgroundImageView.mas_top).with.offset(ISREAD_VIEW_SIZE / 2);
+        make.width.mas_equalTo(ISREAD_VIEW_SIZE);
+        make.height.mas_equalTo(ISREAD_VIEW_SIZE);
+    }];
+    
+    //    [self _setupVoiceBubbleConstraints];
+    if (self.isSender) {
+        self.isReadView.hidden = YES;
+    }
+    [self _setupVoiceBubbleMarginConstraints];
+}
+
+- (void)updateVoiceMargin:(UIEdgeInsets)margin {
+    if (_margin.top == margin.top &&
+        _margin.bottom == margin.bottom &&
+        _margin.left == margin.left &&
+        _margin.right == margin.right) {
+        return;
+    }
+    _margin = margin;
+    
+    //[self removeConstraints:self.marginConstraints];
+    [self _setupVoiceBubbleMarginConstraints];
+}
+
+@end

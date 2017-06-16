@@ -1,0 +1,154 @@
+//
+//  UserCenterViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "UserCenterViewController.h"
+#import "UserCenterHeaderView.h"
+
+@interface UserCenterViewController ()
+
+@end
+
+@implementation UserCenterViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Uncomment the following line to preserve selection between presentations.
+    // self.clearsSelectionOnViewWillAppear = NO;
+    
+    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    [self configTableView];
+    
+    
+    [self configNavgation];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.navigationController setNavigationBarHidden:NO animated:NO];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/**
+ *  配置Table
+ */
+- (void)configTableView {
+    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"reuseIdentifier"];
+    
+    self.tableView.tableHeaderView = [UserCenterHeaderView loadUserCenterHeaderView];
+}
+
+/**
+ *  配置导航栏
+ */
+- (void)configNavgation {
+    NSArray *titles = @[@"购买微信", @"打赏", @"关注", @"聊天"];
+    NSArray *images = @[@"微信", @"打赏", @"+", @"聊天"];
+    NSArray *withs  = @[@80, @55, @65, @55];
+    
+    NSMutableArray *items = [NSMutableArray arrayWithCapacity:4];
+    for (NSUInteger i = 0; i < 4; i++) {
+        CGFloat btnW = [withs[i] floatValue];
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.frame = CGRectMake(0, 0, btnW, 25);
+        btn.backgroundColor = NavColor;
+        btn.layer.cornerRadius = 5;
+        
+        btn.titleLabel.font = [UIFont systemFontOfSize:12];
+        [btn setTitle:titles[i] forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor darkTextColor] forState:UIControlStateNormal];
+        [btn setImage:[UIImage imageNamed:images[i]] forState:UIControlStateNormal];
+        // add sel
+        
+        if (i == 2) {
+            [btn setTitle:@"已关注" forState:UIControlStateDisabled];
+            [btn setImage:[UIImage imageNamed:@"已关注"] forState:UIControlStateDisabled];
+            [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateDisabled];
+        }
+        btn.enabled = YES;
+        
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView:btn];
+        [items addObject:item];
+    }
+    
+    self.navigationItem.rightBarButtonItems = [[items reverseObjectEnumerator] allObjects];
+}
+
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 4;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"reuseIdentifier" forIndexPath:indexPath];
+    cell.backgroundColor = NavColor;
+    // Configure the cell...
+    
+    return cell;
+}
+
+
+/*
+ // Override to support conditional editing of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+ // Return NO if you do not want the specified item to be editable.
+ return YES;
+ }
+ */
+
+/*
+ // Override to support editing the table view.
+ - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+ if (editingStyle == UITableViewCellEditingStyleDelete) {
+ // Delete the row from the data source
+ [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+ } else if (editingStyle == UITableViewCellEditingStyleInsert) {
+ // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+ }   
+ }
+ */
+
+/*
+ // Override to support rearranging the table view.
+ - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
+ }
+ */
+
+/*
+ // Override to support conditional rearranging of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+ // Return NO if you do not want the item to be re-orderable.
+ return YES;
+ }
+ */
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

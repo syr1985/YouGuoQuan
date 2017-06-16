@@ -1,0 +1,28 @@
+//
+//  SystemMessageCellTableViewCell.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/9.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "SystemMessageCell.h"
+#import "Masonry.h"
+#import "UIScreen+Adapt.h"
+#import "HelperUtil.h"
+
+@interface SystemMessageCell()
+@property (nonatomic, weak) IBOutlet UILabel *timeLabel;
+@property (nonatomic, weak) IBOutlet UITextView *detailTextView;
+@end
+
+@implementation SystemMessageCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    
+}
+
+
+@end

@@ -1,0 +1,234 @@
+//
+//  ProductDetailViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/17.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "ProductDetailViewController.h"
+#import "EvaluateListViewController.h"
+
+#import "ProductDetailHeaderViewCell.h"
+#import "ProductDetailCommentViewCell.h"
+#import "ProductDetailShowViewCell.h"
+
+#import "HomeFocusModel.h"
+#import "ProductDetailModel.h"
+
+@interface ProductDetailViewController () <UIScrollViewDelegate>
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UIButton *buyNowButton;
+@property (nonatomic, strong) NSArray *productUrlArray;
+@property (nonatomic, strong) NSArray *commentListArray;
+@property (nonatomic, strong) ProductDetailModel *productDetailModel;
+@end
+
+static NSString * const tableViewCellID_show     = @"ProductDetailShowViewCell";
+static NSString * const tableViewCellID_comment  = @"ProductDetailCommentViewCell";
+static NSString * const tableViewCellID_header   = @"ProductDetailHeaderViewCell";
+
+@implementation ProductDetailViewController
+
+- (void)dealloc {
+    NSLog(@"%@ %s",self.class, __FUNCTION__);
+}
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSArray *)productUrlArray {
+    if (!_productUrlArray) {
+        _productUrlArray = [NSArray array];
+    }
+    return _productUrlArray;
+}
+
+- (NSArray *)commentListArray {
+    if (!_commentListArray) {
+        _commentListArray = [NSArray array];
+    }
+    return _commentListArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self configViewController];
+    
+    [self loadProductDetailFromServer];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - 配置控制器
+- (void)configViewController {
+    self.title = @"详情";
+    
+    self.tableView.sectionFooterHeight = 12;
+    
+    UINib *nib_comment = [UINib nibWithNibName:tableViewCellID_comment bundle:nil];
+    [self.tableView registerNib:nib_comment forCellReuseIdentifier:tableViewCellID_comment];
+    
+    UINib *nib_show = [UINib nibWithNibName:tableViewCellID_show bundle:nil];
+    [self.tableView registerNib:nib_show forCellReuseIdentifier:tableViewCellID_show];
+    
+    UINib *nib_header = [UINib nibWithNibName:tableViewCellID_header bundle:nil];
+    [self.tableView registerNib:nib_header forCellReuseIdentifier:tableViewCellID_header];
+    
+}
+
+#pragma mark -
+#pragma mark - 加载数据
+- (void)loadProductDetailFromServer {
+    [NetworkTool getProductDetailWithProductID:_homeFocusModel.goodsId success:^(id result) {
+        self.productDetailModel = [ProductDetailModel productDetailModelWithDict:result];
+        NSString *productURLs = self.productDetailModel.goodsLink;
+        if ([productURLs containsString:@";"]) {
+            self.productUrlArray = [productURLs componentsSeparatedByString:@";"];
+        } else {
+            self.productUrlArray = @[productURLs];
+        }
+        [self.tableView reloadData];
+    }];
+    
+    [NetworkTool getCommentListWithPageNO:@(1) pageSize:@(1) trendsId:_homeFocusModel.goodsId success:^(id result) {
+        self.commentListArray = result;
+        [self.tableView reloadData];
+    }];
+}
+
+#pragma mark -
+#pragma mark - popVC
+- (IBAction)popViewController {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+#pragma mark -
+#pragma mark - 跳评论列表页
+- (void)popToEvaluateListViewController {
+    UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+    EvaluateListViewController *evaluateVC = [homeSB instantiateViewControllerWithIdentifier:@"EvaluateListVC"];
+    evaluateVC.goodsId = _homeFocusModel.goodsId;
+    UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:evaluateVC];
+    [self presentViewController:navVC animated:YES completion:nil];
+}
+
+#pragma mark -
+#pragma mark - Table view data source
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 3;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (section == 2) {
+        return self.productUrlArray.count;
+    } else if (section == 0) {
+        return 1;
+    } else {
+        return self.commentListArray.count;
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        ProductDetailHeaderViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_header forIndexPath:indexPath];
+        if (_productDetailModel) {
+            cell.productDetailModel = self.productDetailModel;
+        }
+        return cell;
+    } else if (indexPath.section == 1) {
+        __weak typeof(self) weakself = self;
+        ProductDetailCommentViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_comment forIndexPath:indexPath];
+        cell.commentListBlock = ^{
+            [weakself popToEvaluateListViewController];
+        };
+        cell.detalCommentModel = self.commentListArray[indexPath.row];
+        return cell;
+    } else {
+        ProductDetailShowViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_show forIndexPath:indexPath];
+        cell.goodsUrl = self.productUrlArray[indexPath.row];
+        return cell;
+    }
+}
+
+#pragma mark -
+#pragma mark - Table View Delegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        return self.productDetailModel.cellHeight;
+    } else if (indexPath.section == 1) {
+        return 180;
+    } else {
+        return 200;
+    }
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 36)];
+    
+    UILabel *countLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, 20, 100, 16)];
+    countLabel.text = @"商品展示";
+    countLabel.textColor = [UIColor darkTextColor];
+    countLabel.font = [UIFont systemFontOfSize:14];
+    [headerView addSubview:countLabel];
+    
+    return headerView;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    if (section == 2) {
+        return 40;
+    } else {
+        return 0;
+    }
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    UIView *footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 12)];
+    footerView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    return footerView;
+}
+
+#pragma mark -
+#pragma mark - Table View Delegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    CGFloat offsetY = scrollView.contentOffset.y + _tableView.contentInset.top;//注意
+    CGFloat panTranslationY = [scrollView.panGestureRecognizer translationInView:_tableView].y;
+    
+    YGQLog(@"scrollViewDidScroll %f, %f, %f", scrollView.contentOffset.y,offsetY,panTranslationY);
+    //    CGFloat buttonCenterX = CGRectGetMidX(self.buyNowButton.frame);
+    //    CGFloat buttonCenterY = CGRectGetMidY(self.buyNowButton.frame);
+    //    CGFloat buttonH = CGRectGetHeight(self.buyNowButton.bounds);
+    //    if (panTranslationY > 0) { //下滑趋势，显示
+    //        [UIView animateWithDuration:0.25 animations:^{
+    //            self.buyNowButton.center = CGPointMake(buttonCenterX, buttonCenterY - buttonH);
+    //            [self.buyNowButton updateConstraintsIfNeeded];
+    //            [self.tableView updateConstraintsIfNeeded];
+    //        }];
+    //    } else {  //上滑趋势，隐藏
+    //        [UIView animateWithDuration:0.25 animations:^{
+    //            self.buyNowButton.center = CGPointMake(buttonCenterX, buttonCenterY + buttonH);
+    //            [self.buyNowButton updateConstraintsIfNeeded];
+    //            [self.tableView updateConstraintsIfNeeded];
+    //        }];
+    //    }
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

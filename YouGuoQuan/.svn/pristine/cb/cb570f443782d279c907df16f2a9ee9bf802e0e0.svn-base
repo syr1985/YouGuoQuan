@@ -1,0 +1,82 @@
+//
+//  UserCenterModel.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/14.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "UserCenterModel.h"
+#import <MJExtension.h>
+#import "NSString+StringSize.h"
+
+@implementation UserCenterModel
+
++ (instancetype)userCenterModelWithDict:(NSDictionary *)dict {
+    [UserCenterModel mj_setupReplacedKeyFromPropertyName:^NSDictionary *{
+        return @{@"trendsId" : @"id"};
+    }];
+    return [[UserCenterModel alloc] initUserCenterModelWithDict:dict];
+}
+
+- (instancetype)initUserCenterModelWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self =  [UserCenterModel mj_objectWithKeyValues:dict];
+        
+        NSString *title = _instro;
+        if (_feedsType == 3) {
+            title = _goodsName;
+        }
+        
+        NSUInteger margin = 6;
+        CGFloat defaultW = (WIDTH - 24 - 2 * margin) / 3;
+        CGFloat maxH = 8;
+        CGFloat titleH = [NSString heightWithString:title
+                                            maxSize:CGSizeMake(WIDTH - 24, 0)
+                                            strFont:[UIFont systemFontOfSize:14]];
+        maxH += (titleH + 8);
+        if (_feedsType == 1) {
+            if (_imageUrl && _imageUrl.length) {
+                if ([_imageUrl containsString:@";"]) {
+                    NSArray *urlArray = [_imageUrl componentsSeparatedByString:@";"];
+                    NSUInteger count = urlArray.count;
+                    NSUInteger col = count == 4 ? 2 : (count > 2 ? 3 : count);
+                    NSUInteger row = count % 3 == 0 ? (count / 3) : (count / 3 + 1);
+                    
+                    CGFloat viewW = (WIDTH - 24 - (col - 1) * margin) / col;
+                    if (viewW > defaultW) {
+                        viewW = defaultW;
+                    }
+                    maxH += (row * viewW + (row - 1) * margin);
+                } else {
+                    maxH += 178;//defaultW;
+                }
+            }
+        } else if (_feedsType == 2) {
+            maxH += (WIDTH - 24) * 185 / 320;
+        } else if (_feedsType == 3) {
+            maxH += (WIDTH - 24) * 216 / 350;
+        } else {
+            if (_imageUrl && _imageUrl.length) {
+                if ([_imageUrl containsString:@";"]) {
+                    NSArray *urlArray = [_imageUrl componentsSeparatedByString:@";"];
+                    NSUInteger count = urlArray.count;
+                    NSUInteger col = count == 4 ? 2 : (count > 2 ? 3 : count);
+                    NSUInteger row = count % 3 == 0 ? (count / 3) : (count / 3 + 1);
+                    
+                    CGFloat viewW = (WIDTH - 24 - (col - 1) * margin) / col;
+                    if (viewW > defaultW) {
+                        viewW = defaultW;
+                    }
+                    maxH += (row * viewW + (row - 1) * margin);
+                } else {
+                    maxH += 178;//defaultW;
+                }
+            }
+        }
+        _cellHeight = maxH + 48;
+    }
+    return self;
+}
+
+@end

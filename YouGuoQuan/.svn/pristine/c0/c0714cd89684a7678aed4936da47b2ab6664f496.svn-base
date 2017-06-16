@@ -1,0 +1,42 @@
+//
+//  ProductDetailModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/20.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ goodsInstro = Worry;
+ goodsLink = "http://7xtk9y.com1.z0.glb.clouddn.com/2016-12-17_3DUBGW5z.jpg";
+ goodsName = 34ert;
+ goodsType = 1;
+ id = "39a6b909-e751-40f4-ad03-8d2ae9fa3a78";
+ imageUrl = "http://7xtk9y.com1.z0.glb.clouddn.com/2016-12-17_gNm6pgjI.jpg";
+ isDelete = 0;
+ isReal = 1;
+ price = 125;
+ updateTime = 1481979165000;
+ userId = "0f188a3d-4529-40a7-9d37-ffb288b19e5d";
+ */
+@interface ProductDetailModel : NSObject
+@property (nonatomic,   copy) NSString *goodsId;
+@property (nonatomic,   copy) NSString *goodsName;
+@property (nonatomic,   copy) NSString *imageUrl;
+@property (nonatomic,   copy) NSString *goodsLink;
+@property (nonatomic,   copy) NSString *goodsInstro;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *updateTime;
+@property (nonatomic,   copy) NSString *price;
+@property (nonatomic, assign) BOOL isDelete;
+@property (nonatomic, assign) BOOL isReal;
+@property (nonatomic, assign) int goodsType;
+
+// Cell的高（自己根据数据计算的，不在返回字段里）
+@property (nonatomic, assign) CGFloat cellHeight;
+
++ (instancetype)productDetailModelWithDict:(NSDictionary *)dict;
+- (instancetype)initProductDetailModelWithDict:(NSDictionary *)dict;
+@end

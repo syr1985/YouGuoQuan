@@ -1,0 +1,80 @@
+//
+//  VerifyCodeViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/14.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "VerifyCodeViewController.h"
+#import <JKCountDownButton/JKCountDownButton.h>
+#import <Masonry.h>
+
+@interface VerifyCodeViewController ()
+@property (weak, nonatomic) IBOutlet UILabel *currentPhoneNumberLabel;
+@property (weak, nonatomic) IBOutlet UITextField *inputAuthCodeTextField;
+@property (weak, nonatomic) IBOutlet JKCountDownButton *getAuthCodeButton;
+@property (weak, nonatomic) IBOutlet UIButton *nextStepButton;
+
+@end
+
+@implementation VerifyCodeViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self confirmViewController];
+}
+
+- (void)confirmViewController {
+    self.titleLabel.text = @"2/3验证手机号";
+    
+    UIEdgeInsets padding = UIEdgeInsetsMake(5, 10, 5, 0);
+    UIView *leftView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 50, 36)];
+    UILabel *label = [[UILabel alloc] init];
+    label.text = @"验证码";
+    label.minimumScaleFactor = 0.5;
+    label.adjustsFontSizeToFitWidth = YES;
+    label.textColor = [UIColor blackColor];
+    [leftView addSubview:label];
+    
+    [label mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.equalTo(leftView).with.insets(padding);
+    }];
+    
+    _inputAuthCodeTextField.leftView = leftView;
+    _inputAuthCodeTextField.leftViewMode = UITextFieldViewModeAlways;
+    
+    [_getAuthCodeButton countDownButtonHandler:^(JKCountDownButton*sender, NSInteger tag) {
+        sender.enabled = NO;
+        
+        [sender startCountDownWithSecond:60];
+        
+        [sender countDownChanging:^NSString *(JKCountDownButton *countDownButton,NSUInteger second) {
+            NSString *title = [NSString stringWithFormat:@"重新获取验证码(%zd)",second];
+            return title;
+        }];
+        [sender countDownFinished:^NSString *(JKCountDownButton *countDownButton, NSUInteger second) {
+            countDownButton.enabled = YES;
+            return @"重新获取验证码";
+        }];
+    }];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

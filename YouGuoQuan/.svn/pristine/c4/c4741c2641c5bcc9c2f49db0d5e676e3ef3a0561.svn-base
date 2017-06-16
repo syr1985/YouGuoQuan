@@ -1,0 +1,13 @@
+//
+//  AlertView.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/7.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface AlertView : NSObject
++ (void)showAlertViewWithTitle:(NSString *)title Message:(NSString *)message;
+@end

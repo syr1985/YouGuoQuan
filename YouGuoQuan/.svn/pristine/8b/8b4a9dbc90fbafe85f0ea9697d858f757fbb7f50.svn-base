@@ -1,0 +1,171 @@
+//
+//  PersonCenterViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/3.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "PersonCenterViewCell.h"
+#import "UserBaseInfoModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "TakePhotoHelp.h"
+#import "UIImage+Color.h"
+
+@interface PersonCenterViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView  *headerBackgroundImageView;   // 头像背景
+@property (weak, nonatomic) IBOutlet UIView *backgroundBlurView;
+@property (weak, nonatomic) IBOutlet UIImageView  *headerImageView;             // 头像
+@property (weak, nonatomic) IBOutlet UIImageView  *crownImageView;              // 皇冠
+@property (weak, nonatomic) IBOutlet UIImageView  *vipImageView;                // vip
+
+@property (weak, nonatomic) IBOutlet UILabel      *nickNameLabel;               // 昵称
+@property (weak, nonatomic) IBOutlet UIImageView  *sexImageView;                // 性别
+@property (weak, nonatomic) IBOutlet UIImageView  *levelImageView;              // 等级
+
+@property (weak, nonatomic) IBOutlet UILabel      *indentificationLabel;        // 尤果认证
+@property (weak, nonatomic) IBOutlet UILabel      *positiveRateLabel;           // 好评率
+
+@property (weak, nonatomic) IBOutlet UIButton     *concemButton;                // 关注
+@property (weak, nonatomic) IBOutlet UIButton     *fansButton;                  // 粉丝
+@property (weak, nonatomic) IBOutlet UIButton     *favourButton;                // 赞
+
+@property (weak, nonatomic) IBOutlet UIScrollView *photoWallScrollView;         // 照片墙
+@end
+
+@implementation PersonCenterViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.headerImageView.layer.cornerRadius = self.headerImageView.frame.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+    self.headerImageView.layer.borderColor = [UIColor whiteColor].CGColor;
+    self.headerImageView.layer.borderWidth = 2;
+    
+    UITapGestureRecognizer *tapHead = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                              action:@selector(tapUserHeaderImageView:)];
+    [self.headerImageView addGestureRecognizer:tapHead];
+    
+    UITapGestureRecognizer *tapBlur = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                              action:@selector(tapBackgroundImageView:)];
+    [self.backgroundBlurView addGestureRecognizer:tapBlur];
+}
+
+- (void)setUserBaseInfoModel:(UserBaseInfoModel *)userBaseInfoModel {
+    _userBaseInfoModel = userBaseInfoModel;
+    
+    [self.headerBackgroundImageView sd_setImageWithURL:[NSURL URLWithString:userBaseInfoModel.coverImgUrl]
+                                      placeholderImage:[UIImage imageNamed:@"背景封面默认图"]];
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:userBaseInfoModel.headImg]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.crownImageView.hidden = !userBaseInfoModel.isRecommend;
+    self.vipImageView.hidden = (userBaseInfoModel.audit != 1);
+    
+    self.nickNameLabel.text = userBaseInfoModel.nickName;
+    self.sexImageView.image = [UIImage imageNamed:userBaseInfoModel.sex];
+    self.levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",userBaseInfoModel.star]];
+    
+    self.indentificationLabel.text = [NSString stringWithFormat:@"尤果认证：%@",userBaseInfoModel.auditResult];
+    self.positiveRateLabel.text = [NSString stringWithFormat:@"好评率：%@%%",userBaseInfoModel.rateOfPraise];
+    
+    [self.concemButton setTitle:[NSString stringWithFormat:@"%@关注",userBaseInfoModel.focusCount]
+                       forState:UIControlStateNormal];
+    [self.fansButton setTitle:[NSString stringWithFormat:@"%@粉丝",userBaseInfoModel.fansCount]
+                     forState:UIControlStateNormal];
+    [self.favourButton setTitle:[NSString stringWithFormat:@"%@赞",userBaseInfoModel.zanCount]
+                       forState:UIControlStateNormal];
+}
+
+- (void)setPhotoArray:(NSArray *)photoArray {
+    _photoArray = photoArray;
+    
+    for (UIView *view in self.photoWallScrollView.subviews) {
+        [view removeFromSuperview];
+    }
+    
+    NSUInteger photoCount = photoArray.count;
+    CGFloat imageViewH = _photoWallScrollView.frame.size.height;
+    
+    for (NSUInteger i = 0; i < photoCount; i++) {
+        NSString *imageUrl = photoArray[i];
+        CGFloat imageViewX = imageViewH * i + 8 * (i + 1);
+        UIImageView *imageView = [[UIImageView alloc] init];
+        imageView.layer.cornerRadius = 5;
+        imageView.layer.masksToBounds = YES;
+        imageView.frame = CGRectMake(imageViewX, 0, imageViewH, imageViewH);
+        
+        if ([imageUrl hasPrefix:@"http"]) {
+            UIImage *phImage = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]
+                                                             size:imageView.frame.size];
+            [imageView sd_setImageWithURL:[NSURL URLWithString:imageUrl]
+                         placeholderImage:phImage];
+        } else {
+            imageView.image = [UIImage imageNamed:imageUrl];
+            imageView.userInteractionEnabled = YES;
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                  action:@selector(openPhotoAlbum)];
+            [imageView addGestureRecognizer:tap];
+        }
+        [self.photoWallScrollView addSubview:imageView];
+    }
+    self.photoWallScrollView.contentSize = CGSizeMake((imageViewH + 8) * photoCount + 8, imageViewH);
+}
+
+- (void)setBackgroundImage:(UIImage *)backgroundImage {
+    _backgroundImage = backgroundImage;
+    
+    self.headerBackgroundImageView.image = backgroundImage;
+}
+
+/**
+ *  点击头像查看个人信息
+ */
+- (void)tapUserHeaderImageView:(id)sender {
+    if (_tapHeaderImageViewBlock) {
+        _tapHeaderImageViewBlock();
+    }
+}
+
+- (void)tapBackgroundImageView:(UITapGestureRecognizer *)sender {
+    if (_tapBackgroundImageViewBlock) {
+        _tapBackgroundImageViewBlock();
+    }
+}
+
+/**
+ *  他人关注
+ */
+- (IBAction)lookOthersConcems {
+    if (_concemButtonClickedBlock) {
+        _concemButtonClickedBlock();
+    }
+}
+
+/**
+ *  他人粉丝
+ */
+- (IBAction)lookOthersFuns {
+    if (_funsButtonClickedBlock) {
+        _funsButtonClickedBlock();
+    }
+}
+
+/**
+ *  他赞过的
+ */
+- (IBAction)lookOthersFavours {
+    if (_favourButtonClickedBlock) {
+        _favourButtonClickedBlock();
+    }
+}
+
+- (void)openPhotoAlbum {
+    if (_selectPhotoBlock) {
+        _selectPhotoBlock();
+    }
+}
+
+@end

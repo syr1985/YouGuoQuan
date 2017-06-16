@@ -1,0 +1,233 @@
+//
+//  AppDelegate.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "AppDelegate.h"
+#import "AppDelegate+EaseMob.h"
+
+#import "SCAppVersionTool.h"
+#import "SCNewFeatureController.h"
+#import "CityLocation.h"
+
+#import <SDWebImage/SDWebImageManager.h>
+#import <UserNotifications/UserNotifications.h>
+#import <AFNetworking/AFNetworkReachabilityManager.h>
+#import <BaiduMapAPI_Map/BMKMapComponent.h>
+#import "FuqianlaPay.h"
+
+// 环信
+#define APP_KEY     @"1139161122178530#youguo"
+//#define APP_CLIENT_ID     @"YXA6C3o_ELCXEea-MWGd8b2a2w"
+//#define APP_CLIENT_SECRET @"YXA6HX6gCBbS0-rTetd1j3_mUFymy0A"
+// 百度
+#define APP_KEY_MAP @"uxaxnKFTDA34R0tNOI6Ud6BCaXQwWC5s"
+
+
+BMKMapManager* _mapManager;
+@interface AppDelegate () <UNUserNotificationCenterDelegate>
+
+@end
+
+@implementation AppDelegate
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // Override point for customization after application launch.
+    
+    [self configSVProgressHUD];
+    
+    //    [self configBaiduMap];
+    
+    //[self configReachability];
+    
+    //[self setRootViewControllerForKeyWindow];
+    
+    [self configEaseMobWithApplication:application options:launchOptions];
+    
+    return YES;
+}
+
+- (void)configBaiduMap {
+    _mapManager = [[BMKMapManager alloc] init];
+    //com.njfanya.TelecomMaintenance @"4NTyeKsu0hcSks7PG9ph7jXg"
+    //com.newtouch.YouGuoQuan   @"dkKvoHAPRN1KgHCcA1jicAPG3eie1kFq"
+    [_mapManager start:APP_KEY_MAP generalDelegate:self];
+}
+
+- (void)onGetNetworkState:(int)iError
+{
+    if (0 == iError) {
+        NSLog(@"联网成功");
+    }
+    else{
+        NSLog(@"onGetNetworkState %d",iError);
+    }
+    
+}
+
+- (void)onGetPermissionState:(int)iError
+{
+    if (0 == iError) {
+        NSLog(@"授权成功");
+    }
+    else {
+        NSLog(@"onGetPermissionState %d",iError);
+    }
+}
+
+
+#pragma mark - 监听网络状态
+- (void)configReachability {
+    NSURLCache *sharedCache = [[NSURLCache alloc] initWithMemoryCapacity:2 * 1024 * 1024
+                                                            diskCapacity:100 * 01024 * 1024
+                                                                diskPath:nil];
+    [NSURLCache setSharedURLCache:sharedCache];
+    
+    static BOOL tipShow = NO;
+    static AFNetworkReachabilityStatus lastNetworkStatus = AFNetworkReachabilityStatusUnknown;
+    [[AFNetworkReachabilityManager sharedManager] startMonitoring];
+    [[AFNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+        if(lastNetworkStatus != status && tipShow) {
+            switch(status) {
+                case AFNetworkReachabilityStatusUnknown:
+                case AFNetworkReachabilityStatusNotReachable: {
+                    [SVProgressHUD showErrorWithStatus:@"网络连接丢失"];
+                    break;
+                }
+                    
+                case AFNetworkReachabilityStatusReachableViaWWAN: {
+                    [SVProgressHUD showInfoWithStatus:@"切换至蜂窝"];
+                    break;
+                }
+                    
+                case AFNetworkReachabilityStatusReachableViaWiFi: {
+                    [SVProgressHUD showInfoWithStatus:@"切换至Wi-Fi"];
+                    break;
+                }
+                    
+                default: {
+                    break;
+                }
+            }
+        }
+        
+        lastNetworkStatus = status;
+        tipShow = YES;
+    }];
+}
+
+#pragma mark - 设置HUD
+- (void)configSVProgressHUD {
+    [SVProgressHUD setMinimumDismissTimeInterval:3];
+    [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+}
+
+#pragma mark - 设置环信
+- (void)configEaseMobWithApplication:(UIApplication *)application options:(NSDictionary *)launchOptions {
+    if (NSClassFromString(@"UNUserNotificationCenter")) {
+        [UNUserNotificationCenter currentNotificationCenter].delegate = self;
+    }
+    
+    // 初始化环信IM
+    NSString *apnsCertName = nil;
+    //#if DEBUG
+    //    apnsCertName = @"chatdemoui_dev";
+    //#else
+    //    apnsCertName = @"chatdemoui";
+    //#endif
+    
+    [self easemobApplication:application
+                     options:launchOptions
+                      appkey:APP_KEY
+                apnsCertName:apnsCertName
+                 otherConfig:@{kSDKConfigEnableConsoleLogger:@(YES)}];
+}
+
+#pragma mark - 设置根控制器
+- (void)setRootViewControllerForKeyWindow {
+    // 1. 获取当前版本信息
+    NSString *currentBundleVersion = [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"];
+    
+    // 2. 判断当前版本是否是最新
+    if (![currentBundleVersion isEqualToString:[SCAppVersionTool savedAppVersion]]) {    // 3.1 如果是新版本
+        
+        // 1. 保存新版本信息（偏好设置)
+        [SCAppVersionTool saveNewAppVersion:currentBundleVersion];
+        
+        // 2. 创建新特性画面控制器collectionViewController
+        SCNewFeatureController *newFeatureVC = [[SCNewFeatureController alloc] init];
+        // 设置窗口的根控制器
+        self.window.rootViewController = newFeatureVC;
+    } else {
+        UIStoryboard *mainSB = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        UITabBarController *tabbarVC = [mainSB instantiateViewControllerWithIdentifier:@"TabBarVC"];
+        self.window.rootViewController = tabbarVC;
+    }
+    
+    [self.window makeKeyAndVisible];
+}
+
+
+- (void)applicationWillResignActive:(UIApplication *)application {
+    
+}
+
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+}
+
+
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+    // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+}
+
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+}
+
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    [self easemobApplication:application didReceiveRemoteNotification:userInfo];
+}
+
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    NSDictionary *userInfo = notification.request.content.userInfo;
+    [self easemobApplication:[UIApplication sharedApplication] didReceiveRemoteNotification:userInfo];
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler {
+    completionHandler();
+}
+
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
+    // 停止下载所有图片
+    [[SDWebImageManager sharedManager] cancelAll];
+    // 清除内存中的图片
+    [[SDWebImageManager sharedManager].imageCache clearMemory];
+}
+
+#pragma mark - pay callback
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options {
+    /*{
+     UIApplicationOpenURLOptionsOpenInPlaceKey = 0;
+     UIApplicationOpenURLOptionsSourceApplicationKey = "com.alipay.iphoneclient";
+     }*/
+    [FuqianlaPay handlePayCallBackUrl:url];
+    return YES;
+}
+
+@end

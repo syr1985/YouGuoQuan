@@ -1,0 +1,102 @@
+//
+//  SearchResultViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "SearchResultViewController.h"
+#import "SearchResultViewCell.h"
+#import "SearchReaultModel.h"
+
+@interface SearchResultViewController ()
+@property (weak, nonatomic) IBOutlet UIView *noResultView;
+
+@property (nonatomic,   strong) NSArray *searchResultArray;
+
+@end
+
+static NSString * const tableViewCellID_SearchResult = @"SearchResultViewCell";
+
+@implementation SearchResultViewController
+
+- (NSArray *)searchResultArray {
+    if (!_searchResultArray) {
+        _searchResultArray = [NSArray array];
+    }
+    return _searchResultArray;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Uncomment the following line to preserve selection between presentations.
+    // self.clearsSelectionOnViewWillAppear = NO;
+    
+    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    self.tableView.rowHeight = 60;
+    
+    UINib *nib = [UINib nibWithNibName:tableViewCellID_SearchResult bundle:nil];
+    [self.tableView registerNib:nib forCellReuseIdentifier:tableViewCellID_SearchResult];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)setSearchText:(NSString *)searchText {
+    _searchText = searchText;
+    
+    [NetworkTool searchWithContent:searchText pageNO:@"1" pageSize:@"10" success:^(NSArray *searchResult) {
+        YGQLog(@"searchResult %@",searchResult);
+        self.noResultView.hidden = searchResult.count;
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in searchResult) {
+            SearchReaultModel *searchResultModel = [SearchReaultModel searchReaultModelWithDict:dict];
+            [muArray addObject:searchResultModel];
+        }
+        self.searchResultArray = muArray;
+        [self.tableView reloadData];
+    } failure:nil];
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.searchResultArray.count;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    SearchResultViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_SearchResult
+                                                                 forIndexPath:indexPath];
+    
+    // Configure the cell...
+    cell.searchResultModel = self.searchResultArray[indexPath.row];
+    
+    return cell;
+}
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

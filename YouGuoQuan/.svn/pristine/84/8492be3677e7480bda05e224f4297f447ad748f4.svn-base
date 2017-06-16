@@ -1,0 +1,59 @@
+//
+//  FillInAccountViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/4/21.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "FillInAccountViewController.h"
+#import "WithdrawCashViewController.h"
+
+@interface FillInAccountViewController () <UITextFieldDelegate>
+@property (weak, nonatomic) IBOutlet UITextField *accountTextField;
+@property (weak, nonatomic) IBOutlet UITextField *confirmTextField;
+@property (weak, nonatomic) IBOutlet UITextField *realNameTextField;
+@property (weak, nonatomic) IBOutlet UIButton *nextStepButton;
+
+@end
+
+@implementation FillInAccountViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"提现";
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    self.nextStepButton.enabled = self.accountTextField.text.length && self.confirmTextField.text.length && self.realNameTextField.text.length;
+}
+
+
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+    WithdrawCashViewController *withdrawCashVC = (WithdrawCashViewController *)segue.destinationViewController;
+    withdrawCashVC.totalIncome = self.totalIncome;
+    withdrawCashVC.account = self.accountTextField.text;
+    withdrawCashVC.realName = self.realNameTextField.text;
+}
+
+- (BOOL)shouldPerformSegueWithIdentifier:(NSString *)identifier sender:(id)sender {
+    if ([self.accountTextField.text isEqualToString:self.confirmTextField.text]) {
+        return YES;
+    } else {
+        [SVProgressHUD showInfoWithStatus:@"确认账号与账号不一致"];
+        return NO;
+    }
+}
+
+@end

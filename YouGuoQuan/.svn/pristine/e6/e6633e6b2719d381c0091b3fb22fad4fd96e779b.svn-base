@@ -1,0 +1,36 @@
+//
+//  HomeResourceModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ city = "\U5357\U4eac";
+ coverImgUrl = "http://7xtk9y.com1.z0.glb.clouddn.com/ff66285ddfdf6ba9254558c176373d33.jpg";
+ headImg = "http://7xtk9y.com1.z0.glb.clouddn.com/ff66285ddfdf6ba9254558c176373d33.jpg";
+ id = "86d1051e-0cf6-4010-9f87-a660d67c7b3d";
+ imageCount = 1;
+ isRecommend = 1;
+ nickName = an;
+ star = 1;
+ 
+ */
+
+@interface HomeResourceModel : NSObject
+@property (nonatomic,   copy) NSString *city;
+@property (nonatomic,   copy) NSString *coverImgUrl;
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *imageCount;
+@property (nonatomic, assign) int star;
+@property (nonatomic, assign) BOOL isRecommend;
+
++ (instancetype)homeResourceModelWithDict:(NSDictionary *)dict;
+- (instancetype)initHomeResourceModelWithDict:(NSDictionary *)dict;
+
+@end

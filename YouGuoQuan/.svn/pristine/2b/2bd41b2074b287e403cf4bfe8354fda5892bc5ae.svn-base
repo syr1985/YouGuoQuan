@@ -1,0 +1,171 @@
+//
+//  DailyTaskViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/6.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "DailyTaskViewController.h"
+#import "YouGuoNobilityViewController.h"
+#import "MyDailyTaskModel.h"
+#import <Masonry.h>
+
+@interface DailyTaskViewController ()
+@property (weak, nonatomic) IBOutlet UIButton *signinTaskButton;
+@property (weak, nonatomic) IBOutlet UIProgressView *signinTaskProgressView;
+@property (weak, nonatomic) IBOutlet UILabel *signinTaskScoreLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *favourTaskButton;
+@property (weak, nonatomic) IBOutlet UIProgressView *favourTaskProgressView;
+@property (weak, nonatomic) IBOutlet UILabel *favourTaskScoreLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *commentTaskButton;
+@property (weak, nonatomic) IBOutlet UIProgressView *commentTaskProgressView;
+@property (weak, nonatomic) IBOutlet UILabel *commentTaskScoreLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *rewardTaskButton;
+@property (weak, nonatomic) IBOutlet UIProgressView *rewardTaskProgressView;
+@property (weak, nonatomic) IBOutlet UILabel *rewardTaskScoreLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *redbagTaskButton;
+@property (weak, nonatomic) IBOutlet UIProgressView *redbagTaskProgressView;
+@property (weak, nonatomic) IBOutlet UILabel *redbagTaskScoreLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *completedTaskButton;
+
+@property (nonatomic, assign) BOOL showHeader;
+
+@end
+
+
+@implementation DailyTaskViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.titleString = @"每日任务";
+    
+    //self.tableView.tableHeaderView = headerView;
+    self.showHeader = YES;
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool getMyTaskDailyInfoSuccess:^(id result) {
+        MyDailyTaskModel *myDailyTaskModel = [MyDailyTaskModel myDailyTaskModelWithDict:result];
+        
+        NSString *favourTaskStr = [NSString stringWithFormat:@"点赞任务（%d/%d）",myDailyTaskModel.taskZanNum,myDailyTaskModel.taskZanLimit];
+        [weakself.favourTaskButton setTitle:favourTaskStr forState:UIControlStateNormal];
+        weakself.favourTaskProgressView.progress = myDailyTaskModel.taskZanNum * 1.0f / myDailyTaskModel.taskZanLimit;
+        weakself.favourTaskScoreLabel.text = [NSString stringWithFormat:@"%d/10经验",myDailyTaskModel.taskZan];
+        
+        NSString *commentTaskStr = [NSString stringWithFormat:@"评论任务（%d/%d）",myDailyTaskModel.taskCommentNum,myDailyTaskModel.taskCommentLimit];
+        [weakself.commentTaskButton setTitle:commentTaskStr forState:UIControlStateNormal];
+        weakself.commentTaskProgressView.progress = myDailyTaskModel.taskCommentNum * 1.0f / myDailyTaskModel.taskCommentLimit;
+        weakself.commentTaskScoreLabel.text = [NSString stringWithFormat:@"%d/20经验",myDailyTaskModel.taskComment];
+        
+        NSString *rewardTaskStr = [NSString stringWithFormat:@"打赏任务（%d/%d）",myDailyTaskModel.taskRewardNum,myDailyTaskModel.taskRewardLimit];
+        [weakself.rewardTaskButton setTitle:rewardTaskStr forState:UIControlStateNormal];
+        weakself.rewardTaskProgressView.progress = myDailyTaskModel.taskRewardNum * 1.0f / myDailyTaskModel.taskRewardLimit;
+        weakself.rewardTaskScoreLabel.text = [NSString stringWithFormat:@"%d/100经验",myDailyTaskModel.taskReward];
+        
+        NSString *redbagTaskStr = [NSString stringWithFormat:@"红包照片（%d/%d）",myDailyTaskModel.taskRedBagPhotoNum,myDailyTaskModel.taskRedBagPhotoLimit];
+        [weakself.redbagTaskButton setTitle:redbagTaskStr forState:UIControlStateNormal];
+        weakself.redbagTaskProgressView.progress = myDailyTaskModel.taskRedBagPhotoNum * 1.0f / myDailyTaskModel.taskRedBagPhotoLimit;
+        weakself.redbagTaskScoreLabel.text = [NSString stringWithFormat:@"%d/100经验",myDailyTaskModel.taskRedBagPhoto];
+        
+        weakself.completedTaskButton.enabled = myDailyTaskModel.isComplete;
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"获取每日任务信息失败"];
+    }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - UITableView delegate
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    UIView *headerView = [[UIView alloc] init];
+    headerView.backgroundColor = NavColor;
+    [headerView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.width.mas_equalTo(WIDTH);
+        make.height.mas_equalTo(36);
+    }];
+    
+    UILabel *label = [[UILabel alloc] init];
+    label.text = @"贵族用户每天获得经验x1.5倍";
+    label.font = [UIFont systemFontOfSize:14];
+    [headerView addSubview:label];
+    [label mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(headerView.mas_left).offset(16);
+        make.centerY.equalTo(headerView.mas_centerY);
+    }];
+    
+    UIButton *nobilityBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    nobilityBtn.titleLabel.font = [UIFont systemFontOfSize:14];
+    [nobilityBtn setTitle:@"立即开通 >" forState:UIControlStateNormal];
+    [nobilityBtn setTitleColor:RGBA(255, 165, 82, 1) forState:UIControlStateNormal];
+    [nobilityBtn addTarget:self
+                    action:@selector(pushToNobilityViewController)
+          forControlEvents:UIControlEventTouchUpInside];
+    [headerView addSubview:nobilityBtn];
+    [nobilityBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(label.mas_right).offset(8);
+        make.centerY.equalTo(headerView.mas_centerY);
+    }];
+    
+    UIButton *colseBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    colseBtn.titleLabel.font = [UIFont systemFontOfSize:14];
+    [colseBtn setImage:[UIImage imageNamed:@"关闭"] forState:UIControlStateNormal];
+    [colseBtn addTarget:self
+                 action:@selector(closeHeaderView)
+       forControlEvents:UIControlEventTouchUpInside];
+    [headerView addSubview:colseBtn];
+    [colseBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(headerView.mas_right).offset(-16);
+        make.centerY.equalTo(headerView.mas_centerY);
+    }];
+    return self.showHeader ? headerView : nil;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    if (section == 0) {
+        return self.showHeader ? 36 : 0;
+    } else {
+        return 0;
+    }
+}
+
+- (void)closeHeaderView {
+    self.showHeader = NO;
+    [self.tableView reloadData];
+}
+
+- (void)pushToNobilityViewController {
+    UIStoryboard *centerSB = [UIStoryboard storyboardWithName:@"Center" bundle:nil];
+    YouGuoNobilityViewController *nobilityVC = [centerSB instantiateViewControllerWithIdentifier:@"YouGuoNobilityVC"];
+    nobilityVC.userBaseInfoModel = _userBaseInfoModel;
+    [self.navigationController pushViewController:nobilityVC animated:YES];
+}
+
+- (IBAction)signInButtonClicked:(id)sender {
+    
+}
+
+- (IBAction)getCompletedTaskButtonClicked:(id)sender {
+    
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

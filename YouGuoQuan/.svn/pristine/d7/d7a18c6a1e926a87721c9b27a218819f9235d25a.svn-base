@@ -1,0 +1,61 @@
+//
+//  RecentSessionCell.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/8.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "RecentSessionCell.h"
+#import "EaseConversationModel.h"
+#import "NSDate+Category.h"
+#import "ConversionHelper.h"
+#import "EaseAtTarget.h"
+#import <UIImageView+WebCache.h>
+
+@interface RecentSessionCell()
+@property (nonatomic, weak) IBOutlet UIImageView *headImgView;
+@property (nonatomic, weak) IBOutlet UILabel *nameLabel;
+@property (nonatomic, weak) IBOutlet UILabel *lastMsgLabel;
+@property (nonatomic, weak) IBOutlet UILabel *timeLabel;
+@property (nonatomic, weak) IBOutlet UIImageView *sexImgView;
+@property (nonatomic, weak) IBOutlet UIImageView *levelMarkView;
+@property (nonatomic, weak) IBOutlet UIImageView *vMarkView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@end
+
+@implementation RecentSessionCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    _headImgView.layer.cornerRadius = _headImgView.bounds.size.height * 0.5;
+    _headImgView.layer.masksToBounds = YES;
+}
+
+- (void)setEaseConversationModel:(EaseConversationModel *)easeConversationModel {
+    _easeConversationModel = easeConversationModel;
+    
+    EMConversation *conversation = easeConversationModel.conversation;
+    EaseAtTarget *target = conversation.ext[@"userInfo"];
+    if (target) {
+        [self.headImgView sd_setImageWithURL:[NSURL URLWithString:target.headImgUrl]
+                            placeholderImage:easeConversationModel.avatarImage];
+        self.nameLabel.text = target.nickname;
+        self.sexImgView.image = [UIImage imageNamed:target.sex];
+        self.levelMarkView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",target.level]];
+        self.vMarkView.hidden = !target.vip;
+        self.crownImageView.hidden = !target.recommend;
+    }
+    
+    self.lastMsgLabel.text = [ConversionHelper latestMessageTitleForConversationModel:easeConversationModel];
+    EMMessage *lastMessage = [conversation latestMessage];
+    if (lastMessage) {
+        NSString *latestMessageTime = [NSDate formattedTimeFromTimeInterval:lastMessage.timestamp];
+        self.timeLabel.text = latestMessageTime;
+    } else {
+        self.timeLabel.text = @"";
+    }
+}
+
+
+@end

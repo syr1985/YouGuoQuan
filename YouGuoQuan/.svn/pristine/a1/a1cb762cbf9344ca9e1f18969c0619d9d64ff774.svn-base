@@ -1,0 +1,67 @@
+//
+//  NSString+Encrypt.h
+//  EastNetworkPro
+//
+//  Created by njfanya on 15-6-4.
+//  Copyright (c) 2015年 apple. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface NSString (Encrypt)
+
+- (NSString *)MD5;
+
+- (NSString *)URLEncoding;
+
+- (NSString *)MD5_New;
+
+@end
+
+//手机收银台：http://211.167.102.59:8088/mcash/
+
+/**
+ 订单类型
+ 订单支付:0000 --3
+ 账单支付:0001 --2
+ 充值支付:0002 --1
+ 瑞高充值:2222
+ 数字电视卡充值:3333
+ 账单支付销账:4444
+ 卡卡转账:5555
+ 低费率销账:6666
+ 其他交易:9999
+ 
+ 设备类型
+ APPIM:app ios 手机版
+ APPIP:app ios 平版
+ key = "3E54B2412D323365A6DACDC3F05EAE310B71AC51658A57437C767C4228EBC06DB263BA54AD38DF820AB3D64FCE6B0A55C42406BB348A4BB92E14FCDC61A8B8813"
+ 
+ System.out.println(OrientPay2SignUtils.getMd5SignCode("
+ bgRspUrl=&             //通知返回地址
+ curCode=RMB&           //币种
+ deviceType=APPAM&      //设备类型
+ encodingType=UTF-8&    //编码方式
+ expireTime=1440&       //订单过期时间
+ feeAmount=0&           //手续费金额
+ infoId=&               //产品信息 ID
+ infoUrl=&              //产品信息 URL
+ merchantId=888889888888888& //商户代码 888030211030005
+ mobile=31221919&       //用户手机号
+ opNotifyFlag=N&        //是否由亿付发短信标记 订单中心支付接口是NotifyFlag
+ orderNo=20131220133545311& //商户定单号
+ orderType=4444&        //订单类型
+ payAmount=0000013800&  //付款金额
+ //商品信息 Base64 处理productInfo=eyJhY3R1YWxCaWxsQnJoIjoiOTk5OTkwMjk5OTk5OTk5IiwiYW1vdW50IjoiMDAwMDAxMzgwMCIsImFwcFVzZXJOYW1lIjoi6bif5ZOlfOS4iua1t.S4nOaWueS6v.S7mCIsImJhckNvZGUiOiIwNjEwMDAwMDAyNjkzMzEwMTMwMTUwMDAwMDAxMzgwMDY4IiwiYmF0Y2hObyI6IjAwIiwiYmlsbEJyaCI6Ijk5OTk5MDI5OTk5OTk5OSIsImJpbGxFbmREYXRlIjoiMjAxMzA1MzEiLCJiaWxsTm8iOiIxNjgwMDAwMDA4OCIsImJpbGxTdGFydERhdGUiOiIyMDEzMDUwMSIsInBlcmlvZCI6IjIwMTMwNSIsIndmVHlwZSI6IjA4In0=&
+ remark=5ZWG5oi35o.Q5Lqk& //商户私有域 Base64 处理
+ rspUrl=www.baidu.com&    //返回 URL 地址 支付结果引导返回的 URL, rspUrl 和 bgRspUrl 其中一个必 须非空
+ selChl=PAY5820001&       //选择的支付渠道 用户在商户系统指定渠道
+ subMerchantId=888010210000002& //子商户代码
+ transDate=20131220133545&  //渠道交易日期时间 YYYYMMDDHHMMSS
+ userId=110120119&          //用户在渠道的 ID
+ userIp=192.168.0.29&       //用户 IP
+ userName=&                 //用户在渠道的昵称 Base64
+ userRealName=6bif5ZOlfOS4iua1t.S4nOaWueS6v.S7mA==", //买方实际姓名 Base64
+ "3E54B2412D323365A6DACDC3F05EAE310B71AC51658A57437C767C4228EBC06DB263BA54AD38DF820AB3D64FCE6B0A55C42406BB348A4BB92E14FCDC61A8B8813", ""));
+ }
+ */

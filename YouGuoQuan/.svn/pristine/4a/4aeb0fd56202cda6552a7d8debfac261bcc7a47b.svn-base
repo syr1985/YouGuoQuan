@@ -1,0 +1,54 @@
+//
+//  BlackListViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/2/23.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "BlackListViewCell.h"
+#import "OthersFocusModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+
+@interface BlackListViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNamelabel;
+@property (weak, nonatomic) IBOutlet UISwitch *blackSwith;
+
+@end
+
+@implementation BlackListViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.headerImageView.layer.cornerRadius = self.headerImageView.frame.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+}
+
+- (void)setBlackListModel:(OthersFocusModel *)blackListModel {
+    _blackListModel = blackListModel;
+    
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:blackListModel.headImg]];
+    
+    _vipImageView.hidden = blackListModel.audit != 1;
+    
+    _nickNamelabel.text = blackListModel.nickName;
+}
+
+- (IBAction)changeSwtchStatus:(UISwitch *)sender {
+    if (!sender.isOn) {
+        // 取消拉黑
+        __weak typeof(self) weakself = self;
+        [NetworkTool doOperationWithType:@"3" userId:_blackListModel.userId operationType:@"0" success:^{
+            [SVProgressHUD showSuccessWithStatus:@"已将对方从黑名单移除"];
+            if (weakself.removeUserFromBlackList) {
+                weakself.removeUserFromBlackList(weakself.blackListModel);
+            }
+        }];
+    }
+}
+
+
+@end

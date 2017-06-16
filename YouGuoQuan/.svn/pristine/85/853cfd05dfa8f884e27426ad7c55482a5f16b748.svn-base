@@ -1,0 +1,31 @@
+//
+//  ConcemViewCell.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+extern NSString * const kCommentSuccessNotification;
+
+@class HomeFocusModel;
+@interface FocusTrendsViewCell : UITableViewCell
+@property (nonatomic,   copy) void (^commentBlock)(NSString *focusId);
+@property (nonatomic,   copy) void (^actionSheetItemClicked)(NSUInteger buttonIndex);
+@property (nonatomic, strong) HomeFocusModel *homeFocusModel;
+//@property (nonatomic, strong) NSIndexPath *indexPath;
+@end
+
+
+//    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+//    dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_GB"];
+//    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"GMT"]];
+
+
+//    NSDate *curTime = [NSDate date];
+//    NSTimeZone *zone = [NSTimeZone systemTimeZone];
+//    NSInteger interval = [zone secondsFromGMTForDate:curTime];
+//    NSDate *localeDate = [curTime dateByAddingTimeInterval:interval];
+//    NSTimeInterval interval1 = [endTime timeIntervalSinceDate:localeDate]

@@ -1,0 +1,17 @@
+//
+//  AlertViewTool.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/26.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface AlertViewTool : NSObject
+
++ (void)showAlertViewWithTitle:(NSString *)title Message:(NSString *)message sureBlock:(void (^)())sure;
+
++ (void)showAlertViewWithTitle:(NSString *)title Message:(NSString *)message sureBlock:(void (^)())sure cancelBlock:(void (^)())cancle;
+
+@end

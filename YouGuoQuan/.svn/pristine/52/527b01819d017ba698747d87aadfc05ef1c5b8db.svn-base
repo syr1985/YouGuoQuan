@@ -1,0 +1,16 @@
+//
+//  LocationUploader.h
+//  PowerDemo
+//
+//  Created by jqoo on 2016/12/10.
+//  Copyright © 2016年 jqoo. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface LocationUploader : NSObject
+
+- (void)start;
+- (void)stop;
+
+@end

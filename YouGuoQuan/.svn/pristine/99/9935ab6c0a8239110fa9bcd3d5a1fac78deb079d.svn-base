@@ -1,0 +1,241 @@
+//
+//  YGRecordView.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 2016/12/18.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "YGRecordView.h"
+#import "Masonry.h"
+#import "HelperUtil.h"
+#import "RecordWaveView.h"
+#import "EMCDDeviceManager.h"
+
+@interface YGRecordView() {
+    
+}
+@property(nonatomic, strong) UILabel *tipLabel;
+@property(nonatomic, strong) UIImageView *recordImageView;
+@property(nonatomic, strong) UIImageView *cancelImageView;
+@property(nonatomic, strong) RecordWaveView *leftRecordWave;
+@property(nonatomic, strong) RecordWaveView *rightRecordWave;
+@property(nonatomic) BOOL isTouching;
+@property(nonatomic) BOOL isOnCancel;
+
+@property(nonatomic, strong) NSTimer *timer;
+
+@end
+
+
+@implementation YGRecordView
+
+- (instancetype) initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self addSubview:self.tipLabel];
+        [self addSubview:self.recordImageView];
+        [self addSubview:self.cancelImageView];
+        [self addSubview:self.leftRecordWave];
+        [self addSubview:self.rightRecordWave];
+        [self addAutoLayoutConstraint];
+    }
+    
+    return self;
+}
+
+- (void) addAutoLayoutConstraint {
+    [self.tipLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.mas_top).with.offset(36);
+        make.centerX.mas_equalTo(self.mas_centerX);
+    }];
+    
+    [self.recordImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.tipLabel.mas_bottom).with.offset(15);
+        make.centerX.mas_equalTo(self.mas_centerX);
+    }];
+    
+    [self.cancelImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.mas_top).with.offset(47);
+        make.right.mas_equalTo(self.mas_right).with.offset(-10);
+    }];
+    
+    [self.leftRecordWave mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.mas_equalTo(self.tipLabel.mas_left).with.offset(2);
+        make.centerY.mas_equalTo(self.tipLabel.mas_centerY);
+        make.width.mas_equalTo(42);
+        make.height.mas_equalTo(20);
+    }];
+    
+    [self.rightRecordWave mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.tipLabel.mas_right).with.offset(2);
+        make.centerY.mas_equalTo(self.tipLabel.mas_centerY);
+        make.width.mas_equalTo(42);
+        make.height.mas_equalTo(20);
+    }];
+}
+
+- (UILabel *) tipLabel {
+    if (!_tipLabel) {
+        _tipLabel = [[UILabel alloc] init];
+        _tipLabel.font = [UIFont systemFontOfSize:14];
+        _tipLabel.textColor = [HelperUtil colorWithHexString:@"#ABABAB"];
+        _tipLabel.text = @"按住说话";
+    }
+    return _tipLabel;
+}
+
+- (UIImageView *) recordImageView {
+    if (!_recordImageView) {
+        _recordImageView = [[UIImageView alloc] init];
+        _recordImageView.image = [UIImage imageNamed:@"按住说话"];
+    }
+    return _recordImageView;
+}
+
+- (UIImageView *) cancelImageView {
+    if (!_cancelImageView) {
+        _cancelImageView = [[UIImageView alloc] init];
+        _cancelImageView.image = [UIImage imageNamed:@"聊天界面-清空"];
+        _cancelImageView.hidden = YES;
+    }
+    return _cancelImageView;
+}
+
+- (RecordWaveView *) leftRecordWave {
+    if (!_leftRecordWave) {
+        _leftRecordWave = [[RecordWaveView alloc] init];
+        _leftRecordWave.reverse = YES;
+        _leftRecordWave.hidden = YES;
+        _leftRecordWave.backgroundColor = [UIColor clearColor];
+    }
+    return _leftRecordWave;
+}
+
+- (RecordWaveView *) rightRecordWave {
+    if (!_rightRecordWave) {
+        _rightRecordWave = [[RecordWaveView alloc] init];
+        _rightRecordWave.reverse = NO;
+        _rightRecordWave.hidden = YES;
+        _rightRecordWave.backgroundColor = [UIColor clearColor];
+    }
+    return _rightRecordWave;
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    
+    [super touchesBegan:touches withEvent:event];
+    
+    if (touches.count == 1) {
+        UITouch *touch = [touches anyObject];
+        CGPoint point = [touch locationInView:self];
+        if (CGRectContainsPoint(self.recordImageView.frame, point)) {
+            self.isTouching = YES;
+            self.recordImageView.image = [UIImage imageNamed:@"按住说话-点击"];
+            if (self.delegate && [self.delegate respondsToSelector:@selector(didStartRecordingVoice:)]) {
+                [self.delegate didStartRecordingVoice:self];
+                self.cancelImageView.hidden = NO;
+            }
+            _timer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                                      target:self
+                                                    selector:@selector(addWave)
+                                                    userInfo:nil
+                                                     repeats:YES];
+            self.rightRecordWave.hidden = NO;
+            self.leftRecordWave.hidden = NO;
+            self.isOnCancel = NO;
+        }
+    }
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    [super touchesMoved:touches withEvent:event];
+    if (self.isTouching) {
+        UITouch *touch = [touches anyObject];
+        CGPoint point = [touch locationInView:self];
+        if (CGRectContainsPoint(self.recordImageView.frame, point)) {
+            self.recordImageView.image = [UIImage imageNamed:@"按住说话-点击"];
+        } else {
+            self.recordImageView.image = [UIImage imageNamed:@"按住说话"];
+        }
+        
+        if (CGRectContainsPoint(self.cancelImageView.frame, point)) {
+            self.cancelImageView.image = [UIImage imageNamed:@"聊天界面-清空选中"];
+            self.tipLabel.text = @"松手删除";
+            self.isOnCancel = YES;
+        } else {
+            self.cancelImageView.image = [UIImage imageNamed:@"聊天界面-清空"];
+            self.isOnCancel = NO;
+        }
+    }
+    
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    [super touchesEnded:touches withEvent:event];
+    self.cancelImageView.image = [UIImage imageNamed:@"聊天界面-清空"];
+    self.recordImageView.image = [UIImage imageNamed:@"按住说话"];
+    self.cancelImageView.hidden = YES;
+    UITouch *touch = [touches anyObject];
+    CGPoint point = [touch locationInView:self];
+    
+    if (CGRectContainsPoint(self.cancelImageView.frame, point)) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(didCancelRecordingVoice:)]) {
+            [self.delegate didCancelRecordingVoice:self];
+        }
+        
+    } else {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(didFinishRecoingVoice:)]) {
+            [self.delegate didFinishRecoingVoice:self];
+        }
+    }
+    self.rightRecordWave.hidden = YES;
+    self.leftRecordWave.hidden = YES;
+    [self.timer invalidate];
+    _timer = nil;
+    self.isOnCancel = NO;
+    self.isTouching = NO;
+    self.tipLabel.text = @"按住说话";
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+    [super touchesCancelled:touches withEvent:event];
+    NSLog(@"touchesCancelled");
+    
+    self.cancelImageView.image = [UIImage imageNamed:@"聊天界面-清空"];
+    self.recordImageView.image = [UIImage imageNamed:@"按住说话"];
+    self.cancelImageView.hidden = YES;
+    if (self.delegate && [self.delegate respondsToSelector:@selector(didCancelRecordingVoice:)]) {
+        [self.delegate didCancelRecordingVoice:self];
+    }
+    self.rightRecordWave.hidden = YES;
+    self.leftRecordWave.hidden = YES;
+    [self.timer invalidate];
+    _timer = nil;
+    self.isOnCancel = NO;
+    self.isTouching = NO;
+    self.tipLabel.text = @"按住说话";
+}
+
+- (void) addWave {
+    double voiceSound = 0;
+    voiceSound = [[EMCDDeviceManager sharedInstance] emPeekRecorderVoiceMeter];
+    NSLog(@"wave  %f", voiceSound);
+    if (voiceSound > 1) {
+        voiceSound = 1;
+    }
+    
+    [self.leftRecordWave addWave:voiceSound];
+    [self.rightRecordWave addWave:voiceSound];
+    if (!self.isOnCancel) {
+        NSTimeInterval currentTime = [[EMCDDeviceManager sharedInstance] currentTime];
+        NSInteger ss = (NSInteger) currentTime;
+        self.tipLabel.text = [NSString stringWithFormat:@"%2ld:%02ld", ss / 60, ss % 60];
+    }
+}
+
++(CGFloat) viewHeight {
+    return 213;
+}
+
+@end

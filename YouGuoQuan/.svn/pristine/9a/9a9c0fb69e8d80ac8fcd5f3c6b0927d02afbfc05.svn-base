@@ -1,0 +1,352 @@
+//
+//  UserCenterVideoViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/6.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "UserCenterVideoViewCell.h"
+#import "UserCenterModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "WMPlayer.h"
+#import <Masonry.h>
+#import "PhotoBrowserHelp.h"
+#import "MoreMenuHelp.h"
+#import "UIImage+Color.h"
+
+@interface UserCenterVideoViewCell () <WMPlayerDelegate>
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *videoCoverImageView;
+@property (weak, nonatomic) IBOutlet UIButton *playButton;
+@property (weak, nonatomic) IBOutlet UIView *videoBackgroundView;
+
+@property (weak, nonatomic) IBOutlet UIButton *favourButton;
+@property (weak, nonatomic) IBOutlet UIButton *commentButton;
+@property (weak, nonatomic) IBOutlet UIButton *playTimesButton;
+@property (weak, nonatomic) IBOutlet UIButton *moreButton;
+@property (nonatomic, strong) WMPlayer *wmPlayer;
+@end
+
+@implementation UserCenterVideoViewCell
+
+- (void)dealloc {
+    NSLog(@"%s", __func__);
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    [self releaseWMPlayer];
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(popupPhotoBrowser:)];
+    [_videoBackgroundView addGestureRecognizer:tap];
+    
+    //获取设备旋转方向的通知,即使关闭了自动旋转,一样可以监测到设备的旋转方向
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    //旋转屏幕通知
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(onDeviceOrientationChange:)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
+    
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(updateModelDataForComment:)
+                                                 name:kUserCenterCommentSuccessNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(stopPlayingVideo:)
+                                                 name:kPlayingVideoNotification
+                                               object:nil];
+}
+
+- (void)setUserCenterModel:(UserCenterModel *)userCenterModel {
+    _userCenterModel = userCenterModel;
+    
+    _titleLabel.text = userCenterModel.instro;
+    
+    UIImage *phImage = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]
+                                                     size:_videoCoverImageView.frame.size];
+    NSString *imageUrlStr = [NSString compressImageUrlWithUrlString:userCenterModel.videoEvelope
+                                                              width:_videoCoverImageView.bounds.size.width
+                                                             height:_videoCoverImageView.bounds.size.height];
+    [_videoCoverImageView sd_setImageWithURL:[NSURL URLWithString:imageUrlStr]
+                            placeholderImage:phImage];
+    
+    _moreButton.hidden = ![userCenterModel.userId isEqualToString:[LoginData sharedLoginData].userId];
+    _favourButton.selected = userCenterModel.praise;
+    [_favourButton setTitle:[userCenterModel.recommendCount stringValue] forState:UIControlStateNormal];
+    [_commentButton setTitle:[userCenterModel.commentCount stringValue] forState:UIControlStateNormal];
+    [_playTimesButton setTitle:[userCenterModel.playTimes stringValue] forState:UIControlStateNormal];
+    
+    if (!_wmPlayer) {
+        _wmPlayer = [[WMPlayer alloc] init];
+        _wmPlayer.delegate = self;
+        _wmPlayer.isFullscreen = NO;
+        _wmPlayer.closeBtnStyle = CloseBtnStyleClose;
+        _wmPlayer.URLString = userCenterModel.videoUrl;
+        _wmPlayer.titleLabel.text = userCenterModel.instro;
+        [_wmPlayer hiddenControlView];
+        
+        [self.videoBackgroundView addSubview:_wmPlayer];
+        [self.videoBackgroundView bringSubviewToFront:_playButton.superview];
+        __weak typeof(self) weakself = self;
+        [_wmPlayer mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(weakself.videoBackgroundView);
+            make.left.equalTo(weakself.videoBackgroundView);
+            make.right.equalTo(weakself.videoBackgroundView);
+            make.bottom.equalTo(weakself.videoBackgroundView);
+        }];
+    }
+}
+
+/**
+ *  释放WMPlayer
+ */
+- (void)releaseWMPlayer {
+    if (_wmPlayer.state == WMPlayerStatePlaying) {
+        [_wmPlayer pause];
+    }
+    
+    [_wmPlayer.player replaceCurrentItemWithPlayerItem:nil];
+    [_wmPlayer.playerLayer removeFromSuperlayer];
+    [_wmPlayer removeFromSuperview];
+    
+    _wmPlayer.player = nil;
+    _wmPlayer.currentItem = nil;
+    //释放定时器，否侧不会调用WMPlayer中的dealloc方法
+    [_wmPlayer.autoDismissTimer invalidate];
+    _wmPlayer.autoDismissTimer = nil;
+    
+    _wmPlayer.playOrPauseBtn = nil;
+    _wmPlayer.playerLayer = nil;
+    _wmPlayer = nil;
+}
+
+- (void)stopWMPlayer {
+    if (_wmPlayer.state == WMPlayerStatePlaying) {
+        [_wmPlayer pause];
+    }
+}
+
+- (void)stopPlayingVideo:(NSNotification *)noti {
+    NSDictionary *infoDict = noti.userInfo;
+    if (![infoDict[@"feedsId"] isEqualToString:_userCenterModel.trendsId]) {
+        [self stopWMPlayer];
+    }
+}
+
+#pragma mark -
+#pragma mark - 点击赞按钮
+- (IBAction)favourToOther:(UIButton *)sender {
+    __weak typeof(self) weakself = self;
+    if (sender.isSelected) {
+        // 取消赞
+        [NetworkTool cancelFavourWithFeedsID:_userCenterModel.trendsId userID:_userCenterModel.userId success:^{
+            sender.selected = NO;
+            NSInteger priseCount = [weakself.userCenterModel.recommendCount integerValue];
+            NSString *newPriseCount = [NSString stringWithFormat:@"%zd",priseCount - 1];
+            weakself.userCenterModel.recommendCount = @(priseCount - 1);//newPriseCount;
+            [weakself.favourButton setTitle:newPriseCount forState:UIControlStateNormal];
+            weakself.userCenterModel.praise = NO;
+        }];
+    } else {
+        // 点赞
+        [NetworkTool doFavourWithFeedsID:_userCenterModel.trendsId userId:_userCenterModel.userId success:^{
+            sender.selected = YES;
+            NSInteger priseCount = [weakself.userCenterModel.recommendCount integerValue];
+            NSString *newPriseCount = [NSString stringWithFormat:@"%zd",priseCount + 1];
+            weakself.userCenterModel.recommendCount = @(priseCount + 1);//newPriseCount;
+            [weakself.favourButton setTitle:newPriseCount forState:UIControlStateNormal];
+            weakself.userCenterModel.praise = YES;
+        }];
+    }
+}
+
+#pragma mark -
+#pragma mark - 评论
+- (IBAction)messageToOther:(UIButton *)sender {
+    if (self.commentBlock) {
+        self.commentBlock(_userCenterModel);
+    }
+}
+
+#pragma mark -
+#pragma mark - 更多按钮
+- (IBAction)moreButtonClicked:(id)sender {
+    __weak typeof(self) weakself = self;
+    [MoreMenuHelp showMoreMenuForMineTrendsWithResult:^(NSUInteger buttonIndex) {
+        if (weakself.actionSheetItemClicked) {
+            weakself.actionSheetItemClicked(buttonIndex, weakself.userCenterModel.trendsId, weakself.userCenterModel.feedsType, weakself.indexPath);
+        }
+    }];
+}
+
+#pragma mark -
+#pragma mark - 播放按钮
+- (IBAction)startPlayVideo:(UIButton *)sender {
+    // 判断当前网络
+    //_wmPlayer.URLString = _homeFocusModel.videoUrl;
+    _wmPlayer.placeholderImage = _videoCoverImageView.image;
+    [_wmPlayer play];
+    [_videoBackgroundView sendSubviewToBack:_playButton.superview];
+    
+    // 增加播放次数
+    __weak typeof(self) weakself = self;
+    [NetworkTool updatePlayTimesWithVideoTrendsID:_userCenterModel.trendsId success:^{
+        NSUInteger playTimes = [weakself.userCenterModel.playTimes integerValue] ;
+        NSString *newplayTimes = [NSString stringWithFormat:@"%zd",playTimes + 1];
+        weakself.userCenterModel.playTimes = @(playTimes + 1);//newplayTimes;
+        [weakself.playTimesButton setTitle:newplayTimes forState:UIControlStateNormal];
+    }];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kPlayingVideoNotification
+                                                        object:nil
+                                                      userInfo:@{@"feedsId":_userCenterModel.trendsId}];
+}
+
+#pragma mark -
+#pragma mark - WMPlayerDelegate
+- (void)wmplayer:(WMPlayer *)wmplayer clickedPlayOrPauseButton:(UIButton *)playOrPauseBtn {
+    if (wmplayer.state == WMPlayerStatePlaying) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kPlayingVideoNotification
+                                                            object:nil
+                                                          userInfo:@{@"feedsId":_userCenterModel.trendsId}];
+    }
+}
+// 点击关闭按钮
+- (void)wmplayer:(WMPlayer *)wmplayer clickedCloseButton:(UIButton *)closeBtn {
+    if (_wmPlayer.isFullscreen) {
+        [self.videoBackgroundView addSubview:_wmPlayer];
+        [self toOrientation:UIInterfaceOrientationPortrait];
+        _wmPlayer.isFullscreen = NO;
+        _wmPlayer.closeBtnStyle = CloseBtnStyleClose;
+    }
+}
+
+// 点击全屏按钮
+- (void)wmplayer:(WMPlayer *)wmplayer clickedFullScreenButton:(UIButton *)fullScreenBtn {
+    [_wmPlayer removeFromSuperview];
+    if (_wmPlayer.isFullscreen) {//全屏
+        [self.videoBackgroundView addSubview:_wmPlayer];
+        [self toOrientation:UIInterfaceOrientationPortrait];
+        _wmPlayer.isFullscreen = NO;
+        _wmPlayer.closeBtnStyle = CloseBtnStyleClose;
+    } else {//非全屏
+        [[UIApplication sharedApplication].keyWindow addSubview:_wmPlayer];
+        [self toOrientation:UIInterfaceOrientationLandscapeRight];
+        _wmPlayer.isFullscreen = YES;
+        _wmPlayer.closeBtnStyle = CloseBtnStylePop;
+    }
+}
+
+// 结束播放
+- (void)wmplayerFinishedPlay:(WMPlayer *)wmplayer {
+    // 恢复视频视图
+    [self toOrientation:UIInterfaceOrientationPortrait];
+    [self.videoBackgroundView bringSubviewToFront:self.playButton.superview];
+}
+
+/**
+ *  旋转屏幕通知
+ */
+- (void)onDeviceOrientationChange:(NSNotification *)notification{
+    if (!_wmPlayer || !_wmPlayer.superview) {
+        return;
+    }
+    
+    UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+    UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)orientation;
+    switch (interfaceOrientation) {
+        case UIInterfaceOrientationPortrait: {
+            if (_wmPlayer.isFullscreen) {
+                [_wmPlayer removeFromSuperview];
+                [self.videoBackgroundView addSubview:_wmPlayer];
+                [self toOrientation:UIInterfaceOrientationPortrait];
+                _wmPlayer.isFullscreen = NO;
+                _wmPlayer.closeBtnStyle = CloseBtnStyleClose;
+            }
+        }
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight: {
+            if (!_wmPlayer.isFullscreen) {
+                [_wmPlayer removeFromSuperview];
+                [[UIApplication sharedApplication].keyWindow addSubview:_wmPlayer];
+                [self toOrientation:UIInterfaceOrientationLandscapeRight];
+                _wmPlayer.isFullscreen = YES;
+                _wmPlayer.closeBtnStyle = CloseBtnStylePop;
+            }
+        }
+            break;
+        default:
+            break;
+    }
+    //[self setNeedsStatusBarAppearanceUpdate];
+}
+
+//点击进入,退出全屏,或者监测到屏幕旋转去调用的方法
+- (void)toOrientation:(UIInterfaceOrientation)orientation {
+    //根据要旋转的方向,使用Masonry重新修改限制
+    __weak typeof(self) weakself = self;
+    if (orientation == UIInterfaceOrientationPortrait) {
+        [_wmPlayer mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(weakself.videoBackgroundView);
+            make.left.equalTo(weakself.videoBackgroundView);
+            make.center.equalTo(weakself.videoBackgroundView);
+        }];
+        
+        [UIView animateWithDuration:0.25 animations:^{
+            weakself.wmPlayer.transform = CGAffineTransformIdentity;
+        }];
+    } else {
+        //获取到当前状态条的方向
+        UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
+        
+        //这个地方加判断是为了从全屏的一侧,直接到全屏的另一侧不用修改限制,否则会出错;
+        if (currentOrientation == UIInterfaceOrientationPortrait) {
+            [_wmPlayer mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.width.equalTo(@([UIScreen mainScreen].bounds.size.height));
+                make.height.equalTo(@([UIScreen mainScreen].bounds.size.width));
+                make.center.equalTo([UIApplication sharedApplication].keyWindow);
+            }];
+            [UIView animateWithDuration:0.25 animations:^{
+                weakself.wmPlayer.transform = CGAffineTransformMakeRotation(M_PI_2);
+                //[WMPlayer getCurrentDeviceOrientation];
+            }];
+        }
+    }
+}
+
+/**
+ *  打开图片浏览器
+ */
+- (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
+    if (_userCenterModel.videoEvelope && _userCenterModel.videoEvelope.length) {
+        NSArray *urlArray;
+        if ([_userCenterModel.videoEvelope containsString:@";"]) {
+            urlArray = [_userCenterModel.videoEvelope componentsSeparatedByString:@";"];
+        } else {
+            urlArray = @[_userCenterModel.videoEvelope];
+        }
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:0];
+    }
+}
+
+#pragma mark -
+#pragma mark - 评论后更新模型数据
+- (void)updateModelDataForComment:(NSNotification *)noti {
+    NSNumber *content = noti.userInfo[@"NewCommentTimes"];
+    NSString *focusId = noti.userInfo[@"CurrentFocusID"];
+    if ([_userCenterModel.trendsId isEqualToString:focusId]) {
+        _userCenterModel.commentCount = content;
+        [_commentButton setTitle:[content stringValue] forState:UIControlStateNormal];
+    }
+}
+
+@end

@@ -1,0 +1,179 @@
+//
+//  NetWrokingData.m
+//
+//
+//  Created by  on 14-8-11.
+//  Copyright (c) 2014年 . All rights reserved.
+//
+
+#import "NetWorking.h"
+#import <AFNetworking.h>
+
+#import "NSString+Encrypt.h"
+#import "NSString+emoji.h"
+
+#define EncryptCode @"newtouch"
+
+@implementation NetWorking
+
+#pragma mark -- 加密
+
++ (NSString *)getMd5StringWithParameters:(NSMutableDictionary *)dict withPath:(NSString *)pathString {
+    if (dict) {
+        NSString *headString = [self getStringWithParameters:dict withSign:YES];
+        NSString *signString = [headString stringByAppendingString:EncryptCode];
+        NSString *signOfPath = [pathString stringByAppendingString:signString];
+        //YGQLog(@"signOfPath %@",signOfPath);
+        //NSString *newString  = [NSString convertStringContainsEmoji:signOfPath];
+        //        NSString *bodyString = [signOfPath stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        //        YGQLog(@"newString %@",bodyString);
+        // 😃 -> \Ud83d\Ude03
+        //NSString *urlEncoded = [newString URLEncoding];
+        NSString *urlEncoded = [[signOfPath MD5] uppercaseString];
+        //YGQLog(@"url加密 %@",urlEncoded);
+        return urlEncoded;
+    } else {
+        return nil;
+    }
+}
+
++ (NSString *)getStringWithParameters:(NSMutableDictionary *)param withSign:(BOOL)bGetSign {
+    NSArray *allKeys = [param allKeys];
+    NSArray *sortArray = [allKeys sortedArrayUsingSelector:@selector(compare:)];
+    NSString *paramString = @"";
+    if (bGetSign) {
+        for (NSString *key in sortArray) {
+            if (![key isEqualToString:@"sign"]) {
+                NSString *sectionString = [NSString stringWithFormat:@"%@=%@",key,[param objectForKey:key]];
+                paramString = [paramString stringByAppendingString:sectionString];
+            }
+        }
+    } else {
+        for (NSString *key in sortArray) {
+            NSString *sectionString = [NSString stringWithFormat:@"%@=%@&",key,[param objectForKey:key]];
+            paramString = [paramString stringByAppendingString:sectionString];
+        }
+        paramString = [paramString substringToIndex:(paramString.length - 1)];
+    }
+    
+    return paramString;
+}
+
+
+#pragma mark -- Session  AFN Post and Get
++ (void)postSessionWithUrl:(NSString *)urlStr parameters:(id)parameters success:(void (^)(id responseObject))success fail:(void (^)(NSError *error))fail progress:(void (^)(float completed))progress {
+    
+    // 1.创建AFN管理者
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer.acceptableContentTypes = [NSSet setWithArray:@[@"text/plain", @"text/html", @"application/json"]];
+    
+    // 2.
+    if (parameters) {
+        NSString *md5String = [self getMd5StringWithParameters:parameters withPath:urlStr];
+        parameters[@"sign"] = md5String;
+    }
+    
+    //YGQLog(@"result = %@",parameters);
+    
+    // 3. URL
+    NSString *urlString = [NSString stringWithFormat:@"%@%@",ServerUrl,urlStr];
+    
+    [manager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+        if (progress) {
+            float complete = (float)uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+            progress(complete);
+        }
+    }  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSString *result = [responseObject objectForKey:@"result"];
+        
+        NSDictionary *dict = @{@"001":@"签名错",
+                               @"002":@"系统开小差了",
+                               @"003":@"密码错误",
+                               @"004":@"号码已注册",
+                               @"005":@"找不到手机号",
+                               @"006":@"发送短信失败",
+                               @"007":@"校验失败",
+                               @"008":@"业务出错"};
+        
+        NSArray *errorArray = [dict allKeys];
+        //NSLog(@"msg = %@",responseObject);
+        if ([errorArray containsObject:result]) {
+            // 注册接口需要处理
+            if ([result isEqualToString:@"004"]) {
+                if (success) {
+                    success(responseObject);
+                }
+            } else {
+                if ([result isEqualToString:@"008"]) {
+                    NSString *msg = responseObject[@"msg"];
+                    if ([msg isEqualToString:@"dup"]) {
+                        [SVProgressHUD showErrorWithStatus:@"您已操作过，请勿重复操作"];
+                    } else if ([msg isEqualToString:@"block"]) {
+                        [SVProgressHUD showErrorWithStatus:@"您已被对方屏蔽，无法操作"];
+                    } else {
+                        [SVProgressHUD showErrorWithStatus:responseObject[@"msg"]];
+                    }
+                } else {
+                    [SVProgressHUD showErrorWithStatus:dict[result]];
+                }
+            }
+        } else {
+            if (success) {
+                success(responseObject);
+            }
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+#pragma mark -- Session  AFN Post and Get
++ (void)postSessionWithUrl:(NSString *)urlStr parameters:(id)parameters images:(NSDictionary *)images success:(void (^)(id responseObject))success fail:(void (^)(NSError *error))fail progress:(void (^)(NSProgress *uploadProgress))progress {
+    // 1.创建AFN管理者
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer.acceptableContentTypes = [NSSet setWithArray:@[@"text/plain", @"text/html", @"application/json"]];
+    
+    // 2.
+    if (parameters) {
+        NSString *md5String = [self getMd5StringWithParameters:parameters withPath:urlStr];
+        parameters[@"sign"] = md5String;
+    }
+    //    else {
+    //        parameters = @{@"file":@""};
+    //    }
+    
+    // 3. URL
+    NSString *urlString = [NSString stringWithFormat:@"%@%@",ServerUrl,urlStr];
+    
+    [manager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+        if (images) {
+            NSArray *allkeys = images.allKeys;
+            
+            for (NSString *key in allkeys) {
+                //要上传的图片
+                UIImage *image = [images objectForKey:key];
+                //得到图片的data
+                NSData *data = UIImageJPEGRepresentation(image, 0);
+                
+                NSString *fileName = [key stringByAppendingString:@".jpg"];
+                [formData appendPartWithFileData:data name:@"file" fileName:fileName mimeType:@"image/jpg"];
+            }
+        }
+    } progress:^(NSProgress * _Nonnull uploadProgress) {
+        if (progress) {
+            progress(uploadProgress);
+        }
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (success) {
+            success(responseObject);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+@end

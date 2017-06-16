@@ -1,0 +1,89 @@
+//
+//  MyIncomeViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/17.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "MyConsumeViewCell.h"
+#import "MyConsumeModel.h"
+
+@interface MyConsumeViewCell ()
+@property (weak, nonatomic) IBOutlet UILabel *consumeContentLabel;
+@property (weak, nonatomic) IBOutlet UILabel *consumeDateLabel;
+@property (weak, nonatomic) IBOutlet UILabel *consumeBalanceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *consumeMoneyLabel;
+@property (nonatomic, strong) NSDateFormatter *dateFormatter;
+@end
+
+@implementation MyConsumeViewCell
+
+- (NSDateFormatter *)dateFormatter {
+    if (!_dateFormatter) {
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        _dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_GB"];
+        _dateFormatter.timeZone = [NSTimeZone timeZoneWithName:@"GMT"];
+        _dateFormatter.dateFormat = @"yyyy-MM-dd";
+    }
+    return _dateFormatter;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setMyConsumeModel:(MyConsumeModel *)myConsumeModel {
+    _myConsumeModel = myConsumeModel;
+    
+    BOOL income = [_consumeType isEqualToString:@"1"];
+    NSString *orderNo = myConsumeModel.orderNo;
+    NSString *content = @"";
+    if (income) {
+        if ([orderNo hasPrefix:@"NM"]) {
+            content = [NSString stringWithFormat:@"%@ 购买了您的 %@",myConsumeModel.buyerNickName, myConsumeModel.goodsName];
+        } else if ([orderNo hasPrefix:@"RP"]) {
+            content = [NSString stringWithFormat:@"%@ 看了您的红包照片",myConsumeModel.buyerNickName];
+        } else if ([orderNo hasPrefix:@"RE"]) {
+            content = [NSString stringWithFormat:@"%@ 打赏了您",myConsumeModel.buyerNickName];
+        } else if ([orderNo hasPrefix:@"DT"]) {
+            content = [NSString stringWithFormat:@"%@ 约见了您 %@",myConsumeModel.buyerNickName, myConsumeModel.goodsName];
+        } else if ([orderNo hasPrefix:@"WX"]) {
+            content = [NSString stringWithFormat:@"%@ 购买了您的微信",myConsumeModel.buyerNickName];
+        } else if ([orderNo hasPrefix:@"FW"]) {
+            content = @"充值";
+        }
+    } else {
+        if ([orderNo hasPrefix:@"NM"]) {
+            content = [NSString stringWithFormat:@"%@ 的 %@",myConsumeModel.sellerNickName, myConsumeModel.goodsName];
+        } else if ([orderNo hasPrefix:@"RP"]) {
+            content = [NSString stringWithFormat:@"%@ 的红包照片",myConsumeModel.sellerNickName];
+        } else if ([orderNo hasPrefix:@"RE"]) {
+            content = [NSString stringWithFormat:@"打赏 %@",myConsumeModel.sellerNickName];
+        } else if ([orderNo hasPrefix:@"DT"]) {
+            content = [NSString stringWithFormat:@"%@ 的约见-%@",myConsumeModel.sellerNickName, myConsumeModel.goodsName];
+        } else if ([orderNo hasPrefix:@"WX"]) {
+            content = [NSString stringWithFormat:@"%@ 的微信",myConsumeModel.sellerNickName];
+        } else if ([orderNo hasPrefix:@"CF"]) {
+            content = [NSString stringWithFormat:@"众筹 %@",myConsumeModel.goodsName];
+        } else {
+            content = @"购买尤果贵族";
+        }
+    }
+    self.consumeContentLabel.text = content;
+    
+    NSTimeInterval timeInterval = [myConsumeModel.createTime doubleValue];
+    NSDate *createDate = [NSDate dateWithTimeIntervalSince1970:timeInterval / 1000];
+    self.consumeDateLabel.text = [self.dateFormatter stringFromDate:createDate];
+    self.consumeBalanceLabel.text = [NSString stringWithFormat:@"余额：%@", income ? myConsumeModel.balance : myConsumeModel.buyerBalance];;
+    self.consumeMoneyLabel.text = income ? [NSString stringWithFormat:@"+%@",myConsumeModel.goodsPrice] : [NSString stringWithFormat:@"-%@",myConsumeModel.goodsPrice];
+    
+    if (income) {
+        self.consumeMoneyLabel.textColor = [HelperUtil colorWithHexString:@"#12B577"];
+    } else {
+        self.consumeMoneyLabel.textColor = NavTabBarColor;
+    }
+}
+
+@end

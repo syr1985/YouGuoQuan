@@ -1,0 +1,56 @@
+//
+//  PrefixHeader_YGQ.pch
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/7.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#ifndef PrefixHeader_YGQ_pch
+#define PrefixHeader_YGQ_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+#ifdef __OBJC__
+#import <UIKit/UIKit.h>
+#import <SVProgressHUD.h>
+#import "NetworkTool.h"
+#import "LoginData.h"
+#import "HelperUtil.h"
+#endif
+
+#ifdef DEBUG
+
+#define YGQLog(...) NSLog(__VA_ARGS__)
+
+#else
+
+#define YGQLog(...)
+
+#endif
+
+#define WIDTH [UIScreen mainScreen].bounds.size.width
+
+#define HEIGHT [UIScreen mainScreen].bounds.size.height
+
+#define SCUserDefault [NSUserDefaults standardUserDefaults]
+
+#define RGBA(r,g,b,a) [UIColor colorWithRed:r/255.0f green:g/255.0f blue:b/255.0f alpha:a]
+
+#define FontColor [HelperUtil colorWithHexString:@"#352007"]
+
+#define GaryFontColor [HelperUtil colorWithHexString:@"#ABABAB"]
+
+#define BackgroundColor [HelperUtil colorWithHexString:@"#FAFAFA"]
+
+#define TextFieldBorderColor [HelperUtil colorWithHexString:@"#EDEDED"]
+
+#define NavColor [HelperUtil colorWithHexString:@"#FED98F"]
+
+#define NavBackgroundColor [HelperUtil colorWithHexString:@"#F6F6F6"]
+
+#define KEY_USER_ACCOUNT  @"ACCOUNT_YGQ"
+
+#define HUD_SHOW_TIME     2
+
+#endif /* PrefixHeader_YGQ_pch */

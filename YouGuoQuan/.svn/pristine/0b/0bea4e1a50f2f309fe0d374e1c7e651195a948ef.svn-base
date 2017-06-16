@@ -1,0 +1,24 @@
+//
+//  DoneSoldOrderForMeetingViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/9.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "DoneSoldOrderForMeetingViewCell.h"
+
+@implementation DoneSoldOrderForMeetingViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state
+}
+
+@end

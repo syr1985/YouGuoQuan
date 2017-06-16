@@ -1,0 +1,31 @@
+//
+//  ReplyCommentMessageCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/24.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "ReplyCommentMessageCell.h"
+
+@interface ReplyCommentMessageCell ()
+@property (nonatomic, weak) IBOutlet UIImageView *headImgView;
+@property (nonatomic, weak) IBOutlet UIImageView *vipImgView;
+@property (nonatomic, weak) IBOutlet UIImageView *crownImgView;
+@property (nonatomic, weak) IBOutlet UILabel *nameLabel;
+@property (nonatomic, weak) IBOutlet UILabel *contentLabel;
+@property (nonatomic, weak) IBOutlet UILabel *timeLabel;
+@end
+
+@implementation ReplyCommentMessageCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    _headImgView.layer.cornerRadius = _headImgView.bounds.size.height * 0.5;
+    _headImgView.layer.masksToBounds = YES;
+}
+
+
+
+@end

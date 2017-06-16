@@ -1,0 +1,28 @@
+//
+//  CustomItem.m
+//  RoomService
+//
+//  Created by YM on 16/4/25.
+//  Copyright © 2016年 SYR. All rights reserved.
+//
+
+#import "CustomItem.h"
+
+@implementation CustomItem
+
+- (CGRect)titleRectForContentRect:(CGRect)contentRect {
+    CGFloat w = contentRect.size.width;
+    CGFloat h = contentRect.size.height;
+    
+    return CGRectMake(0, 0, w - 20, h);
+}
+
+- (CGRect)imageRectForContentRect:(CGRect)contentRect {
+    CGFloat w = contentRect.size.width;
+    CGFloat h = contentRect.size.height;
+    
+    return CGRectMake(w - 20, (h - 5) * 0.5, 8, 5);
+}
+
+
+@end

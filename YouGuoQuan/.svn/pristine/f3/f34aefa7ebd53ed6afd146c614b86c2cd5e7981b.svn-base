@@ -1,0 +1,13 @@
+//
+//  VideoCommentViewCell.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/30.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface VideoCommentViewCell : UITableViewCell
+
+@end

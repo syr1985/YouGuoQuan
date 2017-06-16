@@ -1,0 +1,150 @@
+//
+//  OthersInfoViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/2.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "OthersInfoViewController.h"
+#import "UserBaseInfoModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "PhotoBrowserHelp.h"
+
+@interface OthersInfoViewController ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+/**
+ *  认证
+ */
+@property (weak, nonatomic) IBOutlet UILabel *certificationLabel;
+/**
+ *  昵称
+ */
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+/**
+ *  性别
+ */
+@property (weak, nonatomic) IBOutlet UILabel *sexLabel;
+/**
+ *  城市
+ */
+@property (weak, nonatomic) IBOutlet UILabel *cityLabel;
+/**
+ *  身高
+ */
+@property (weak, nonatomic) IBOutlet UILabel *heightLabel;
+/**
+ *  体重
+ */
+@property (weak, nonatomic) IBOutlet UILabel *weightLabel;
+/**
+ *  星座
+ */
+@property (weak, nonatomic) IBOutlet UILabel *constellationLabel;
+/**
+ *  职业
+ */
+@property (weak, nonatomic) IBOutlet UILabel *vocationLabel;
+/**
+ *  情感状态
+ */
+@property (weak, nonatomic) IBOutlet UILabel *emotionLabel;
+
+@end
+
+@implementation OthersInfoViewController
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.titleString = @"Ta的资料";
+    
+    self.headerImageView.layer.cornerRadius = self.headerImageView.frame.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+    
+    NSString *headImageUrlStr = [NSString cropImageUrlWithUrlString:_userBaseInfoModel.headImg
+                                                              width:_headerImageView.bounds.size.width
+                                                             height:_headerImageView.bounds.size.height];
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.certificationLabel.hidden = _userBaseInfoModel.audit != 1 && _userBaseInfoModel.audit != 3;
+    self.certificationLabel.text = [NSString stringWithFormat:@"尤果认证：%@", _userBaseInfoModel.auditResult];
+    self.vipImageView.hidden     = !(_userBaseInfoModel.audit == 1 || _userBaseInfoModel.audit == 3);
+    self.vipImageView.image = _userBaseInfoModel.audit == 3 ? [UIImage imageNamed:@"头像列表团体认证"] : [UIImage imageNamed:@"头像加V"];
+    
+    self.crownImageView.hidden   = (_userBaseInfoModel.star != 6);
+    
+    self.nickNameLabel.text      = _userBaseInfoModel.nickName;
+    self.sexLabel.text           = _userBaseInfoModel.sex;
+    self.cityLabel.text          = _userBaseInfoModel.city;
+    
+    self.heightLabel.text        = _userBaseInfoModel.height;
+    self.weightLabel.text        = _userBaseInfoModel.weight;
+    self.constellationLabel.text = _userBaseInfoModel.constellatory;
+    
+    self.vocationLabel.text      = _userBaseInfoModel.work;
+    self.emotionLabel.text       = _userBaseInfoModel.emotion;
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showBigImage:)];
+    [self.headerImageView addGestureRecognizer:tap];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+    NSLog(@"%s",__func__);
+    
+    if ([[UIDevice currentDevice].systemVersion floatValue] >= 6.0) {
+        //需要注意的是self.isViewLoaded是必不可少的，其他方式访问视图会导致它加载，在WWDC视频也忽视这一点。
+        if (self.isViewLoaded && !self.view.window) {// 是否是正在使用的视图
+            // Add code to preserve data stored in the views that might be
+            // needed later.
+            // Add code to clean up other strong references to the view in
+            // the view hierarchy.
+            self.tableView = nil;// 目的是再次进入时能够重新加载调用viewDidLoad函数。
+        }
+    }
+
+}
+
+- (void)showBigImage:(UITapGestureRecognizer *)sender {
+    [PhotoBrowserHelp openPhotoBrowserWithImages:@[_userBaseInfoModel.headImg] currentIndex:0];
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 4;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (section == 0) {
+        return 1;
+    } else if (section == 3) {
+        return 2;
+    } else {
+        return 3;
+    }
+}
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

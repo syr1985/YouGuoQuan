@@ -1,0 +1,35 @@
+//
+//  FavourMessageModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/2/24.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ audit = 0;
+ createtime = 1487915693;
+ headImg = "";
+ imageUrl = "";
+ isRecommend = 0;
+ nickName = lqq;
+ relationId = "3cb35b69-0504-4ee5-9970-a3542185784a";
+ type = 1;
+ userId = "69623024-e1ae-412a-8dc0-6f7a8a9405fb";
+ */
+@interface FavourMessageModel : NSObject
+@property (nonatomic,   copy) NSString *relationId;
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *imageUrl;
+@property (nonatomic,   copy) NSString *createtime;
+@property (nonatomic, assign) int  type;
+@property (nonatomic, assign) int  audit;
+@property (nonatomic, assign) BOOL isRecommend;
+
++ (instancetype)favourMessageModelWithDict:(NSDictionary *)dict;
+- (instancetype)initFavourMessageModelWithDict:(NSDictionary *)dict;
+@end

@@ -1,0 +1,48 @@
+//
+//  MoreMenuHelp.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/7.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "MoreMenuHelp.h"
+#import <LCActionSheet.h>
+
+@interface MoreMenuHelp () <LCActionSheetDelegate>
+
+@end
+
+@implementation MoreMenuHelp
+
+static MoreMenuHelp *_instance;
++ (instancetype)sharedInstance {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _instance = [[self alloc] init];
+    });
+    return _instance;
+}
+
+- (void)showMoreMenu:(void (^)(NSUInteger index))returnBlock {
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:nil
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"拉黑该用户",@"举报该用户",nil];
+    if (returnBlock) {
+        _actionSheetItemClicked = [returnBlock copy];
+    }
+    [actionSheet show];
+}
+
+#pragma mark - LCActionSheet Delegate
+
+- (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (buttonIndex != 0) {
+        if (_actionSheetItemClicked) {
+            _actionSheetItemClicked(buttonIndex);
+        }
+    }
+}
+
+@end

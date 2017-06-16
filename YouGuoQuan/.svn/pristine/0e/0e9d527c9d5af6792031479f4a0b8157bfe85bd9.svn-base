@@ -1,0 +1,55 @@
+//
+//  MyIncomeViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/17.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "MyConsumeViewCell.h"
+#import "MyConsumeModel.h"
+
+@interface MyConsumeViewCell ()
+@property (weak, nonatomic) IBOutlet UILabel *consumeContentLabel;
+@property (weak, nonatomic) IBOutlet UILabel *consumeDateLabel;
+@property (weak, nonatomic) IBOutlet UILabel *consumeBalanceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *consumeMoneyLabel;
+
+@end
+
+@implementation MyConsumeViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setMyConsumeModel:(MyConsumeModel *)myConsumeModel {
+    _myConsumeModel = myConsumeModel;
+    
+    BOOL income = [_consumeType isEqualToString:@"1"];
+    
+    self.consumeContentLabel.text = income ? [NSString stringWithFormat:@"%@ 购买了您的 %@",myConsumeModel.sellerNickName,myConsumeModel.goodsName] : [NSString stringWithFormat:@"%@ 的 %@",myConsumeModel.sellerNickName,myConsumeModel.goodsName];
+    
+    NSTimeInterval timeInterval = [myConsumeModel.createTime doubleValue];
+    NSDate *createDate = [NSDate dateWithTimeIntervalSince1970:timeInterval / 1000];
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_GB"];
+    dateFormatter.timeZone = [NSTimeZone timeZoneWithName:@"GMT"];
+    dateFormatter.dateFormat = @"yyyy-MM-dd";
+    self.consumeDateLabel.text = [dateFormatter stringFromDate:createDate];
+    
+    self.consumeBalanceLabel.text = [NSString stringWithFormat:@"余额：%@",myConsumeModel.balance];
+    
+    
+    self.consumeMoneyLabel.text = income ? [NSString stringWithFormat:@"+%@",myConsumeModel.goodsPrice] : [NSString stringWithFormat:@"-%@",myConsumeModel.goodsPrice];
+    
+    if (income) {
+        self.consumeMoneyLabel.textColor = RGBA(0.0f, 172.0f, 100.0f, 1.0f);
+    } else {
+        self.consumeMoneyLabel.textColor = NavColor;
+    }
+}
+
+@end

@@ -1,0 +1,36 @@
+//
+//  ActionSheetHelp.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/25.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "PayTool.h"
+#import <LCActionSheet.h>
+
+@implementation PayTool
+
++ (void)payWithResult:(void (^)(NSString *payType))returnBlock {
+    NSArray *otherTitleArray = @[@"苹果商店支付",@"零钱钱包"];
+    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:@"请选择支付方式"
+                                             cancelButtonTitle:@"取消"
+                                                       clicked:^(LCActionSheet *actionSheet, NSInteger buttonIndex) {
+                                                           if (buttonIndex != 0) {
+                                                               NSString *payType = @"zfb";
+                                                               switch (buttonIndex) {
+                                                                   case 1:
+                                                                       payType = @"iap";
+                                                                       break;
+                                                                   case 2:
+                                                                       payType = @"wallet";
+                                                                       break;
+                                                               }
+                                                               returnBlock(payType);
+                                                           }
+                                                       }
+                                         otherButtonTitleArray:otherTitleArray];
+    [actionSheet show];
+}
+
+@end

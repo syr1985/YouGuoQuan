@@ -1,0 +1,28 @@
+//
+//  NetWroking.h
+//
+//
+//  Created by  on 14-8-11.
+//  Copyright (c) 2014年 . All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+//        static NSString * const RT_SIGNERROR      = @"001";//签名错
+//        static NSString * const RT_EXCEPTIONERROR = @"002";//系统开小差了
+//        static NSString * const RT_PASSWDERROR    = @"003";//密码错
+//        static NSString * const RT_HAVEREGI       = @"004";//已注册
+//        static NSString * const RT_NONEMOBILE     = @"005";//找不到手机号
+//        static NSString * const RT_SENDMSGERR     = @"006";//发送短信失败
+//        static NSString * const RT_MSGVALIERROR   = @"007";//校验失败
+//        static NSString * const RT_BUSIERROR      = @"008";//业务出错
+
+@interface NetWorking : NSObject
+
++ (void)getSessionWithUrl:(NSString *)urlStr parameters:(id)parameters success:(void (^)(id responseObject))success fail:(void (^)(NSError *error, NSString *msg))fail progress:(void (^)(float completed))progress;
+
++ (void)postSessionWithUrl:(NSString *)urlStr parameters:(id)parameters success:(void (^)(id responseObject))success fail:(void (^)(NSError *error, NSString *msg))fail progress:(void (^)(float completed))progress;
+
++ (void)postSessionWithUrl:(NSString *)urlStr parameters:(id)parameters images:(NSDictionary *)images success:(void (^)(id responseObject))success fail:(void (^)(NSError *error))fail progress:(void (^)(NSProgress *uploadProgress))progress;
+
+@end

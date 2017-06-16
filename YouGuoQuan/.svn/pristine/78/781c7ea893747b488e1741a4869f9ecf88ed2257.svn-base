@@ -1,0 +1,13 @@
+//
+//  PersonModuleViewCell.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface PersonModuleViewCell : UICollectionViewCell
+@property (nonatomic, strong) NSDictionary *dict;
+@end

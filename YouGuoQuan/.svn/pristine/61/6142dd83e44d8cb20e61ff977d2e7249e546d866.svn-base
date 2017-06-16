@@ -1,0 +1,21 @@
+//
+//  ActionSheetHelp.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/25.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface PayTool : NSObject
+
+@property (nonatomic,   copy) void (^actionSheetItemClicked)(NSUInteger buttonIndex);
+
++ (instancetype)sharedInstance;
+
+- (void)pay;
+
+- (void)pay:(void (^)(NSUInteger index))payType;
+
+@end

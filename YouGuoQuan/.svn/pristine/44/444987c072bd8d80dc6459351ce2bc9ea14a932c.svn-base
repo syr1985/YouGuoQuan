@@ -1,0 +1,31 @@
+//
+//  CrowdfundingDetailViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/29.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CrowdfundingDetailViewCell.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+
+@interface CrowdfundingDetailViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *bannerImageView;
+
+@end
+
+@implementation CrowdfundingDetailViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setImageUrl:(NSString *)imageUrl {
+    _imageUrl = imageUrl;
+    
+    [self.bannerImageView sd_setImageWithURL:[NSURL URLWithString:imageUrl]
+                            placeholderImage:[UIImage imageNamed:@"Yosemite03"]];
+}
+
+@end

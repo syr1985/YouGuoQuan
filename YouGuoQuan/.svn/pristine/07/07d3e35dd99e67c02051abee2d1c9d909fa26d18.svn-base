@@ -1,0 +1,333 @@
+//
+//  UserCenterViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "UserCenterViewController.h"
+
+#import "OthersInfoViewController.h"
+#import "ReportViewController.h"
+
+#import "UserCenterHeaderView.h"
+#import "UserCenterTrendsViewCell.h"
+#import "UserCenterVideoViewCell.h"
+#import "UserCenterProductViewCell.h"
+#import "UserCenterRedEnvelopeViewCell.h"
+
+#import "ShareView.h"
+#import "AlertViewTool.h"
+
+#import "UserBaseInfoModel.h"
+
+@interface UserCenterViewController ()
+@property (nonatomic, strong) UserBaseInfoModel *userBaseInfoModel;
+@property (nonatomic, assign, setter=setFocusButtonStatus:) BOOL isFocus;
+@property (nonatomic, assign, setter=setMessageButtonStatus:) BOOL isPullBlack;
+@property (nonatomic, strong) NSMutableArray *modelArray;
+
+@end
+
+static NSString * const tableViewCellID_trends   = @"UserCenterTrendsViewCell";
+static NSString * const tableViewCellID_video    = @"UserCenterVideoViewCell";
+static NSString * const tableViewCellID_product  = @"UserCenterProductViewCell";
+static NSString * const tableViewCellID_envelope = @"UserCenterRedEnvelopeViewCell";
+
+@implementation UserCenterViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray array];
+    }
+    return _modelArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [self configNavigation];
+    
+    [self configTableView];
+    
+    [self getUserBaseInfo];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.navigationController setNavigationBarHidden:NO animated:NO];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - 
+#pragma mark - 根据数据设置控件状态
+
+- (void)setUserBaseInfoModel:(UserBaseInfoModel *)userBaseInfoModel {
+    _userBaseInfoModel = userBaseInfoModel;
+    
+    UserCenterHeaderView *headerView = (UserCenterHeaderView *)self.tableView.tableHeaderView;
+    headerView.userBaseInfoModel = _userBaseInfoModel;
+}
+
+- (void)setFocusButtonStatus:(BOOL)isFocus {
+    _isFocus = isFocus;
+    
+    NSArray *items = self.navigationItem.rightBarButtonItems;
+    UIBarButtonItem *item = items[1];
+    UIButton *btn = item.customView;
+    
+    if (isFocus) {
+        [btn setTitle:@"已关注" forState:UIControlStateNormal];
+        [btn setImage:[UIImage imageNamed:@"已关注"] forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [btn setBackgroundImage:[UIImage imageNamed:@"禁用button"] forState:UIControlStateNormal];
+    } else {
+        [btn setTitle:@"关注" forState:UIControlStateNormal];
+        [btn setImage:[UIImage imageNamed:@"+"] forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor darkTextColor] forState:UIControlStateNormal];
+        [btn setBackgroundImage:[UIImage imageNamed:@"黄色Button"] forState:UIControlStateNormal];
+    }
+    btn.selected = isFocus;
+}
+
+- (void)setMessageButtonStatus:(BOOL)isPullBlack {
+    _isPullBlack = isPullBlack;
+    
+    NSArray *items = self.navigationItem.rightBarButtonItems;
+    UIBarButtonItem *item = items[0];
+    UIButton *btn = item.customView;
+    btn.selected = isPullBlack;
+    btn.enabled = !isPullBlack;
+}
+
+#pragma mark -
+#pragma mark - 配置TableView
+
+- (void)configTableView {
+    /**
+     *  cell
+     */
+    UINib *nib_trends = [UINib nibWithNibName:tableViewCellID_trends bundle:nil];
+    [self.tableView registerNib:nib_trends forCellReuseIdentifier:tableViewCellID_trends];
+    
+    UINib *nib_video  = [UINib nibWithNibName:tableViewCellID_video bundle:nil];
+    [self.tableView registerNib:nib_video forCellReuseIdentifier:tableViewCellID_video];
+    
+    UINib *nib_product = [UINib nibWithNibName:tableViewCellID_product bundle:nil];
+    [self.tableView registerNib:nib_product forCellReuseIdentifier:tableViewCellID_product];
+    
+    UINib *nib_envelope = [UINib nibWithNibName:tableViewCellID_envelope bundle:nil];
+    [self.tableView registerNib:nib_envelope forCellReuseIdentifier:tableViewCellID_envelope];
+    
+    /**
+     *  header
+     */
+    UserCenterHeaderView *headerView = [UserCenterHeaderView loadUserCenterHeaderView];
+    
+    __weak typeof(self) weakself = self;
+    headerView.tapHeaderImageView = ^(id userData) {
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        OthersInfoViewController *userInfoVC = [homeSB instantiateViewControllerWithIdentifier:@"UserInfo"];
+        userInfoVC.userBaseInfoModel = weakself.userBaseInfoModel;
+        [weakself.navigationController pushViewController:userInfoVC animated:YES];
+    };
+    
+    headerView.actionSheetItemClicked = ^(NSUInteger buttonIndex) {
+        if (buttonIndex == 1) {
+            // 拉黑警告
+            [AlertViewTool showAlertViewWithTitle:nil Message:@"拉黑对方后，对方将无法与您聊天，您也无法查看对方动态，是否继续？" sureBlock:^{
+                // 拉黑操作
+                //                [NetworkTool pulledBlackList:@"3" userId:_userBaseInfoModel.userId success:^{
+                //                    
+                //                }];
+            }];
+        } else if (buttonIndex == 2) {
+            // 举报操作
+            UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+            ReportViewController *reportVC = [discoverySB instantiateViewControllerWithIdentifier:@"Report"];
+            reportVC.userId = _userBaseInfoModel.userId;
+            [weakself presentViewController:reportVC animated:YES completion:nil];
+        }
+    };
+    
+    headerView.shareButtonClickedBlock = ^{
+        ShareView *shareView = [ShareView shareView];
+        shareView.tapShareItem = ^(NSUInteger index) {
+            YGQLog(@"tapShareItem%ld",(unsigned long)index);
+        };
+        [self.navigationController.view addSubview:shareView];
+    };
+    
+    headerView.concemButtonClickedBlock = ^{
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        UIViewController *othersConcemsVC = [homeSB instantiateViewControllerWithIdentifier:@"OthersConcems"];
+        [weakself.navigationController pushViewController:othersConcemsVC animated:YES];
+    };
+    
+    headerView.funsButtonClickedBlock = ^{
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        UIViewController *othersFunsVC = [homeSB instantiateViewControllerWithIdentifier:@"OthersFuns"];
+        [weakself.navigationController pushViewController:othersFunsVC animated:YES];
+    };
+    
+    headerView.favourButtonClickedBlock = ^{
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        UIViewController *othersFavoursVC = [homeSB instantiateViewControllerWithIdentifier:@"OthersFavours"];
+        [weakself.navigationController pushViewController:othersFavoursVC animated:YES];
+    };
+    
+    self.tableView.tableHeaderView = headerView;
+}
+
+#pragma mark -
+#pragma mark - 配置导航栏
+
+- (void)configNavigation {
+    NSArray *titles = @[@"购买微信", @"打赏", @"关注", @"聊天"];
+    NSArray *images = @[@"微信", @"打赏", @"+", @"聊天"];
+    NSArray *withs  = @[@80, @50, @60, @50];
+    
+    NSMutableArray *items = [NSMutableArray arrayWithCapacity:4];
+    for (NSUInteger i = 0; i < 4; i++) {
+        CGFloat btnW = [withs[i] floatValue];
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.frame = CGRectMake(0, 0, btnW, 25);
+        btn.layer.cornerRadius = 5;
+        btn.layer.masksToBounds = YES;
+        
+        btn.reversesTitleShadowWhenHighlighted = NO;
+        btn.adjustsImageWhenHighlighted = NO;
+        btn.adjustsImageWhenDisabled = NO;
+        btn.titleLabel.font = [UIFont systemFontOfSize:12];
+        [btn setTitle:titles[i] forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor darkTextColor] forState:UIControlStateNormal];
+        [btn setImage:[UIImage imageNamed:images[i]] forState:UIControlStateNormal];
+        [btn setBackgroundImage:[UIImage imageNamed:@"黄色Button"] forState:UIControlStateNormal];
+        [btn setBackgroundImage:[UIImage imageNamed:@"禁用button"] forState:UIControlStateSelected];
+        //[btn setBackgroundImage:[UIImage imageNamed:@"禁用button"] forState:UIControlStateDisabled];
+        
+        // add sel
+        switch (i) {
+            case 0:
+                [btn addTarget:self action:@selector(buyWeixin) forControlEvents:UIControlEventTouchUpInside];
+                break;
+            case 1:
+                [btn addTarget:self action:@selector(rewardUser) forControlEvents:UIControlEventTouchUpInside];
+                break;
+            case 2:
+                [btn addTarget:self action:@selector(concemUser:) forControlEvents:UIControlEventTouchUpInside];
+                break;
+            case 3:
+                [btn addTarget:self action:@selector(messageUser) forControlEvents:UIControlEventTouchUpInside];
+                break;
+        }
+        
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView:btn];
+        [items addObject:item];
+    }
+    self.navigationItem.rightBarButtonItems = [[items reverseObjectEnumerator] allObjects];
+}
+
+#pragma mark -
+#pragma mark - 调接口
+
+- (void)getUserBaseInfo {
+    __weak typeof(self) weakself = self;
+    /**
+     *  TA的基本信息
+     */
+    [NetworkTool getOthersInfoWithUserId:_userId success:^(id result) {
+        __strong typeof(self) strongself = weakself;
+        strongself.isFocus = [result[@"isFocus"] boolValue];
+        strongself.isPullBlack = [result[@"isPullBlack"] boolValue];
+        NSDictionary *dict = result[@"list"];
+        strongself.userBaseInfoModel = [UserBaseInfoModel userBaseInfoModelWithDict:dict];
+    }];
+    /**
+     *  TA的照片墙
+     */
+    
+    /**
+     *  TA发的动态
+     */
+}
+
+#pragma mark -
+#pragma mark - 导航按钮方法
+
+- (void)buyWeixin {
+    
+}
+
+- (void)rewardUser {
+    UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+    UIViewController *rewardVC = [homeSB instantiateViewControllerWithIdentifier:@"Reward"];
+    [self presentViewController:rewardVC animated:YES completion:nil];
+}
+
+- (void)concemUser:(UIButton *)btn {
+    if (btn.isSelected) {
+        [AlertViewTool showAlertViewWithTitle:@"是否取消关注？" Message:nil sureBlock:^{
+            // 取消关注
+            [NetworkTool cancelOperationWithType:@"1" userID:_userBaseInfoModel.userId success:^{
+                [SVProgressHUD showSuccessWithStatus:@"已取消关注TA"];
+                self.isFocus = NO;
+            }];
+        }];
+    } else {
+        // 关注
+        [NetworkTool doOperationWithType:@"1" userId:_userBaseInfoModel.userId success:^{
+            [SVProgressHUD showSuccessWithStatus:@"已关注TA"];
+            self.isFocus = YES;
+        }];
+    }
+}
+
+- (void)messageUser {
+    
+}
+
+#pragma mark -
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 0;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"reuseIdentifier" forIndexPath:indexPath];
+    cell.backgroundColor = NavColor;
+    // Configure the cell...
+    
+    return cell;
+}
+
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

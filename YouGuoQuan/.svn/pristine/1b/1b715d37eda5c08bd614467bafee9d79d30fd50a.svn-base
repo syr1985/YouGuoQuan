@@ -1,0 +1,38 @@
+//
+//  HomeBannerModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/3.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+//createTime = 1480042769000;
+//id = "ba93d71c-eb81-451e-bb07-ac2bf9a01a48";
+//imageDesc = awef;
+//imageName = wfaw;
+//imageSort = "";
+//imageTitle = "";
+//imageType = "";
+//imageUrl = "http://7xtk9y.com1.z0.glb.clouddn.com/99beebd367fd2ee2c7e7ce8f3e0b539ec20900fe723f9a92bf348a94c64bf338..jpg";
+//isDelete = 0;
+//isRecommend = 1;
+//updateTime = 1480042769000;
+
+@interface HomeBannerModel : NSObject
+@property (nonatomic,   copy) NSString *bannerId;
+@property (nonatomic,   copy) NSString *imageTitle;
+@property (nonatomic,   copy) NSString *imageDesc;
+@property (nonatomic,   copy) NSString *imageName;
+@property (nonatomic,   copy) NSString *imageType;
+@property (nonatomic,   copy) NSString *imageSort;
+@property (nonatomic,   copy) NSString *imageUrl;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *updateTime;
+@property (nonatomic, assign) BOOL isDelete;
+@property (nonatomic, assign) BOOL isRecommend;
+
++ (instancetype)homeBannerModelWithDict:(NSDictionary *)dict;
+- (instancetype)initSearchReaultModelWithDict:(NSDictionary *)dict;
+@end

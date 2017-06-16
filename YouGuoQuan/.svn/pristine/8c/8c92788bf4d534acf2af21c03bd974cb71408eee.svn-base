@@ -1,0 +1,14 @@
+//
+//  VerifyCodeViewController.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/14.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@interface VerifyCodeViewController : BaseViewController
+@property (nonatomic,   copy) NSString *telephoneNumber;
+@property (nonatomic,   copy) NSString *password;
+@end

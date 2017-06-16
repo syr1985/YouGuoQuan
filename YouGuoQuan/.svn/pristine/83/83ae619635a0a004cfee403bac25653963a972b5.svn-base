@@ -1,0 +1,43 @@
+//
+//  YouGuoNobilityViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/6.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "YouGuoNobilityViewController.h"
+#import "UserBaseInfoModel.h"
+#import <UIImageView+WebCache.h>
+
+@interface YouGuoNobilityViewController ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+
+@end
+
+@implementation YouGuoNobilityViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"尤果贵族";
+    
+    self.headerImageView.layer.cornerRadius = self.headerImageView.frame.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:_userBaseInfoModel.headImg]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.nickNameLabel.text = _userBaseInfoModel.nickName;
+    self.crownImageView.hidden = !_userBaseInfoModel.isRecommend;
+    self.vipImageView.hidden = (_userBaseInfoModel.audit != 1);
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

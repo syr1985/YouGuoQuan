@@ -1,0 +1,85 @@
+//
+//  DateCategoryViewController.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 2017/1/2.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "DateCategoryViewController.h"
+#import "HelperUtil.h"
+#import "PublishDateViewController.h"
+
+@interface DateCategoryViewController () {
+    
+}
+
+@property(nonatomic, strong) NSArray *iconArray;
+@property(nonatomic, strong) NSArray *titleArray;
+
+@end
+
+@implementation DateCategoryViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setUpNavBar];
+    self.tableView.rowHeight = 66;
+    self.titleArray = @[@"吃饭", @"发呆", @"看电影", @"下午茶", @"私摄", @"旅行"];
+    self.tableView.tableFooterView = [[UIView alloc] init];
+}
+
+- (void) setUpNavBar {
+    self.title = @"关注";
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"关闭"]
+                                                                 style:UIBarButtonItemStylePlain
+                                                                target:self
+                                                                action:@selector(actionBack)];
+    leftItem.imageInsets = UIEdgeInsetsMake(0, -6, 0, 0);
+    self.navigationItem.leftBarButtonItem = leftItem;
+    self.navigationItem.leftBarButtonItem.tintColor = [HelperUtil colorWithHexString:@"#352007"];
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.titleArray.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DateCategoryCell"];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"DateCategoryCell"];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.textLabel.font = [UIFont systemFontOfSize:17];
+        cell.textLabel.textColor = [HelperUtil colorWithHexString:@"#352007"];
+    }
+    cell.textLabel.text = self.titleArray[indexPath.row];
+    cell.imageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"约见-%@", self.titleArray[indexPath.row]]];
+    return cell;
+}
+
+- (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    PublishDateViewController *vc = [[PublishDateViewController alloc] initWithDateType:indexPath.row userID:_userId];
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
+
+- (void) actionBack {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+
+
+@end

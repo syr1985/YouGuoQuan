@@ -1,0 +1,185 @@
+//
+//  UserCenterViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/21.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "UserCenterViewController.h"
+#import "UserCenterHeaderView.h"
+
+#import "OthersInfoViewController.h"
+#import "ShareView.h"
+#import "AlertViewTool.h"
+
+#import "UserBaseInfoModel.h"
+
+@interface UserCenterViewController ()
+
+@end
+
+@implementation UserCenterViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Uncomment the following line to preserve selection between presentations.
+    // self.clearsSelectionOnViewWillAppear = NO;
+    
+    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    [self configTableView];
+    
+    [self configNavgation];
+    
+    [self getUserBaseInfo];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.navigationController setNavigationBarHidden:NO animated:NO];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/**
+ *  配置TableView
+ */
+- (void)configTableView {
+    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"reuseIdentifier"];
+    
+    UserCenterHeaderView *headerView = [UserCenterHeaderView loadUserCenterHeaderView];
+    __weak typeof(self) weakself = self;
+    headerView.tapHeaderImageView = ^(id userData) {
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        OthersInfoViewController *userInfoVC = [homeSB instantiateViewControllerWithIdentifier:@"UserInfo"];
+        userInfoVC.userBaseInfoModel = weakself.userBaseInfoModel;
+        [weakself.navigationController pushViewController:userInfoVC animated:YES];
+    };
+    
+    headerView.actionSheetItemClicked = ^(NSUInteger buttonIndex) {
+        if (buttonIndex == 1) {
+            // 拉黑警告
+            [AlertViewTool showAlertViewWithTitle:nil Message:@"拉黑对方后，对方将无法与您聊天，您也无法查看对方动态，是否继续？" sureBlock:^{
+                // 拉黑操作
+                
+            }];
+        } else if (buttonIndex == 2) {
+            // 举报操作
+            UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+            UIViewController *reportVC = [discoverySB instantiateViewControllerWithIdentifier:@"Report"];
+            [weakself presentViewController:reportVC animated:YES completion:nil];
+        }
+    };
+    
+    headerView.shareButtonClickedBlock = ^{
+        ShareView *shareView = [ShareView shareView];
+        shareView.tapShareItem = ^(NSUInteger index) {
+            YGQLog(@"tapShareItem%ld",(unsigned long)index);
+        };
+        [self.navigationController.view addSubview:shareView];
+    };
+    
+    headerView.concemButtonClickedBlock = ^{
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        UIViewController *othersConcemsVC = [homeSB instantiateViewControllerWithIdentifier:@"OthersConcems"];
+        [weakself.navigationController pushViewController:othersConcemsVC animated:YES];
+    };
+    
+    headerView.funsButtonClickedBlock = ^{
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        UIViewController *othersFunsVC = [homeSB instantiateViewControllerWithIdentifier:@"OthersFuns"];
+        [weakself.navigationController pushViewController:othersFunsVC animated:YES];
+    };
+    
+    headerView.favourButtonClickedBlock = ^{
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        UIViewController *othersFavoursVC = [homeSB instantiateViewControllerWithIdentifier:@"OthersFavours"];
+        [weakself.navigationController pushViewController:othersFavoursVC animated:YES];
+    };
+    
+    self.tableView.tableHeaderView = headerView;
+}
+
+/**
+ *  配置导航栏
+ */
+- (void)configNavgation {
+    NSArray *titles = @[@"购买微信", @"打赏", @"关注", @"聊天"];
+    NSArray *images = @[@"微信", @"打赏", @"+", @"聊天"];
+    NSArray *withs  = @[@80, @50, @50, @50];
+    
+    NSMutableArray *items = [NSMutableArray arrayWithCapacity:4];
+    for (NSUInteger i = 0; i < 4; i++) {
+        CGFloat btnW = [withs[i] floatValue];
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.frame = CGRectMake(0, 0, btnW, 25);
+        btn.backgroundColor = NavColor;
+        btn.layer.cornerRadius = 5;
+        
+        btn.titleLabel.font = [UIFont systemFontOfSize:12];
+        [btn setTitle:titles[i] forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor darkTextColor] forState:UIControlStateNormal];
+        [btn setImage:[UIImage imageNamed:images[i]] forState:UIControlStateNormal];
+        // add sel
+        
+        if (i == 2) {
+            [btn setTitle:@"已关注" forState:UIControlStateDisabled];
+            [btn setImage:[UIImage imageNamed:@"已关注"] forState:UIControlStateDisabled];
+            [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateDisabled];
+        }
+        btn.enabled = YES;
+        
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView:btn];
+        [items addObject:item];
+    }
+    
+    self.navigationItem.rightBarButtonItems = [[items reverseObjectEnumerator] allObjects];
+}
+
+- (void)getUserBaseInfo {
+    __weak typeof(self) weakself = self;
+    [NetworkTool getOthersInfoWithUserId:_userId success:^(id result) {
+        weakself.userBaseInfoModel = [UserBaseInfoModel userBaseInfoModelWithDict:result];
+    }];
+}
+
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 4;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"reuseIdentifier" forIndexPath:indexPath];
+    cell.backgroundColor = NavColor;
+    // Configure the cell...
+    
+    return cell;
+}
+
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

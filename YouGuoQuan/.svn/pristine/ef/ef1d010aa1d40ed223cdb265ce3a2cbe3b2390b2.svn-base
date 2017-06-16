@@ -1,0 +1,33 @@
+//
+//  BaseTabBarController.m
+//  ShakeAround
+//
+//  Created by erick on 15/11/18.
+//  Copyright © 2015年 erick. All rights reserved.
+//
+
+#import "BaseTabBarController.h"
+
+@interface BaseTabBarController ()
+
+@end
+
+@implementation BaseTabBarController
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.tabBar.tintColor = NavColor;
+    self.tabBar.backgroundColor = [UIColor whiteColor];
+    
+}
+
+
+
+@end

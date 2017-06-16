@@ -1,0 +1,95 @@
+//
+//  LookPhotosViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/4.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "LookPhotosViewController.h"
+#import <UIImageView+WebCache.h>
+#import "NSString+AttributedText.h"
+#import "PayTool.h"
+
+@interface LookPhotosViewController ()
+@property (weak, nonatomic) IBOutlet UIImageView *redbagImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+@property (nonatomic,   copy) NSString *orderNo;
+@end
+
+@implementation LookPhotosViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.redbagImageView.layer.cornerRadius = 5;
+    self.redbagImageView.layer.masksToBounds = YES;
+    
+    self.headerImageView.layer.cornerRadius = self.headerImageView.bounds.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:_headImg]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    self.nickNameLabel.text = _nickName;
+    NSString *money = [NSString stringWithFormat:@"￥%zd",_price];
+    self.moneyLabel.attributedText = [NSString attributedStringWithString:money
+                                                                     font:[UIFont systemFontOfSize:12]
+                                                                    range:[money rangeOfString:@"￥"]];
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool generateOrderNoWithGoodsType:@"RP" success:^(id result) {
+        weakself.orderNo = result;
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+    }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)dismissViewController:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)buyButtonClicked:(id)sender {
+    [PayTool payWithResult:^(NSString *payType) {
+        if (![payType isEqualToString:@"wallet"]) {
+            // 第三方支付，这边代码需要写个PayHelp.h
+            return ;
+        }
+        [NetworkTool createRedPacketOrderWithGoodsId:_goodsId feedsId:_feedsId payMethod:payType phone:@"" orderNo:_orderNo success:^(id result) {
+            __weak typeof(self) weakself = self;
+            [NetworkTool payForTrendsToUserDirectlyWithOrderNo:result success:^(id result) {
+                [SVProgressHUD showSuccessWithStatus:@"支付成功"];
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [weakself dismissViewControllerAnimated:YES completion:nil];
+                });
+            } failure:^{
+                [SVProgressHUD showErrorWithStatus:@"支付失败"];
+            }];
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+        }];
+    }];
+}
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

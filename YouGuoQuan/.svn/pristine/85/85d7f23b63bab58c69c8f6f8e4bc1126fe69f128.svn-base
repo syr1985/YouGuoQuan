@@ -1,0 +1,125 @@
+//
+//  OfficiallyCertifiedViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/6.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "OfficiallyCertifiedViewController.h"
+#import "ProductPhotoViewCell.h"
+#import "TakePhotoHelp.h"
+
+@interface OfficiallyCertifiedViewController () <UITableViewDelegate, UITableViewDataSource>
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
+@property (nonatomic, strong) NSMutableArray *photoArray;
+@end
+
+static NSString * const collectionViewCellID_Photo  = @"ProductPhotoViewCell";
+
+@implementation OfficiallyCertifiedViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)photoArray {
+    if (!_photoArray) {
+        _photoArray = [NSMutableArray array];
+        [_photoArray addObject:[UIImage imageNamed:@"发布-添加"]];
+    }
+    return _photoArray;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"官方认证";
+    
+    UINib *nib_photo  = [UINib nibWithNibName:collectionViewCellID_Photo bundle:nil];
+    [self.collectionView registerNib:nib_photo forCellWithReuseIdentifier:collectionViewCellID_Photo];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - UITableViewDelegate & DataSource
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 7;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row == 5) {
+        NSUInteger count = self.photoArray.count;
+        NSUInteger row = count % 3 == 0 ? (count / 3) : (count / 3 + 1);
+        CGFloat cellH = row * (WIDTH - 40) / 3 + (row - 1) * 10 + 58;
+        return cellH;
+    } else if (indexPath.row == 6) {
+        return 108;
+    } else {
+        return 66;
+    }
+}
+
+#pragma mark -
+#pragma mark - UICollectionViewDelegate & DataSource 
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.photoArray.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    ProductPhotoViewCell *cell_photo = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Photo forIndexPath:indexPath];
+    cell_photo.photo = self.photoArray[indexPath.row];
+    cell_photo.index = indexPath.row;
+    cell_photo.isShowDeleteButton = (indexPath.row == (self.photoArray.count - 1));
+    
+    __weak typeof(self) weakself = self;
+    cell_photo.deletePhotoBlock = ^(NSUInteger index) {
+        [weakself.photoArray removeObjectAtIndex:index];
+        [weakself.collectionView reloadData];
+        [weakself.tableView reloadData];
+    };
+    return cell_photo;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    CGFloat itemW = (WIDTH - 40) / 3;
+    return CGSizeMake(itemW, itemW);
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row == self.photoArray.count - 1) {
+        __weak typeof(self) weakself = self;
+        [[TakePhotoHelp sharedInstance] showActionSheetWithTitle:@"选择图片" photosCount:self.photoArray.count viewController:self returnBlock:^(BOOL isCover, NSArray<UIImage *> *photos) {
+            NSArray *oldArray = weakself.photoArray;
+            NSMutableArray *muArray = [NSMutableArray array];
+            [muArray addObjectsFromArray:photos];
+            [muArray addObjectsFromArray:oldArray];
+            weakself.photoArray = muArray;
+            [weakself.collectionView reloadData];
+            [weakself.tableView reloadData];
+        }];
+    }
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

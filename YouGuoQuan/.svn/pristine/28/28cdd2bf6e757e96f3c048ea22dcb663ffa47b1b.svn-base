@@ -1,0 +1,65 @@
+//
+//  BaseViewController.m
+//  XieChengMLS
+//
+//  Created by apple on 15/5/22.
+//  Copyright (c) 2015年 apple. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import <Masonry.h>
+
+@interface BaseViewController ()
+
+@end
+
+@implementation BaseViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    //self.view.backgroundColor = [UIColor whiteColor];
+    [self.navigationController setNavigationBarHidden:NO];
+    self.navigationItem.hidesBackButton = YES;
+    self.navigationController.navigationBar.tintColor = [UIColor darkTextColor];
+    self.navigationController.navigationBar.barTintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.backgroundColor = [UIColor whiteColor];
+    
+    
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"返回-黑"]
+                                                                 style:UIBarButtonItemStylePlain
+                                                                target:self
+                                                                action:@selector(popViewController)];
+    leftItem.imageInsets = UIEdgeInsetsMake(0, -6, 0, 0);
+    self.navigationItem.leftBarButtonItem = leftItem;
+}
+
+- (void)popViewController {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)setTitleString:(NSString *)titleString {
+    _titleString = titleString;
+    
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.textColor = [UIColor blackColor];
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    titleLabel.text = titleString;
+    self.navigationItem.titleView = titleLabel;
+    
+    [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.navigationItem.titleView);
+        make.left.equalTo(self.navigationItem.titleView);
+        make.right.equalTo(self.navigationItem.titleView);
+        make.bottom.equalTo(self.navigationItem.titleView);
+    }];
+}
+
+//- (UIStatusBarStyle)preferredStatusBarStyle {
+//    return UIStatusBarStyleLightContent;
+//}
+
+//    self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor], NSFontAttributeName:[UIFont systemFontOfSize:[UIFont systemFontSize]]};
+//    self.navigationController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+
+@end

@@ -1,0 +1,130 @@
+//
+//  LookPhotosViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/4.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "LookPhotosViewController.h"
+#import <UIImageView+WebCache.h>
+#import "NSString+AttributedText.h"
+#import "PayTool.h"
+#import "IAPurchaseTool.h"
+#import "AlertViewTool.h"
+
+@interface LookPhotosViewController ()
+@property (weak, nonatomic) IBOutlet UIImageView *backgroundImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *redbagImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+@property (nonatomic,   copy) NSString *orderNo;
+@end
+
+@implementation LookPhotosViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    //    self.redbagImageView.layer.cornerRadius = 10;
+    //    self.redbagImageView.layer.masksToBounds = YES;
+    
+    _headerImageView.layer.cornerRadius = self.headerImageView.bounds.size.width * 0.5;
+    _headerImageView.layer.masksToBounds = YES;
+    
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:_headImg
+                                                                  width:_headerImageView.bounds.size.width
+                                                                 height:_headerImageView.bounds.size.height];
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    _nickNameLabel.text = _nickName;
+    _moneyLabel.text = [NSString stringWithFormat:@"%zd u币",_price];
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool generateOrderNoWithGoodsType:@"RP" success:^(id result) {
+        weakself.orderNo = result;
+    } failure:nil];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)dismissViewController:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)buyButtonClicked:(id)sender {
+    [PayTool payWithResult:^(NSString *payType) {
+        __weak typeof(self) weakself = self;
+        [NetworkTool createRedPacketOrderWithGoodsId:_goodsId
+                                             feedsId:_feedsId
+                                           payMethod:payType
+                                               phone:@""
+                                             orderNo:_orderNo
+                                             success:^(id result, id payOrderNo) {
+            if ([payType isEqualToString:@"wallet"]) {
+                [weakself payByWalletWithOrderNo:result];
+            } else {
+//                NSString *productID = [NSString stringWithFormat:@"youguoquan.photo%zdu",_price];
+//                [[IAPurchaseTool sharedInstance] purchaseWithProductID:productID orderNo:result success:^{
+//                     [weakself dismissViewControllerAfterShowMessage];
+//                } failure:^{
+//                     [weakself dismissViewControllerAfterShowMessage];
+//                }];
+            }
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+        }];
+    }];
+}
+
+- (void)payByWalletWithOrderNo:(NSString *)orderNo {
+    [NetworkTool payForTrendsToUserDirectlyWithOrderNo:orderNo success:^{
+        [SVProgressHUD showSuccessWithStatus:@"支付成功"];
+        [self successPayForBuyPhoto];
+    } failure:^(NSError *error, NSString *msg){
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+            [self dismissViewControllerAfterShowMessage];
+        } else if ([msg isEqualToString:@"金额不足"]) {
+            [PayTool payFailureTranslateToRechargeVC:self rechargeSuccess:^{
+                [self payByWalletWithOrderNo:orderNo];
+            } rechargeFailure:nil];
+        } else {
+            [SVProgressHUD showErrorWithStatus:@"支付失败"];
+            [self dismissViewControllerAfterShowMessage];
+        }
+    }];
+}
+
+- (void)successPayForBuyPhoto {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kUserCenterBuyPhotoSuccessNotification
+                                                        object:nil
+                                                      userInfo:@{@"PhotoFeedsID":self.feedsId}];
+    [self dismissViewControllerAfterShowMessage];
+}
+
+- (void)dismissViewControllerAfterShowMessage {
+    __weak typeof(self) weakself = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(HUD_SHOW_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [weakself dismissViewControllerAnimated:YES completion:nil];
+    });
+}
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

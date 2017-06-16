@@ -1,0 +1,107 @@
+//
+//  CrowdfundingViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CrowdfundingViewController.h"
+#import "CrowdfundingViewCell.h"
+
+@interface CrowdfundingViewController ()
+
+@end
+
+static NSString *const tableViewCellID = @"CrowdfundingViewCell";
+
+@implementation CrowdfundingViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Uncomment the following line to preserve selection between presentations.
+    // self.clearsSelectionOnViewWillAppear = NO;
+    
+    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    [self configTableView];
+}
+
+- (void)configTableView {
+    self.tableView.rowHeight = 200;
+    self.tableView.estimatedRowHeight = 300;
+    self.tableView.showsVerticalScrollIndicator = NO;
+    
+    UINib *nib = [UINib nibWithNibName:tableViewCellID bundle:nil];
+    [self.tableView registerNib:nib forCellReuseIdentifier:tableViewCellID];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 4;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    CrowdfundingViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID forIndexPath:indexPath];
+    
+    // Configure the cell...
+    if (indexPath.row == 3) {
+        
+        NSString *str = @"众筹已结束";
+        NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:str];
+        
+        //        // 设置字体和设置字体的范围
+        //        [attrStr addAttribute:NSFontAttributeName
+        //                        value:[UIFont systemFontOfSize:30.0f]
+        //                        range:NSMakeRange(0, 3)];
+        // 添加文字颜色
+        [attrStr addAttribute:NSForegroundColorAttributeName
+                        value:[UIColor whiteColor]
+                        range:NSMakeRange(0,str.length - 1)];
+        //        // 添加文字背景颜色
+        //        [attrStr addAttribute:NSBackgroundColorAttributeName
+        //                        value:[UIColor orangeColor]
+        //                        range:NSMakeRange(17, 7)];
+        //        // 添加下划线
+        //        [attrStr addAttribute:NSUnderlineStyleAttributeName
+        //                        value:[NSNumber numberWithInteger:NSUnderlineStyleSingle]
+        //                        range:NSMakeRange(8, 7)];
+        
+        cell.crowdLastTime = attrStr;
+    }
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return WIDTH * 46 / 75;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+    UIViewController *crowdfuningDetailVC = [discoverySB instantiateViewControllerWithIdentifier:@"CrowdfundingDetail"];
+    [self presentViewController:crowdfuningDetailVC animated:YES completion:nil];
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

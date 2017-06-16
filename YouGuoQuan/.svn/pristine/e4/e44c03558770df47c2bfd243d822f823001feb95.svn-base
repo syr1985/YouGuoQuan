@@ -1,0 +1,124 @@
+//
+//  RewardViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/2.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "RewardViewController.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "PayTool.h"
+
+@interface RewardViewController () <UITextFieldDelegate>
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UITextField *rewardTextField;
+@property (weak, nonatomic) IBOutlet UIView *backgroundView;
+@property (nonatomic, assign) NSInteger currentTag;
+@property (nonatomic,   copy) NSString *inputReward;
+@end
+
+@implementation RewardViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.headerImageView.layer.cornerRadius = self.headerImageView.bounds.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:_headImg]];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)dismissViewController {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+/**
+ *  塞红包
+ */
+- (IBAction)payForReward {
+    if (!self.inputReward || !self.inputReward.length) {
+        [SVProgressHUD showInfoWithStatus:@"您还未选择红包金额"];
+        return;
+    }
+    NSUInteger payValue = [self.inputReward integerValue];
+    if (payValue < 10) {
+        [SVProgressHUD showInfoWithStatus:@"打赏不可低于10元"];
+        return;
+    }
+    
+    [[PayTool sharedInstance] pay:^(NSUInteger index) {
+        NSString *payType = @"zfb";
+        switch (index) {
+            case 1:
+                payType = @"zfb";
+                break;
+            case 2:
+                payType = @"wx";
+                break;
+            case 3:
+                payType = @"wallet";
+                break;
+        }
+        [NetworkTool createRewardOrderWithUserID:_userID money:_inputReward payMethod:payType rType:@"ds" memo:@"" success:^(id result) {
+            [NetworkTool payForRewardWithOrderNo:result success:^(id result) {
+                [SVProgressHUD showErrorWithStatus:@"支付成功"];
+                __weak typeof(self) weakself = self;
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [weakself dismissViewControllerAnimated:YES completion:nil];
+                });
+            } failure:^{
+                [SVProgressHUD showErrorWithStatus:@"支付失败"];
+            }];
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+        }];
+    }];
+}
+
+- (IBAction)redEnvelopeSelected:(UIButton *)sender {
+    sender.selected = !sender.isSelected;
+    self.rewardTextField.text = [NSString stringWithFormat:@"%ld",sender.tag];
+    self.inputReward = [NSString stringWithFormat:@"%ld",sender.tag];
+    
+    if (sender.isSelected) {
+        if (sender.tag != _currentTag) {
+            if (_currentTag > 0) {
+                UIButton *btn = [self.view viewWithTag:_currentTag];
+                btn.selected = NO;
+            }
+        }
+        _currentTag = sender.tag;
+    }
+}
+
+#pragma mark - UITextFieldDelegate
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    self.inputReward = textField.text;
+    if (_currentTag > 0) {
+        UIButton *btn = [self.view viewWithTag:_currentTag];
+        btn.selected = NO;
+    }
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

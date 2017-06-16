@@ -1,0 +1,64 @@
+//
+//  FillInAccountViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/4/21.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "FillInAccountViewController.h"
+#import "WithdrawCashViewController.h"
+
+@interface FillInAccountViewController ()
+@property (weak, nonatomic) IBOutlet UITextField *accountTextField;
+@property (weak, nonatomic) IBOutlet UITextField *confirmTextField;
+@property (weak, nonatomic) IBOutlet UITextField *realNameTextField;
+@end
+
+@implementation FillInAccountViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"提现";
+    
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"返回-黑"]
+                                                                 style:UIBarButtonItemStylePlain
+                                                                target:self
+                                                                action:@selector(dismissViewController)];
+    leftItem.imageInsets = UIEdgeInsetsMake(0, -6, 0, 0);
+    self.navigationItem.leftBarButtonItem = leftItem;
+}
+
+- (void)dismissViewController {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)nextStepButtonClicked:(id)sender {
+    if (_accountTextField.text.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请输入支付宝账号"];
+        return;
+    }
+    
+    if (![_accountTextField.text isEqualToString:_confirmTextField.text]) {
+        [SVProgressHUD showInfoWithStatus:@"两次输入支付宝账号不一致"];
+        return;
+    }
+    
+    if (_realNameTextField.text.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请输入支付宝实名"];
+        return;
+    }
+    
+    [LoginData sharedLoginData].zfbAccount = _accountTextField.text;
+    [LoginData sharedLoginData].realName = _realNameTextField.text;
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+@end

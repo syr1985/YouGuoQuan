@@ -1,0 +1,158 @@
+//
+//  PublishViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/16.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "PublishViewController.h"
+#import "OfficiallyCertifiedViewController.h"
+#import <PopMenu.h>
+#import "AlertViewTool.h"
+#import "UserBaseInfoModel.h"
+
+@interface PublishViewController ()
+@property (nonatomic, strong) PopMenu *popMenu;
+
+@end
+
+@implementation PublishViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    if ([LoginData sharedLoginData].userId) {
+        [self shouldShowMenu];
+    } else {
+        NSDictionary *result = [SCUserDefault objectForKey:KEY_USER_ACCOUNT];
+        if (result) {
+            [LoginData loginDataWithDict:result];
+            [self shouldShowMenu];
+        } else {
+            UIStoryboard *loginSB = [UIStoryboard storyboardWithName:@"Login" bundle:nil];
+            UIViewController *loginVC = [loginSB instantiateViewControllerWithIdentifier:@"LoginVC"];
+            [self.navigationController presentViewController:loginVC animated:YES completion:nil];
+        }
+    }
+}
+
+- (void)shouldShowMenu {
+    if ([LoginData sharedLoginData].star < 2) {
+        __weak typeof(self) weakself = self;
+        [AlertViewTool showAlertViewWithTitle:nil Message:@"需要达到LV2才可以参与评论与发帖，快来做任务加速提升等级吧" sureBlock:^{
+            weakself.tabBarController.selectedIndex = 0;
+        } cancelBlock:^{
+            weakself.tabBarController.selectedIndex = 0;
+        }];
+    } else {
+        [self showMenu];
+    }
+}
+
+- (void)showMenu {
+    if (!_popMenu) {
+        if (_popMenu.isShowed) {
+            return;
+        }
+        NSArray *icons = @[@"发布商品", @"红包照片", @"出售微信", @"视频动态", @"图文动态", @"发布-关闭"];//
+        NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:5];
+        
+        NSUInteger index = 0;
+        for (NSString *icon in icons) {
+            MenuItem *menuItem = [MenuItem itemWithTitle:@"" iconName:icon];
+            menuItem.index = index++;
+            [items addObject:menuItem];
+        }
+        
+        _popMenu = [[PopMenu alloc] initWithFrame:self.view.bounds items:items];
+        _popMenu.menuAnimationType = kPopMenuAnimationTypeNetEase;
+        
+        __weak typeof(self) weakself = self;
+        _popMenu.didSelectedItemCompletion = ^(MenuItem *selectedItem) {
+            if (!selectedItem) {
+                weakself.tabBarController.selectedIndex = 0;
+                
+            } else {
+                UIStoryboard *publishSB = [UIStoryboard storyboardWithName:@"Publish" bundle:nil];
+                switch (selectedItem.index) {
+                    case 0:
+                    {
+                        //判断是否认证
+                        if ([LoginData sharedLoginData].isRecommend) {
+                            UINavigationController *publishProductVC = [publishSB instantiateViewControllerWithIdentifier:@"PublishProduct"];
+                            [weakself presentViewController:publishProductVC animated:YES completion:nil];
+                        } else {
+                            [AlertViewTool showAlertViewWithTitle:nil Message:@"该功能只对认证用户开放，快去认证吧" sureBlock:^{
+                                [weakself pushToOfficiallyCertifiedViewController];
+                            }];
+                        }
+                    }
+                        break;
+                    case 1:
+                    {
+                        UINavigationController *publishRedEnvelopeVC = [publishSB instantiateViewControllerWithIdentifier:@"PublishRedEnvelope"];
+                        [weakself presentViewController:publishRedEnvelopeVC animated:YES completion:nil];
+                    }
+                        break;
+                    case 2:
+                    {
+                        UINavigationController *sellWeixinVC = [publishSB instantiateViewControllerWithIdentifier:@"SellWeixin"];
+                        [weakself presentViewController:sellWeixinVC animated:YES completion:nil];
+                    }
+                        break;
+                    case 3:
+                    {
+                        UINavigationController *publishVideoVC = [publishSB instantiateViewControllerWithIdentifier:@"PublishVideo"];
+                        [weakself presentViewController:publishVideoVC animated:YES completion:nil];
+                    }
+                        break;
+                    case 4:
+                    {
+                        UINavigationController *publishTrendsVC = [publishSB instantiateViewControllerWithIdentifier:@"PublishTrends"];
+                        [weakself presentViewController:publishTrendsVC animated:YES completion:nil];
+                    }
+                        break;
+                    default:
+                        weakself.tabBarController.selectedIndex = 0;
+                        break;
+                }
+            }
+        };
+    }
+    [_popMenu showMenuAtView:[UIApplication sharedApplication].keyWindow showCloseButton:YES];
+}
+
+- (void)pushToOfficiallyCertifiedViewController {
+    __weak typeof(self) weakself = self;
+    [NetworkTool getOthersInfoWithUserId:[LoginData sharedLoginData].userId success:^(id result) {
+        UserBaseInfoModel *userBaseInfoModel = [UserBaseInfoModel userBaseInfoModelWithDict:result[@"list"]];
+        UIStoryboard *centerSB = [UIStoryboard storyboardWithName:@"Center" bundle:nil];
+        OfficiallyCertifiedViewController *ocVC = [centerSB instantiateViewControllerWithIdentifier:@"OfficiallyCertifiedVC"];
+        ocVC.userBaseInfoModel = userBaseInfoModel;
+        ocVC.hidesBottomBarWhenPushed = YES;
+        [weakself.navigationController pushViewController:ocVC animated:YES];
+    }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

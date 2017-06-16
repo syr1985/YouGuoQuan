@@ -1,0 +1,26 @@
+//
+//  PersonModuleViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "PersonModuleViewCell.h"
+
+@interface PersonModuleViewCell () 
+@property (weak, nonatomic) IBOutlet UIImageView *imageView;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+
+@end
+
+@implementation PersonModuleViewCell
+
+- (void)setDict:(NSDictionary *)dict {
+    _dict = dict;
+    
+    _imageView.image = [UIImage imageNamed:dict[@"image"]];
+    _titleLabel.text = dict[@"title"];
+}
+
+@end

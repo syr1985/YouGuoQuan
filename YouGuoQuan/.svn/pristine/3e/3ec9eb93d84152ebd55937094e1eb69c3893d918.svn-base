@@ -1,0 +1,112 @@
+//
+//  BuyWeiXinViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/23.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "BuyWeiXinViewController.h"
+#import "NSString+AttributedText.h"
+#import "FuqianlaPayTool.h"
+
+@interface BuyWeiXinViewController () <UITextFieldDelegate>
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet UITextField *accountTextField;
+@property (nonatomic, copy) NSString *payType;
+@property (nonatomic, copy) NSString *orderNo;
+@end
+
+@implementation BuyWeiXinViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.payType = @"zfb";
+    __weak typeof(self) weakself = self;
+    [NetworkTool generateOrderNoWithGoodsType:@"WX" success:^(id result) {
+        weakself.orderNo = result;
+    } failure:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    NSRange range = {0,1};
+    self.priceLabel.attributedText = [NSString attributedStringWithString:[NSString stringWithFormat:@"¥%@",_price]
+                                                                     font:[UIFont systemFontOfSize:14]
+                                                                    range:range];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)dismissViewController:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)payTypeSelected:(UIButton *)sender {
+    if (!sender.isSelected) {
+        sender.selected = YES;
+        switch (sender.superview.tag) {
+            case 0:
+                self.payType = @"zfb";
+                break;
+            case 1:
+                self.payType = @"wx";
+                break;
+            case 2:
+                self.payType = @"wallet";
+                break;
+        }
+        UIStackView *stackView = (UIStackView *)sender.superview.superview;
+        for (UIView *view in stackView.subviews) {
+            if (view != sender.superview) {
+                UIButton *btn = [view viewWithTag:1000];
+                btn.selected = NO;
+            }
+        }
+    }
+}
+
+- (IBAction)buyWeixinButtonClicked {
+    if (_accountTextField.text.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请输入微信号"];
+    } else {
+        // 钱包
+        __weak typeof(self) weakself = self;
+        [NetworkTool createWeiXinOrderWithSalerId:_salerID payMethod:_payType orderNo:_orderNo weixin:_accountTextField.text success:^(id result, id payOrderNo) {
+            if ([weakself.payType isEqualToString:@"wallet"]) {
+                [NetworkTool payForTrendsToMiddleAccountWithOrderNo:result success:^{
+                    [SVProgressHUD showSuccessWithStatus:@"支付成功"];
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(HUD_SHOW_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        [weakself dismissViewControllerAnimated:YES completion:nil];
+                    });
+                } failure:^{
+                    [SVProgressHUD showErrorWithStatus:@"支付失败"];
+                }];
+            } else {
+                // 第三方支付
+                NSDictionary *payInfo = @{@"orderNo" : payOrderNo,
+                                          @"amount"  : weakself.price,
+                                          @"subject" : result,
+                                          @"desc"    : @"购买微信"};
+                [FuqianlaPayTool payWithType:weakself.payType dataParam:payInfo success:^{
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(HUD_SHOW_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        [weakself dismissViewControllerAnimated:YES completion:nil];
+                    });
+                }];
+            }
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+        }];
+    }
+}
+
+@end

@@ -1,0 +1,192 @@
+//
+//  PublishProductViewController.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/17.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface PublishProductViewController : UIViewController
+
+@end
+
+//    [NetworkTool uploadImagesToServer:@{@"image0":self.coverImage} success:^(id result) {
+//        weakself.coverUrl = result;
+//        /**
+//         *  上传图片
+//         */
+//        NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+//        NSUInteger index = 0;
+//        for (UIImage *image in self.photoArray) {
+//            NSString *key = [NSString stringWithFormat:@"image%ld",index++];
+//            muDict[key] = image;
+//        }
+//
+//        [NetworkTool uploadImagesToServer:muDict success:^(id result) {
+//            weakself.imageUrl = result;
+//
+//            /**
+//             *  发布商品
+//             */
+//
+//        }];
+//    }];
+
+//- (UIImagePickerController *)imagePickerVc {
+//    if (_imagePickerVc == nil) {
+//        _imagePickerVc = [[UIImagePickerController alloc] init];
+//        _imagePickerVc.delegate = self;
+//        // set appearance / 改变相册选择页的导航栏外观
+//        _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
+//        _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
+//        UIBarButtonItem *tzBarItem, *BarItem;
+//        if (iOS9Later) {
+//            tzBarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
+//            BarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UIImagePickerController class]]];
+//        } else {
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+//            tzBarItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
+//            BarItem = [UIBarButtonItem appearanceWhenContainedIn:[UIImagePickerController class], nil];
+//#pragma clang diagnostic pop
+//        }
+//        NSDictionary *titleTextAttributes = [tzBarItem titleTextAttributesForState:UIControlStateNormal];
+//        [BarItem setTitleTextAttributes:titleTextAttributes forState:UIControlStateNormal];
+//    }
+//    return _imagePickerVc;
+//}
+
+//#pragma mark -
+//#pragma mark - 私有方法
+///**
+// *  弹出获取照片ActionSheet
+// */
+//- (void)takePhotoWithActionSheetWithTitle:(NSString *)title {
+//    LCActionSheet *actionSheet = [LCActionSheet sheetWithTitle:title
+//                                                      delegate:self
+//                                             cancelButtonTitle:@"取消"
+//                                             otherButtonTitles:@"拍摄照片", @"从相册选取", nil];
+//    [actionSheet show];
+//}
+//
+///**
+// *  打开相机
+// */
+//- (void)openCameraTakePhoto {
+//#pragma mark - Private Method
+//    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+//    if ((authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied) && iOS7Later) {
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+//        // 无权限 做一个友好的提示
+//        NSString *appName = [[NSBundle mainBundle].infoDictionary valueForKey:@"CFBundleDisplayName"];
+//        if (!appName) appName = [[NSBundle mainBundle].infoDictionary valueForKey:@"CFBundleName"];
+//        NSString *message = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\""],appName];
+//        UIAlertView * alert = [[UIAlertView alloc]initWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"] message:message delegate:self cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] otherButtonTitles:[NSBundle tz_localizedStringForKey:@"Setting"], nil];
+//        [alert show];
+//#pragma clang diagnostic pop
+//    } else { // 调用相机
+//        UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
+//        if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
+//            self.imagePickerVc.sourceType = sourceType;
+//            self.imagePickerVc.allowsEditing = YES;
+//            if(iOS8Later) {
+//                _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+//            }
+//            [self presentViewController:_imagePickerVc animated:YES completion:nil];
+//        } else {
+//            NSLog(@"模拟器中无法打开照相机,请在真机中使用");
+//        }
+//    }
+//}
+//
+///**
+// *  打开相册
+// */
+//- (void)openPhotoAlbum:(NSUInteger)maxImagesCount cover:(BOOL)isCover edit:(BOOL)canEdit useCamera:(BOOL)allowTake {
+//    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:maxImagesCount delegate:nil];
+//    imagePickerVc.allowTakePicture = allowTake;
+//    //imagePickerVc.photoSelImageName = @"图片选择.png";
+//
+//    // 你可以通过block或者代理，来得到用户选择的照片.
+//    __weak typeof(self) weakself = self;
+//    imagePickerVc.didFinishPickingPhotosHandle = ^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+//        //YGQLog(@"%@",assets);
+//
+//        __strong typeof(self) strongself = weakself;
+//        if (photos.count) {
+//
+//            NSMutableArray *muArray = [NSMutableArray array];
+//            for (PHAsset *asset in assets) {
+//                TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhoto];
+//                [muArray addObject:model];
+//            }
+//
+//            [[TZImageManager manager] getPhotosBytesWithArray:muArray completion:^(NSString *totalBytes) {
+//                //YGQLog(@"%@",totalBytes);
+//                weakself.photosSizeString = totalBytes;
+//            }];
+//
+//            if (isSelectOriginalPhoto) {
+//
+//            }
+//
+//            if (isCover) {
+//                strongself.coverImage = photos[0];
+//            } else {
+//                NSArray *oldArray = strongself.photoArray;
+//                NSMutableArray *muArray = [NSMutableArray array];
+//                [muArray addObjectsFromArray:photos];
+//                [muArray addObjectsFromArray:oldArray];
+//                strongself.photoArray = muArray;
+//            }
+//            [strongself.photosCollectionView reloadData];
+//        }
+//    };
+//    [self presentViewController:imagePickerVc animated:YES completion:nil];
+//}
+
+//#pragma mark - UIImagePickerControllerDelegate
+//
+//- (void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+//    [picker dismissViewControllerAnimated:YES completion:nil];
+//    NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
+//    if ([type isEqualToString:@"public.image"]) {
+//        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+//        [[TZImageManager manager] savePhotoWithImage:image completion:^(NSError *error){
+//            if (!error) {
+//                //[self reloadPhotoArray];
+//                YGQLog(@"%@",error.localizedDescription);
+//            }
+//        }];
+//        if (_isCover) {
+//            self.coverImage = image;
+//        } else {
+//            NSArray *oldArray = self.photoArray;
+//            NSMutableArray *muArray = [NSMutableArray array];
+//            [muArray addObject:image];
+//            [muArray addObjectsFromArray:oldArray];
+//            self.photoArray = muArray;
+//        }
+//        [self.photosCollectionView reloadData];
+//    }
+//}
+
+//#pragma mark - LCActionSheet Delegate
+
+//- (void)actionSheet:(LCActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+//    //NSLog(@"clickedButtonAtIndex: %d", (int)buttonIndex);
+//    if (buttonIndex == 1) {
+//        self.isCover = [actionSheet.title isEqualToString:@"设置封面"];
+//
+//        [self openCameraTakePhoto];
+//    } else if (buttonIndex == 2) {
+//        if ([actionSheet.title isEqualToString:@"设置封面"]) {
+//            [self openPhotoAlbum:1 cover:YES edit:NO useCamera:NO];
+//        } else {
+//            [self openPhotoAlbum:(10 - self.photoArray.count) cover:NO edit:NO useCamera:NO];
+//        }
+//    }
+//}

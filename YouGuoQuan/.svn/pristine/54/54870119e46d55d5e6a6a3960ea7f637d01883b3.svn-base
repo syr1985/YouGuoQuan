@@ -1,0 +1,82 @@
+//
+//  SystemMessageCellTableViewCell.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/9.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "SystemMessageCell.h"
+#import "NSDate+LXExtension.h"
+#import "SystemMessageModel.h"
+#import "NSString+AttributedText.h"
+#import <YYText.h>
+#import <Masonry.h>
+
+@interface SystemMessageCell()
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (nonatomic, weak) IBOutlet UILabel *timeLabel;
+@property (nonatomic, strong) YYTextView *detailTextView;
+@property (nonatomic, strong) NSDateFormatter *dateFormatter;
+@end
+
+@implementation SystemMessageCell
+
+- (NSDateFormatter *)dateFormatter {
+    if (!_dateFormatter) {
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        _dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_GB"];
+        _dateFormatter.timeZone = [NSTimeZone timeZoneWithName:@"GMT"];
+        _dateFormatter.dateFormat = @"yyyy年MM月dd日";
+    }
+    return _dateFormatter;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    _detailTextView = [YYTextView new];
+    [self addSubview:_detailTextView];
+    
+    __weak typeof(self) weakself = self;
+    [_detailTextView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(weakself.titleLabel.mas_left);
+        make.right.equalTo(weakself.timeLabel.mas_right);
+        make.top.equalTo(weakself.titleLabel.mas_bottom).with.offset(8);
+        make.bottom.equalTo(weakself.mas_bottom).with.offset(-8);
+    }];
+}
+
+- (void)setSystemMessageModel:(SystemMessageModel *)systemMessageModel {
+    _systemMessageModel = systemMessageModel;
+    
+    NSTimeInterval timeInterval = [systemMessageModel.createTime doubleValue];
+    NSDate *createDate = [NSDate dateWithTimeIntervalSince1970:timeInterval / 1000];
+    LXDateItem *item = [[NSDate date] lx_timeIntervalSinceDate:createDate];
+    if (item.month == 0) {
+        _timeLabel.text = [NSString stringWithFormat:@"%@前",item.description];
+    } else {
+        _timeLabel.text = [self.dateFormatter stringFromDate:createDate];
+    }
+    
+    if ([systemMessageModel.content containsString:@";"]) {
+        __weak typeof(self) weakself = self;
+        NSArray *strArray = [systemMessageModel.content componentsSeparatedByString:@";"];
+        NSRange range = [strArray[0] rangeOfString:strArray[1]];
+        NSMutableAttributedString *text = [[NSMutableAttributedString alloc] initWithString:strArray[0]];
+        [text yy_setTextHighlightRange:range
+                                 color:RGBA(248, 133, 0, 1)
+                       backgroundColor:[UIColor whiteColor]
+                             tapAction:^(UIView *containerView, NSAttributedString *text, NSRange range, CGRect rect){
+                                 //NSLog(@"tap text range:...%@",weakself.systemMessageModel.relationId);
+                                 if (weakself.tapUserNickNameBlock) {
+                                     weakself.tapUserNickNameBlock(weakself.systemMessageModel.userId);
+                                 }
+                             }];
+        _detailTextView.attributedText = text;
+    } else {
+        _detailTextView.text = systemMessageModel.content;
+    }
+}
+
+@end

@@ -1,0 +1,188 @@
+//
+//  YouguoViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/8.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "YouguoViewController.h"
+#import "HomeBannerViewCell.h"
+#import "HomeActivityView.h"
+#import "HomeResourceViewCell.h"
+#import "HomeTopTabbarView.h"
+
+#import "SYStickHeaderWaterFallLayout.h"
+
+#import "UserCenterViewController.h"
+
+@interface YouguoViewController () <SYStickHeaderWaterFallDelegate>
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@end
+
+static NSString * const collectionViewCellID_Banner = @"HomeBannerViewCell";
+static NSString * const collectionViewCellID_Footer = @"HomeActivityView";
+static NSString * const collectionViewCellID_Resource = @"HomeResourceViewCell";
+static NSString * const collectionViewCellID_Header = @"HomeTopTabbarView";
+
+@implementation YouguoViewController
+
+- (NSMutableArray *)modelArray {
+    if (_modelArray == nil) {
+        _modelArray = [NSMutableArray array];
+        for (NSUInteger i = 0; i < 8; i++) {
+            NSUInteger random = 120 + arc4random() % 50;
+            [_modelArray addObject:@(random)];
+        }
+    }
+    return _modelArray;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    self.title = @"尤果";
+    
+    // Register cell classes
+    [self configCollectionView];
+}
+
+- (void)configCollectionView {
+    
+    SYStickHeaderWaterFallLayout *cvLayout = [[SYStickHeaderWaterFallLayout alloc] init];
+    cvLayout.delegate = self;
+    cvLayout.isStickyHeader = NO;
+    self.collectionView.collectionViewLayout = cvLayout;
+    
+    UINib *nib_banner = [UINib nibWithNibName:collectionViewCellID_Banner bundle:nil];
+    [self.collectionView registerNib:nib_banner forCellWithReuseIdentifier:collectionViewCellID_Banner];
+    
+    UINib *nib_resource = [UINib nibWithNibName:collectionViewCellID_Resource bundle:nil];
+    [self.collectionView registerNib:nib_resource forCellWithReuseIdentifier:collectionViewCellID_Resource];
+    
+    UINib *nib_footer = [UINib nibWithNibName:collectionViewCellID_Footer bundle:nil];
+    [self.collectionView registerNib:nib_footer
+          forSupplementaryViewOfKind:UICollectionElementKindSectionFooter
+                 withReuseIdentifier:collectionViewCellID_Footer];
+    
+    UINib *nib_header = [UINib nibWithNibName:collectionViewCellID_Header bundle:nil];
+    [self.collectionView registerNib:nib_header
+          forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+                 withReuseIdentifier:collectionViewCellID_Header];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - UICollectionView DataSource and Delegate
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 2;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    if (section == 0) {
+        return 1;
+    } else {
+        return 8;
+    }
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        HomeBannerViewCell *cell_banner = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Banner forIndexPath:indexPath];
+        
+        return cell_banner;
+    } else {
+        HomeResourceViewCell *cell_recource = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Resource forIndexPath:indexPath];
+        
+        return cell_recource;
+    }
+}
+
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    UICollectionReusableView *reusableview = nil;
+    
+    if ([kind isEqualToString:UICollectionElementKindSectionFooter]) {
+        HomeActivityView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                          withReuseIdentifier:collectionViewCellID_Footer
+                                                                                 forIndexPath:indexPath];
+        reusableview = footerview;
+    } else {
+        
+        HomeTopTabbarView *headerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                           withReuseIdentifier:collectionViewCellID_Header
+                                                                                  forIndexPath:indexPath];
+        if (indexPath.section == 0) {
+            headerview.currentIndex = 0;
+        }
+        reusableview = headerview;
+    }
+    
+    return reusableview;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section != 0) {
+        UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+        UserCenterViewController *userCenterVC = [homeSB instantiateViewControllerWithIdentifier:@"UserCenter"];
+        [self.navigationController pushViewController:userCenterVC animated:YES];
+    }
+}
+
+#pragma mark - SYStickHeaderWaterFallDelegate
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(SYStickHeaderWaterFallLayout *)collectionViewLayout heightForItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        return WIDTH * 198 / 322;
+    } else {
+        return [self.modelArray[indexPath.row] floatValue];
+    }
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForHeaderAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        return 40;
+    } else {
+        return 0;
+    }
+}
+
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForFooterAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        return 0;
+    } else {
+        return 300.0f;
+    }
+}
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout widthForItemInSection:( NSInteger )section {
+    if (section ==0) {
+        return WIDTH;
+    } else  {
+        return (WIDTH - 20) * 0.5f;
+    }
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout topInSection:(NSInteger)section {
+    return 0;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout bottomInSection:(NSInteger)section {
+    return 0;
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

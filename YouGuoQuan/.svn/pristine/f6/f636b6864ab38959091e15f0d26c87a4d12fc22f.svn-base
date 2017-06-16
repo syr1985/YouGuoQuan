@@ -1,0 +1,81 @@
+//
+//  YouGuoNobilityViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/6.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "YouGuoNobilityViewController.h"
+#import "PayForNobilityViewController.h"
+#import "UserBaseInfoModel.h"
+#import <UIImageView+WebCache.h>
+
+@interface YouGuoNobilityViewController ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *widthConstraint;
+
+@end
+
+static NSString * const KVO_KeyPath_Nobility = @"userBaseInfoModel.isRecommend";
+
+@implementation YouGuoNobilityViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+    
+    [self removeObserver:self forKeyPath:KVO_KeyPath_Nobility];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"尤果贵族";
+    
+    self.headerImageView.layer.cornerRadius = self.headerImageView.frame.size.width * 0.5;
+    self.headerImageView.layer.masksToBounds = YES;
+    
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:_userBaseInfoModel.headImg
+                                                                  width:_headerImageView.bounds.size.width
+                                                                 height:_headerImageView.bounds.size.height];
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.nickNameLabel.text = _userBaseInfoModel.nickName;
+    self.crownImageView.hidden = !_userBaseInfoModel.isRecommend;
+    self.vipImageView.hidden = (_userBaseInfoModel.audit != 1);
+    
+    [self addObserver:self forKeyPath:KVO_KeyPath_Nobility  options:NSKeyValueObservingOptionNew context:NULL];
+    
+    _widthConstraint.constant = [LoginData sharedLoginData].ope ? 84 : 0;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/**
+ *  KVO
+ */
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    if ([keyPath isEqualToString:KVO_KeyPath_Nobility]) {
+        self.crownImageView.hidden = !_userBaseInfoModel.isRecommend;
+    }
+}
+
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+    PayForNobilityViewController *buyNobilityVC = segue.destinationViewController;
+    buyNobilityVC.userBaseInfoModel = _userBaseInfoModel;
+}
+
+
+@end

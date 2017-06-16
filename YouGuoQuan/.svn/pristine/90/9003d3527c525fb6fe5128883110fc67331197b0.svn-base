@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="RedEnvelopeHeaderView" id="U6b-Vx-4bR" customClass="RedEnvelopeHeaderView">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="204"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Ky3-Ht-UaY">
+                    <rect key="frame" x="8" y="0.0" width="304" height="150"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                    <connections>
+                        <outlet property="delegate" destination="U6b-Vx-4bR" id="Ahy-8z-nS1"/>
+                    </connections>
+                </textView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="没法红包的朋友只能看到模糊的照片哦！（每张1元）" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" translatesAutoresizingMaskIntoConstraints="NO" id="qwg-UD-N3q">
+                    <rect key="frame" x="12" y="174" width="296" height="18"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                    <color key="textColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <constraints>
+                <constraint firstItem="Ky3-Ht-UaY" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="8" id="Aor-5G-rEK"/>
+                <constraint firstAttribute="trailing" secondItem="Ky3-Ht-UaY" secondAttribute="trailing" constant="8" id="E6C-gI-7A4"/>
+                <constraint firstItem="qwg-UD-N3q" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="12" id="N3e-Az-8RQ"/>
+                <constraint firstAttribute="bottom" secondItem="qwg-UD-N3q" secondAttribute="bottom" constant="12" id="Zsr-fd-rqG"/>
+                <constraint firstItem="Ky3-Ht-UaY" firstAttribute="top" secondItem="U6b-Vx-4bR" secondAttribute="top" id="gEQ-3n-Fj2"/>
+                <constraint firstItem="qwg-UD-N3q" firstAttribute="top" secondItem="Ky3-Ht-UaY" secondAttribute="bottom" constant="24" id="mdv-Xi-Ubr"/>
+                <constraint firstAttribute="trailing" secondItem="qwg-UD-N3q" secondAttribute="trailing" constant="12" id="tsy-Jq-aFX"/>
+            </constraints>
+            <connections>
+                <outlet property="titleTextView" destination="Ky3-Ht-UaY" id="NaR-sW-1iS"/>
+            </connections>
+            <point key="canvasLocation" x="-96" y="9"/>
+        </collectionReusableView>
+    </objects>
+</document>

@@ -1,0 +1,39 @@
+//
+//  LoginData.m
+//  ShakeAround
+//
+//  Created by YM on 15/11/20.
+//  Copyright © 2015年 erick. All rights reserved.
+//
+
+#import "LoginData.h"
+
+@implementation LoginData
+
+static LoginData *loginData = nil;
+
++ (instancetype)sharedLoginData {
+    //    static dispatch_once_t once_token;
+    //    dispatch_once(&once_token, ^{
+    //        loginData = [[LoginData alloc] init];
+    //    });
+    if (loginData == nil) {
+        loginData = [[LoginData alloc] init];
+    }
+    return loginData;
+}
+
++ (instancetype)loginDataWithDict:(NSDictionary *)dict {
+    loginData = [[LoginData alloc] initLoginDataWithDict:dict];
+    return loginData;
+}
+
+- (instancetype)initLoginDataWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self.userId   = [dict objectForKey:@"id"];
+        self.nickName = [dict objectForKey:@"nickName"];
+    }
+    return self;
+}
+
+@end

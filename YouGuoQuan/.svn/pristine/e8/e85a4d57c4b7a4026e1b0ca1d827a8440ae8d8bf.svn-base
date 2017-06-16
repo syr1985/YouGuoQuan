@@ -1,0 +1,100 @@
+//
+//  NewPasswordViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/12.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "NewPasswordViewController.h"
+
+@interface NewPasswordViewController ()
+@property (weak, nonatomic) IBOutlet UITextField *theNewPasswordTextField;
+@property (weak, nonatomic) IBOutlet UITextField *confirmPasswordTextField;
+@property (weak, nonatomic) IBOutlet UIButton *sureResetButton;
+
+@end
+
+@implementation NewPasswordViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self confirmViewController];
+}
+
+- (void)confirmViewController {
+    self.titleString = @"重置密码";
+    
+    UIView *leftView1 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 70, 36)];
+    UILabel *label1 = [[UILabel alloc] init];
+    label1.text = @"新密码";
+    label1.font = [UIFont systemFontOfSize:14];
+    label1.textColor = [UIColor darkGrayColor];
+    label1.frame = CGRectMake(10, 0, 60, 36);
+    [leftView1 addSubview:label1];
+    
+    _theNewPasswordTextField.leftView = leftView1;
+    _theNewPasswordTextField.leftViewMode = UITextFieldViewModeAlways;
+    
+    UIView *leftView2 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 70, 36)];
+    UILabel *label2 = [[UILabel alloc] init];
+    label2.text = @"确认密码";
+    label2.font = [UIFont systemFontOfSize:14];
+    label2.textColor = [UIColor darkGrayColor];
+    label2.frame = CGRectMake(10, 0, 60, 36);
+    [leftView2 addSubview:label2];
+    
+    _confirmPasswordTextField.leftView = leftView2;
+    _confirmPasswordTextField.leftViewMode = UITextFieldViewModeAlways;
+}
+
+/**
+ *  调取重置密码接口
+ */
+- (IBAction)resetPasswordButtonClicked {
+    __weak typeof(self) weakself = self;
+    [NetworkTool resetPasswordWithPhone:_telephoneNumber Password:_theNewPasswordTextField.text Result:^{
+        [SVProgressHUD showSuccessWithStatus:@"密码修改成功"];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [weakself.navigationController popToRootViewControllerAnimated:YES];
+        });
+    }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - UITextFieldDelegate
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    BOOL enable = [_theNewPasswordTextField.text isEqualToString:_confirmPasswordTextField.text] &&
+    (_theNewPasswordTextField.text.length > 5 && _theNewPasswordTextField.text.length < 17);
+    self.sureResetButton.enabled = enable;
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    //YGQLog(@"%@ - %@",textField.text, string);
+    NSString *newText = nil;
+    if (string.length) {
+        newText = [textField.text stringByAppendingString:string];
+    } else {
+        newText = [textField.text substringToIndex:textField.text.length - 1];
+    }
+    BOOL enable = NO;
+    if ([textField isEqual:_theNewPasswordTextField]) {
+        enable = [newText isEqualToString:_confirmPasswordTextField.text] && (newText.length > 5 && newText.length < 17);
+    } else {
+        enable = [newText isEqualToString:_theNewPasswordTextField.text] && (newText.length > 5 && newText.length < 17);
+    }
+    self.sureResetButton.enabled = enable;
+    return YES;
+}
+
+@end

@@ -1,0 +1,77 @@
+//
+//  BuyWeiXinViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/23.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "BuyWeiXinViewController.h"
+#import "NSString+AttributedText.h"
+
+@interface BuyWeiXinViewController () <UITextFieldDelegate>
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet UITextField *accountTextField;
+@property (nonatomic, assign) NSUInteger payType;
+@end
+
+@implementation BuyWeiXinViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    NSRange range = {0,1};
+    self.priceLabel.attributedText = [NSString attributedStringWithString:[NSString stringWithFormat:@"¥%@",_price]
+                                                                     font:[UIFont systemFontOfSize:14]
+                                                                    range:range];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)dismissViewController:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)payTypeSelected:(UIButton *)sender {
+    if (!sender.isSelected) {
+        sender.selected = YES;
+        self.payType = sender.superview.tag;
+        UIStackView *stackView = (UIStackView *)sender.superview.superview;
+        for (UIView *view in stackView.subviews) {
+            if (view != sender.superview) {
+                UIButton *btn = [view viewWithTag:1000];
+                btn.selected = NO;
+            }
+        }
+    }
+}
+
+- (IBAction)buyWeixinButtonClicked {
+    if (_accountTextField.text.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"请输入微信号"];
+    } else {
+        [self dismissViewControllerAnimated:YES completion:^{
+            
+        }];
+    }
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

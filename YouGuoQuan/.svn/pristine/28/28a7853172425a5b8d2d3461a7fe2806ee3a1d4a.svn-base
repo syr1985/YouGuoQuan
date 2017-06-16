@@ -1,0 +1,62 @@
+//
+//  BaseTableViewController.m
+//  JinhuaMedical
+//
+//  Created by njfanya on 15/10/16.
+//  Copyright © 2015年 njfanya. All rights reserved.
+//
+
+#import "BaseTableViewController.h"
+#import <Masonry.h>
+
+@interface BaseTableViewController ()
+
+@end
+
+@implementation BaseTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //self.view.backgroundColor = [UIColor whiteColor];
+    [self.navigationController setNavigationBarHidden:NO];
+    
+    self.navigationItem.hidesBackButton = YES;
+    self.navigationController.navigationBar.tintColor = [UIColor darkTextColor];
+    self.navigationController.navigationBar.barTintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.backgroundColor = [UIColor whiteColor];
+    
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"返回-黑"]
+                                                                 style:UIBarButtonItemStylePlain
+                                                                target:self
+                                                                action:@selector(popViewController)];
+    leftItem.imageInsets = UIEdgeInsetsMake(0, -6, 0, 0);
+    self.navigationItem.leftBarButtonItem = leftItem;
+    
+    self.tableView.tableHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, CGFLOAT_MIN)];
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, WIDTH, CGFLOAT_MIN)];
+}
+
+- (void)popViewController {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)setTitleString:(NSString *)titleString {
+    _titleString = titleString;
+    
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.textColor = [UIColor blackColor];
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    titleLabel.text = titleString;
+    self.navigationItem.titleView = titleLabel;
+    
+    __weak typeof(self) weakself = self;
+    [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(weakself.navigationItem.titleView);
+        make.left.equalTo(weakself.navigationItem.titleView);
+        make.right.equalTo(weakself.navigationItem.titleView);
+        make.bottom.equalTo(weakself.navigationItem.titleView);
+    }];
+}
+
+@end

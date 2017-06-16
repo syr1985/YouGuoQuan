@@ -1,0 +1,59 @@
+//
+//  ProfileSettingViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/4.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "ProfileSettingViewController.h"
+
+@interface ProfileSettingViewController ()
+
+@end
+
+@implementation ProfileSettingViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.titleString = @"设置";
+    
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 4;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (section == 0) {
+        return 4;
+    } else if (section == 1) {
+        return 2;
+    } else if (section == 2) {
+        return 2;
+    } else {
+        return 1;
+    }
+}
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

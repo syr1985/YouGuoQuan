@@ -1,0 +1,35 @@
+//
+//  ProductDetailShowViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/17.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "ProductDetailShowViewCell.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+
+@interface ProductDetailShowViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *productImageView;
+@end
+
+@implementation ProductDetailShowViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state
+}
+
+- (void)setGoodsUrl:(NSString *)goodsUrl {
+    _goodsUrl = goodsUrl;
+    
+    [_productImageView sd_setImageWithURL:[NSURL URLWithString:goodsUrl]];
+}
+
+@end

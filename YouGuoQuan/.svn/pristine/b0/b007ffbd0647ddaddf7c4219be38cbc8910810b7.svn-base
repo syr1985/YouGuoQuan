@@ -1,0 +1,80 @@
+//
+//  WaitingForPayTrendsViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/9.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "RefundingForPayTrendsViewCell.h"
+#import <UIImageView+WebCache.h>
+#import "MyOrderModel.h"
+#import "UIImage+Color.h"
+
+@interface RefundingForPayTrendsViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *contentImageView;
+@property (weak, nonatomic) IBOutlet UILabel *contentTitleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentPriceLabel;
+@property (weak, nonatomic) IBOutlet UIView *bottomView;
+@end
+
+@implementation RefundingForPayTrendsViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    _headerImageView.layer.cornerRadius = _headerImageView.bounds.size.width * 0.5;
+    _headerImageView.layer.masksToBounds = YES; // 导致离屏渲染
+    
+    self.bottomView.layer.shadowColor = RGBA(0, 0, 0, 1).CGColor;
+    self.bottomView.layer.shadowOffset = CGSizeMake(0, 1);
+    self.bottomView.layer.shadowOpacity = 0.1;
+    
+    self.contentView.layer.shadowColor = RGBA(0, 0, 0, 1).CGColor;
+    self.contentView.layer.shadowOffset = CGSizeMake(0, 1);
+    self.contentView.layer.shadowOpacity = 0.1;
+}
+
+- (void)setOrderModel:(MyOrderModel *)orderModel {
+    _orderModel = orderModel;
+    
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:orderModel.headImg
+                                                                  width:_headerImageView.bounds.size.width
+                                                                 height:_headerImageView.bounds.size.height];
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    _titleLabel.text = orderModel.saleNickName;
+    
+    // RP(红包照片)NM(普通商品)WX(购买微信)CF(众筹)RB(红包)RE(打赏)
+    NSString *orderNo = orderModel.orderNo;
+    if ([orderNo hasPrefix:@"WX"]) {
+        _contentImageView.image = [UIImage imageNamed:@"购买订单-购买微信"];
+        _contentTitleLabel.text = @"微信";
+    } else {
+        UIImage *phImage = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]
+                                                         size:_contentImageView.frame.size];
+        NSString *contentImageUrlStr = [NSString compressImageUrlWithUrlString:orderModel.imageUrl
+                                                                         width:_contentImageView.bounds.size.width
+                                                                        height:_contentImageView.bounds.size.height];
+        [_contentImageView sd_setImageWithURL:[NSURL URLWithString:contentImageUrlStr]
+                             placeholderImage:phImage];
+        _contentTitleLabel.text = orderModel.goodsName;
+    }
+    _contentPriceLabel.text = [NSString stringWithFormat:@"%@ u币",orderModel.price];
+}
+
+- (IBAction)resumeOrderButtonClicked:(id)sender {
+    
+}
+
+- (IBAction)deleteOrderButtonClicked:(id)sender {
+    if (_deleteOrderBlock) {
+        _deleteOrderBlock(_orderModel.orderNo);
+    }
+}
+
+@end

@@ -1,0 +1,88 @@
+//
+//  NearbyUserModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/28.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+/**
+ "idCardNo": "",
+ "passwd": "c144d593d63c93fb8c7a2dfe7cc36e25",
+ "createTime": 1481601762000,
+ "sex": "男",
+ "weight": "",
+ "imageCount": "2",
+ "city": "南京",
+ "isDelete": "",
+ "id": "0f188a3d-4529-40a7-9d37-ffb288b19e5d",
+ "coverImgUrl": "",
+ "height": "",
+ "nickName": "wwww",
+ "province": "",
+ "longitude": "2",
+ "qq": "",
+ "fansCount": "0",
+ "isRecommend": "",
+ "isLock": "",
+ "work": "模特",
+ "tags": "",
+ "updateTime": 1479264850000,
+ "star": "2",
+ "audit": "1",
+ "focusCount": "0",
+ "auditResult": "",
+ "emotion": "",
+ "headImg": "http://7xtk9y.com1.z0.glb.clouddn.com/ff66285ddfdf6ba9254558c176373d33.jpg",
+ "email": "",
+ "realName": "",
+ "latitude": "2",
+ "wechat": "",
+ "constellatory": "",
+ "rateOfPraise": "0",
+ "zanCount": "1",
+ "mobile": "13276665576"
+ */
+
+@interface NearbyUserModel : NSObject
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *realName;
+@property (nonatomic,   copy) NSString *sex;
+@property (nonatomic,   copy) NSString *city;
+@property (nonatomic,   copy) NSString *province;
+@property (nonatomic,   copy) NSString *email;
+@property (nonatomic,   copy) NSString *mobile;
+@property (nonatomic,   copy) NSString *passwd;
+@property (nonatomic,   copy) NSString *emotion;
+@property (nonatomic,   copy) NSString *fansCount;
+@property (nonatomic,   copy) NSString *focusCount;
+@property (nonatomic,   copy) NSString *imageCount;
+@property (nonatomic,   copy) NSString *zanCount;
+@property (nonatomic,   copy) NSString *height;
+@property (nonatomic,   copy) NSString *weight;
+@property (nonatomic,   copy) NSString *auditResult;
+@property (nonatomic,   copy) NSString *constellatory;
+@property (nonatomic,   copy) NSString *coverImgUrl;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *updateTime;
+@property (nonatomic,   copy) NSString *idCardNo;
+@property (nonatomic,   copy) NSString *longitude;
+@property (nonatomic,   copy) NSString *latitude;
+@property (nonatomic,   copy) NSString *qq;
+@property (nonatomic,   copy) NSString *wechat;
+@property (nonatomic,   copy) NSString *rateOfPraise;
+@property (nonatomic,   copy) NSString *tags;
+@property (nonatomic,   copy) NSString *work;
+@property (nonatomic, assign) BOOL audit;
+@property (nonatomic, assign) BOOL isDelete;
+@property (nonatomic, assign) BOOL isLock;
+@property (nonatomic, assign) BOOL isRecommend;
+@property (nonatomic, assign) int  star;
+
++ (instancetype)nearbyUserModelWithDict:(NSDictionary *)dict;
+- (instancetype)initNearbyUserModelWithDict:(NSDictionary *)dict;
+@end

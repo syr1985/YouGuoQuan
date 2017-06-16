@@ -1,0 +1,25 @@
+//
+//  RewardViewController.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/2.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@protocol RewardViewControllerDelegate <NSObject>
+
+- (void) payRewardSucessWithAmount:(CGFloat) amount payType : (NSString *) payType;
+
+- (void) payRewardFailed;
+
+@end
+
+
+@interface RewardViewController : UIViewController
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *userID;
+
+@property(nonatomic,weak) id<RewardViewControllerDelegate> delegate;
+@end

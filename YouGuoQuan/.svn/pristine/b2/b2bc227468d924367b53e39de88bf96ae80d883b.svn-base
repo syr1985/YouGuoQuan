@@ -1,0 +1,258 @@
+//
+//  YouguoViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/8.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "YouguoViewController.h"
+#import "UserCenterViewController.h"
+
+#import "HomeBannerViewCell.h"
+//#import "HomeActivityView.h"
+#import "HomeResourceViewCell.h"
+
+#import "HomeResourceModel.h"
+#import "HomeBannerModel.h"
+#import <MJRefresh.h>
+
+@interface YouguoViewController () <UICollectionViewDelegateFlowLayout>
+@property (nonatomic, strong) NSMutableArray *bannerModelArray;
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@property (nonatomic, assign) int pageNo;
+@property (nonatomic, assign) int pageSize;
+@end
+
+static NSString * const collectionViewCellID_Banner   = @"HomeBannerViewCell";
+//static NSString * const collectionViewCellID_Footer   = @"HomeActivityView";
+static NSString * const collectionViewCellID_Resource = @"HomeResourceViewCell";
+
+@implementation YouguoViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray new];
+    }
+    return _modelArray;
+}
+
+- (NSMutableArray *)bannerModelArray {
+    if (!_bannerModelArray) {
+        _bannerModelArray = [NSMutableArray array];
+    }
+    return _bannerModelArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    [self configCollectionView];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+    //[self.modelArray removeAllObjects];
+}
+
+#pragma mark -
+#pragma mark - 配置视图
+- (void)configCollectionView {
+    self.title = @"尤果";
+    
+    self.pageNo = 1;
+    self.pageSize = 8;
+    
+    self.collectionView.backgroundColor = BackgroundColor;
+    
+    UINib *nib_banner = [UINib nibWithNibName:collectionViewCellID_Banner bundle:nil];
+    [self.collectionView registerNib:nib_banner forCellWithReuseIdentifier:collectionViewCellID_Banner];
+    
+    UINib *nib_resource = [UINib nibWithNibName:collectionViewCellID_Resource bundle:nil];
+    [self.collectionView registerNib:nib_resource forCellWithReuseIdentifier:collectionViewCellID_Resource];
+    
+    //    UINib *nib_footer = [UINib nibWithNibName:collectionViewCellID_Footer bundle:nil];
+    //    [self.collectionView registerNib:nib_footer
+    //          forSupplementaryViewOfKind:UICollectionElementKindSectionFooter
+    //                 withReuseIdentifier:collectionViewCellID_Footer];
+    
+    // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingTarget:self
+                                                                     refreshingAction:@selector(loadNewData)];
+    // 设置文字
+    [header setTitle:@"下拉刷新数据" forState:MJRefreshStateIdle];
+    [header setTitle:@"松开刷新" forState:MJRefreshStatePulling];
+    [header setTitle:@"加载中..." forState:MJRefreshStateRefreshing];
+    // 马上进入刷新状态
+    [header beginRefreshing];
+    // 设置刷新控件
+    self.collectionView.mj_header = header;
+    
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self
+                                                                             refreshingAction:@selector(loadMoreData)];
+    // 设置文字
+    [footer setTitle:@"上拉刷新数据" forState:MJRefreshStateIdle];
+    [footer setTitle:@"加载更多..." forState:MJRefreshStateRefreshing];
+    //[footer setTitle:@"到底了" forState:MJRefreshStateNoMoreData];
+    footer.automaticallyRefresh = NO;
+    footer.hidden = YES;
+    // 设置footer
+    self.collectionView.mj_footer = footer;
+}
+
+#pragma mark -
+#pragma mark - 调接口加载数据
+- (void)loadBannerData {
+    __weak typeof(self) weakself = self;
+    [NetworkTool getBannerListWithPageNo:@"1" pageSize:@"5" success:^(NSArray *dataArray) {
+        if (dataArray.count) {
+            NSMutableArray *muArray = [NSMutableArray array];
+            for (NSDictionary *dict in dataArray) {
+                HomeBannerModel *homeBannerModel = [HomeBannerModel homeBannerModelWithDict:dict];
+                [muArray addObject:homeBannerModel];
+            }
+            weakself.bannerModelArray = muArray;
+            [weakself.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+        }
+    } failure:nil];
+}
+
+- (void)loadNewData {
+    _pageNo = 1;
+    if (!self.bannerModelArray.count) {
+        [self loadBannerData];
+    }
+    [self loadHomePageData];
+}
+
+- (void)loadMoreData {
+    _pageNo++;
+    [self loadHomePageData];
+}
+
+- (void)loadHomePageData {
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"kReloadBannerData" object:nil];
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool getHomeListWithPageNo:@(_pageNo) pageSize:@(_pageSize) success:^(NSArray *dataArray) {
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in dataArray) {
+            HomeResourceModel *homeResourceModel = [HomeResourceModel homeResourceModelWithDict:dict];
+            [muArray addObject:homeResourceModel];
+        }
+        weakself.collectionView.mj_footer.hidden = muArray.count < weakself.pageSize;
+        if (weakself.pageNo == 1) {
+            [weakself.collectionView.mj_header endRefreshing];
+            weakself.modelArray = muArray;
+            [weakself.collectionView reloadSections:[NSIndexSet indexSetWithIndex:1]];
+        } else {
+            [weakself.collectionView.mj_footer endRefreshing];
+            [weakself.modelArray addObjectsFromArray:muArray];
+            [weakself.collectionView reloadSections:[NSIndexSet indexSetWithIndex:1]];
+        }
+    } failure:^{
+        if (weakself.pageNo == 1) {
+            [weakself.collectionView.mj_header endRefreshing];
+        } else {
+            [weakself.collectionView.mj_footer endRefreshing];
+        }
+    }];
+}
+
+#pragma mark -
+#pragma mark - UICollectionView DataSource and Delegate
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 2;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    if (section == 0) {
+        return self.bannerModelArray.count ? 1 : 0;
+    } else {
+        return self.modelArray.count;
+    }
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        HomeBannerViewCell *cell_banner = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Banner forIndexPath:indexPath];
+        
+        return cell_banner;
+    } else {
+        HomeResourceViewCell *cell_recource = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Resource forIndexPath:indexPath];
+        cell_recource.homeResourceModel = self.modelArray[indexPath.row];
+        
+        return cell_recource;
+    }
+}
+
+
+//- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+//    UICollectionReusableView *reusableview = [[UICollectionReusableView alloc] init];
+//    
+//    if ([kind isEqualToString:UICollectionElementKindSectionFooter]) {
+//        HomeActivityView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+//                                                                          withReuseIdentifier:collectionViewCellID_Footer
+//                                                                                 forIndexPath:indexPath];
+//        reusableview = footerview;
+//    }
+//    
+//    return reusableview;
+//}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    UICollectionViewFlowLayout *flowLaout = (UICollectionViewFlowLayout *)collectionViewLayout;
+    if (indexPath.section == 0) {
+        flowLaout.minimumLineSpacing = 0;
+        flowLaout.minimumInteritemSpacing = 0;
+        flowLaout.sectionInset = UIEdgeInsetsMake(0, 0, 0, 0);
+        CGFloat itemH = (WIDTH - 54) * 198 / 322 + 28;
+        return CGSizeMake(WIDTH, itemH);
+    } else {
+        flowLaout.minimumLineSpacing = 7;
+        flowLaout.minimumInteritemSpacing = 7;
+        flowLaout.sectionInset = UIEdgeInsetsMake(0, 6, 0, 6);
+        CGFloat itemW = (WIDTH - 19) * 0.5f;
+        return CGSizeMake(itemW, itemW);
+    }
+}
+
+//- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section {
+//    return CGSizeMake(WIDTH, 0);
+//}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section != 0) {
+        if ([LoginData sharedLoginData].userId) {
+            HomeResourceModel *homeResourceModel = self.modelArray[indexPath.row];
+            NSString *otherId = homeResourceModel.userId;
+            NSString *loginId = [LoginData sharedLoginData].userId;
+            if ([otherId isEqualToString:loginId]) {
+                self.tabBarController.selectedIndex = 3;
+            } else {
+                UIStoryboard *otherSB = [UIStoryboard storyboardWithName:@"Other" bundle:nil];
+                UserCenterViewController *userCenterVC = [otherSB instantiateViewControllerWithIdentifier:@"UserCenter"];
+                userCenterVC.userId = otherId;
+                UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:userCenterVC];
+                [self presentViewController:nav animated:YES completion:nil];
+            }
+        } else {
+            UIStoryboard *loginSB = [UIStoryboard storyboardWithName:@"Login" bundle:nil];
+            UIViewController *loginVC = [loginSB instantiateViewControllerWithIdentifier:@"LoginVC"];
+            [self.navigationController presentViewController:loginVC animated:YES completion:nil];
+        }
+    }
+}
+
+
+@end

@@ -1,0 +1,50 @@
+//
+//  NearbyUserModel.h
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/28.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface NearbyUserModel : NSObject
+@property (nonatomic,   copy) NSString *userId;
+@property (nonatomic,   copy) NSString *headImg;
+@property (nonatomic,   copy) NSString *nickName;
+@property (nonatomic,   copy) NSString *realName;
+@property (nonatomic,   copy) NSString *sex;
+@property (nonatomic,   copy) NSString *city;
+@property (nonatomic,   copy) NSString *province;
+@property (nonatomic,   copy) NSString *email;
+@property (nonatomic,   copy) NSString *mobile;
+@property (nonatomic,   copy) NSString *passwd;
+@property (nonatomic,   copy) NSString *emotion;
+@property (nonatomic,   copy) NSString *fansCount;
+@property (nonatomic,   copy) NSString *focusCount;
+@property (nonatomic,   copy) NSString *imageCount;
+@property (nonatomic,   copy) NSString *zanCount;
+@property (nonatomic,   copy) NSString *height;
+@property (nonatomic,   copy) NSString *weight;
+@property (nonatomic,   copy) NSString *auditResult;
+@property (nonatomic,   copy) NSString *constellatory;
+@property (nonatomic,   copy) NSString *coverImgUrl;
+@property (nonatomic,   copy) NSString *createTime;
+@property (nonatomic,   copy) NSString *updateTime;
+@property (nonatomic,   copy) NSString *idCardNo;
+@property (nonatomic,   copy) NSString *longitude;
+@property (nonatomic,   copy) NSString *latitude;
+@property (nonatomic,   copy) NSString *qq;
+@property (nonatomic,   copy) NSString *wechat;
+@property (nonatomic,   copy) NSString *rateOfPraise;
+@property (nonatomic,   copy) NSString *tags;
+@property (nonatomic,   copy) NSString *work;
+@property (nonatomic, assign) int  audit;
+@property (nonatomic, assign) BOOL isDelete;
+@property (nonatomic, assign) BOOL isLock;
+@property (nonatomic, assign) BOOL isRecommend;
+@property (nonatomic, assign) int  star;
+
++ (instancetype)nearbyUserModelWithDict:(NSDictionary *)dict;
+- (instancetype)initNearbyUserModelWithDict:(NSDictionary *)dict;
+@end

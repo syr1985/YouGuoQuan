@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="RedEnvelopeViewCell" id="gTV-IL-0wX" customClass="RedEnvelopeViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="120" height="120"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="120" height="120"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="IOF-Nm-DIP">
+                        <rect key="frame" x="0.0" y="0.0" width="120" height="120"/>
+                    </imageView>
+                    <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Byd-BY-Cxa">
+                        <rect key="frame" x="0.0" y="0.0" width="120" height="120"/>
+                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="h6n-J5-uPh">
+                            <rect key="frame" x="0.0" y="0.0" width="120" height="120"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        </view>
+                        <blurEffect style="light"/>
+                    </visualEffectView>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lWf-ov-mto">
+                        <rect key="frame" x="99" y="0.0" width="21" height="21"/>
+                        <state key="normal" backgroundImage="删除照片"/>
+                        <connections>
+                            <action selector="deletePhoto" destination="gTV-IL-0wX" eventType="touchUpInside" id="7GR-b0-g6z"/>
+                        </connections>
+                    </button>
+                </subviews>
+            </view>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="IOF-Nm-DIP" secondAttribute="bottom" id="J7c-fP-jzu"/>
+                <constraint firstAttribute="trailing" secondItem="Byd-BY-Cxa" secondAttribute="trailing" id="REj-kq-wCY"/>
+                <constraint firstAttribute="bottom" secondItem="Byd-BY-Cxa" secondAttribute="bottom" id="Xje-Tl-MKA"/>
+                <constraint firstAttribute="trailing" secondItem="lWf-ov-mto" secondAttribute="trailing" id="Y9B-ik-eZb"/>
+                <constraint firstItem="Byd-BY-Cxa" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="mps-zx-bTk"/>
+                <constraint firstItem="IOF-Nm-DIP" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="oCc-Yp-lcF"/>
+                <constraint firstItem="Byd-BY-Cxa" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="qGU-Ht-K26"/>
+                <constraint firstItem="lWf-ov-mto" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="ssC-KE-kVI"/>
+                <constraint firstItem="IOF-Nm-DIP" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="t3g-5X-11t"/>
+                <constraint firstAttribute="trailing" secondItem="IOF-Nm-DIP" secondAttribute="trailing" id="weu-hz-o3c"/>
+            </constraints>
+            <size key="customSize" width="120" height="120"/>
+            <connections>
+                <outlet property="blurView" destination="Byd-BY-Cxa" id="iQH-yn-pAc"/>
+                <outlet property="deletePhotoButton" destination="lWf-ov-mto" id="YSU-Ut-SCS"/>
+                <outlet property="photoImageView" destination="IOF-Nm-DIP" id="oD8-OT-ZJ5"/>
+            </connections>
+            <point key="canvasLocation" x="-17" y="93"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="删除照片" width="21" height="21"/>
+    </resources>
+</document>

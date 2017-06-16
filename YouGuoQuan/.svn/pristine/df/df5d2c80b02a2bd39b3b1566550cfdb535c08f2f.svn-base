@@ -1,0 +1,101 @@
+//
+//  SystemMessageCellTableViewCell.m
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/9.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "SystemMessageCell.h"
+#import "Masonry.h"
+#import "UIScreen+Adapt.h"
+#import "HelperUtil.h"
+
+@interface SystemMessageCell() {
+    
+}
+@property(nonatomic) CGFloat screenWidth;
+@property(nonatomic, strong) UILabel *typeMarkLabel;
+@property(nonatomic, strong) UILabel *timeLabel;
+@property(nonatomic, strong) UILabel *detailLabel;
+@end
+
+@implementation SystemMessageCell
+
+- (instancetype) initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        [self.contentView addSubview:self.typeMarkLabel];
+        [self.contentView addSubview:self.timeLabel];
+        [self.contentView addSubview:self.detailLabel];
+        [self addAutoLayoutConstraint];
+    }
+    return self;
+}
+
+- (void) addAutoLayoutConstraint {
+    __weak __typeof(self)weakSelf = self;
+    [self.typeMarkLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo([UIScreen adaptedLengthOf:18]);
+        make.top.mas_equalTo([UIScreen adaptedLengthOf:16]);
+    }];
+    
+    [self.timeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.right.mas_equalTo([UIScreen adaptedLengthOf:-12]);
+        make.centerY.mas_equalTo(strongSelf.typeMarkLabel.mas_centerY);
+    }];
+    
+    [self.detailLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        make.left.mas_equalTo(strongSelf.typeMarkLabel);
+        make.top.mas_equalTo(strongSelf.typeMarkLabel.mas_bottom).with.offset([UIScreen adaptedLengthOf:5]);
+        make.height.mas_equalTo(30);
+        make.right.mas_equalTo([UIScreen adaptedLengthOf:-12]);
+    }];
+    
+}
+
+- (UILabel *) typeMarkLabel {
+    if (!_typeMarkLabel) {
+        _typeMarkLabel = [[UILabel alloc] init];
+        _typeMarkLabel.font = [UIFont adaptedFontOfSize:14];
+        _typeMarkLabel.textColor = [HelperUtil colorWithHexString:@"#ABABAB"];
+    }
+    
+    return _typeMarkLabel;
+}
+
+- (UILabel *) timeLabel {
+    if (!_timeLabel) {
+        _timeLabel = [[UILabel alloc] init];
+        _timeLabel.font = [UIFont adaptedFontOfSize:12];
+        _timeLabel.textColor = [HelperUtil colorWithHexString:@"#ABABAB"];
+    }
+    return _timeLabel;
+}
+
+- (UILabel *) detailLabel {
+    if (!_detailLabel) {
+        _detailLabel = [[UILabel alloc] init];
+        _detailLabel.font = [UIFont adaptedFontOfSize:14];
+        _detailLabel.textColor = [HelperUtil colorWithHexString:@"#352007"];
+        _detailLabel.numberOfLines = 0;
+        _detailLabel.lineBreakMode = NSLineBreakByWordWrapping;
+        _detailLabel.preferredMaxLayoutWidth =  self.screenWidth -  [UIScreen adaptedLengthOf:30];
+    }
+    return _detailLabel;
+}
+
+
+- (void) refreshContent:(id) content {
+    self.typeMarkLabel.text = @"系统通知";
+    self.timeLabel.text = @"2016年10月23日";
+    self.detailLabel.text = @"恭喜您，已经获得［后果你的手机啊就是］世界可视电话，事发后是否健康，点击查看详情>>";
+}
+
++ (CGFloat) cellHeightWithText : (NSString *) text {
+    return [UIScreen adaptedLengthOf:90];
+}
+
+@end

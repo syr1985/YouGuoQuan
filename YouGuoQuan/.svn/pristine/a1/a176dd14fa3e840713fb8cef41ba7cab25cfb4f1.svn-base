@@ -1,0 +1,53 @@
+//
+//  OrderInfoViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/30.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "OrderInfoViewCell.h"
+
+@interface OrderInfoViewCell ()
+@property (weak, nonatomic) IBOutlet UILabel *orderTitleLabel;
+@property (weak, nonatomic) IBOutlet UITextField *orderContentTextField;
+
+@end
+
+@implementation OrderInfoViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state
+}
+
+- (void)setDict:(NSDictionary *)dict {
+    _dict = dict;
+    
+    self.orderTitleLabel.text = dict[@"title"];
+    self.orderContentTextField.placeholder = dict[@"placeholder"];
+    
+    [self.orderTitleLabel sizeToFit];
+}
+
+- (void)setPrice:(NSString *)price {
+    _price = price;
+    
+    _orderContentTextField.text = price;
+}
+
+#pragma makr - UITextFieldDelegate
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    if (_textFieldDidEndEdit) {
+        _textFieldDidEndEdit(textField.text, _index);
+    }
+}
+
+
+@end

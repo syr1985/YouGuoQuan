@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="VideoReplyCommentViewCell" id="KGk-i7-Jjw" customClass="VideoReplyCommentViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="66"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="65"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="my_head_default" translatesAutoresizingMaskIntoConstraints="NO" id="iJ5-R7-K50">
+                        <rect key="frame" x="8" y="15" width="36" height="36"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="iJ5-R7-K50" secondAttribute="height" multiplier="1:1" id="Dfa-Xi-99d"/>
+                            <constraint firstAttribute="width" constant="36" id="uvd-mR-VxL"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="谁谁" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lZT-r7-Pjo">
+                        <rect key="frame" x="52" y="15" width="31" height="18"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="24分钟" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MsF-tu-TE7">
+                        <rect key="frame" x="269" y="15" width="42.5" height="16"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" white="0.48486024840000003" alpha="1" colorSpace="calibratedWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="回复内容" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BeA-r1-j70">
+                        <rect key="frame" x="52" y="37" width="260" height="18"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="回复" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UFb-Yo-9sA">
+                        <rect key="frame" x="91" y="15" width="31" height="18"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="某某某" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="z95-Ld-ZYa">
+                        <rect key="frame" x="130" y="15" width="46" height="18"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="BeA-r1-j70" firstAttribute="top" secondItem="lZT-r7-Pjo" secondAttribute="bottom" constant="4" id="7Rk-DQ-nLL"/>
+                    <constraint firstItem="iJ5-R7-K50" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="9Sh-n8-iUy"/>
+                    <constraint firstItem="iJ5-R7-K50" firstAttribute="width" secondItem="iJ5-R7-K50" secondAttribute="height" multiplier="1:1" id="Ddb-sN-PAf"/>
+                    <constraint firstItem="z95-Ld-ZYa" firstAttribute="top" secondItem="UFb-Yo-9sA" secondAttribute="top" id="HLB-9Z-u5S"/>
+                    <constraint firstItem="MsF-tu-TE7" firstAttribute="top" secondItem="lZT-r7-Pjo" secondAttribute="top" id="HjQ-ij-M9b"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="MsF-tu-TE7" secondAttribute="trailing" id="QV3-uI-ZhE"/>
+                    <constraint firstItem="lZT-r7-Pjo" firstAttribute="leading" secondItem="iJ5-R7-K50" secondAttribute="trailing" constant="8" id="cHo-67-rH7"/>
+                    <constraint firstItem="BeA-r1-j70" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailingMargin" id="eUp-zy-slZ"/>
+                    <constraint firstItem="lZT-r7-Pjo" firstAttribute="top" secondItem="iJ5-R7-K50" secondAttribute="top" id="fLa-Jo-Nxy"/>
+                    <constraint firstItem="UFb-Yo-9sA" firstAttribute="top" secondItem="lZT-r7-Pjo" secondAttribute="top" id="gy9-Ys-NGy"/>
+                    <constraint firstItem="BeA-r1-j70" firstAttribute="leading" secondItem="lZT-r7-Pjo" secondAttribute="leading" id="oZZ-eN-ceF"/>
+                    <constraint firstItem="UFb-Yo-9sA" firstAttribute="leading" secondItem="lZT-r7-Pjo" secondAttribute="trailing" constant="8" id="oqc-yb-JQm"/>
+                    <constraint firstItem="iJ5-R7-K50" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="t1z-j9-J4N"/>
+                    <constraint firstItem="z95-Ld-ZYa" firstAttribute="leading" secondItem="UFb-Yo-9sA" secondAttribute="trailing" constant="8" id="wXb-f5-Kwq"/>
+                </constraints>
+            </tableViewCellContentView>
+            <point key="canvasLocation" x="16" y="6"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="my_head_default" width="60" height="60"/>
+    </resources>
+</document>

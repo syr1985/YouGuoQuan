@@ -1,0 +1,75 @@
+//
+//  RewardViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/2.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "RewardViewController.h"
+
+@interface RewardViewController () <UITextFieldDelegate>
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UITextField *rewardTextField;
+@property (nonatomic, assign) NSInteger currentTag;
+@property (nonatomic,   copy) NSString *inputReward;
+@end
+
+@implementation RewardViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/**
+ *  选择红包
+ *
+ *  @param sender 红包对象
+ */
+- (IBAction)redEnvelopeSelected:(UIButton *)sender {
+    sender.selected = !sender.isSelected;
+    
+    if (sender.isSelected) {
+        if (sender.tag != _currentTag) {
+            if (_currentTag > 0) {
+                UIButton *btn = [self.view viewWithTag:_currentTag];
+                btn.selected = NO;
+            }
+        }
+        _currentTag = sender.tag;
+    }
+}
+
+/**
+ *  塞红包
+ */
+- (IBAction)sendInReward {
+    
+}
+
+
+#pragma mark - UITextFieldDelegate
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    self.inputReward = textField.text;
+    UIButton *btn = [self.view viewWithTag:_currentTag];
+    btn.selected = NO;
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

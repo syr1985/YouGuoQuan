@@ -1,0 +1,54 @@
+//
+//  CrowdfundingDetailHeaderView.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/29.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CrowdfundingDetailHeaderView.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "DiscoveryCrowdfundingModel.h"
+#import "NSString+AttributedText.h"
+
+@interface CrowdfundingDetailHeaderView ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *participateInfoLabel;
+@property (weak, nonatomic) IBOutlet UIScrollView *participatenScrollView;
+@property (weak, nonatomic) IBOutlet UIButton *maxParticipateNumberButton;
+
+@end
+
+@implementation CrowdfundingDetailHeaderView
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(lookParticipatenList)];
+    [_participatenScrollView addGestureRecognizer:tapGesture];
+    
+}
+
+- (void)lookParticipatenList {
+    if (_pushViewControllerBlock) {
+        _pushViewControllerBlock();
+    }
+}
+
+- (void)setDiscoveryCrowdfundingModel:(DiscoveryCrowdfundingModel *)discoveryCrowdfundingModel {
+    _discoveryCrowdfundingModel = discoveryCrowdfundingModel;
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:discoveryCrowdfundingModel.coverImgUrl]
+                            placeholderImage:[UIImage imageNamed:@"Yosemite03"]];
+    
+    NSString *cfMoney = @"100";
+    NSString *joinCount = [NSString stringWithFormat:@"%zd人已参与，我已积累%@元",discoveryCrowdfundingModel.joinPeople,cfMoney];
+    NSRange range = [joinCount rangeOfString:cfMoney];
+    self.participateInfoLabel.attributedText = [NSString attributedStringWithString:joinCount
+                                                                              color:NavColor
+                                                                              range:range];
+}
+
+
+@end

@@ -1,0 +1,81 @@
+//
+//  MySoldOrderViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/9.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "MySoldOrderViewController.h"
+#import "SCNavTabBarController.h"
+#import "AllSoldOrderListViewController.h"
+#import "ConsumeRecordViewController.h"
+
+@interface MySoldOrderViewController ()
+
+@end
+
+@implementation MySoldOrderViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = _fromSellWeixinPage ? @"买家列表" : @"我售出的";
+    
+    UIStoryboard *soldSB = [UIStoryboard storyboardWithName:@"Sold" bundle:nil];
+    AllSoldOrderListViewController *allSoldOrderVC = [soldSB instantiateViewControllerWithIdentifier:@"AllSoldOrderListVC"];
+    allSoldOrderVC.type = SoldOrderType_All;
+    allSoldOrderVC.fromSellWeixinPage = _fromSellWeixinPage;
+    allSoldOrderVC.title = @"全部";
+    
+    AllSoldOrderListViewController *undoSoldListVC = [soldSB instantiateViewControllerWithIdentifier:@"AllSoldOrderListVC"];
+    undoSoldListVC.type = SoldOrderType_Undo;
+    undoSoldListVC.fromSellWeixinPage = _fromSellWeixinPage;
+    undoSoldListVC.title = @"未处理";
+    
+    AllSoldOrderListViewController *doneSoldListVC = [soldSB instantiateViewControllerWithIdentifier:@"AllSoldOrderListVC"];
+    doneSoldListVC.type = SoldOrderType_Done;
+    doneSoldListVC.fromSellWeixinPage = _fromSellWeixinPage;
+    doneSoldListVC.title = @"已处理";
+    
+    SCNavTabBarController *navTabBarController = [[SCNavTabBarController alloc] init];
+    navTabBarController.subViewControllers = @[allSoldOrderVC, undoSoldListVC, doneSoldListVC];
+    navTabBarController.navTabBarColor     = [UIColor whiteColor];
+    navTabBarController.navTabBarLineColor = [UIColor whiteColor];
+    navTabBarController.titleFont = [UIFont systemFontOfSize:14];
+    navTabBarController.navType = NavType_Order;
+    [navTabBarController addParentController:self];
+    
+    if (!_fromSellWeixinPage) {
+        UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"收入明细"
+                                                                      style:UIBarButtonItemStylePlain
+                                                                     target:self
+                                                                     action:@selector(pushToIncomeRecordViewController)];
+        rightItem.tintColor = NavTabBarColor;
+        self.navigationItem.rightBarButtonItem = rightItem;
+    }
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)pushToIncomeRecordViewController {
+    UIStoryboard *walletSB = [UIStoryboard storyboardWithName:@"Wallet" bundle:nil];
+    ConsumeRecordViewController *incomeRecoredVC = [walletSB instantiateViewControllerWithIdentifier:@"ConsumeRecordVC"];
+    incomeRecoredVC.type = @"1";
+    [self.navigationController pushViewController:incomeRecoredVC animated:YES];
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

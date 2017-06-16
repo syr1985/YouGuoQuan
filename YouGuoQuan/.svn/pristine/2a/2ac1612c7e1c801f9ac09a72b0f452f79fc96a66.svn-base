@@ -1,0 +1,44 @@
+//
+//  MessageViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/24.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "MessageViewCell.h"
+
+@interface MessageViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *iconImageView;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+
+@end
+
+@implementation MessageViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    _countLabel.layer.cornerRadius = _countLabel.bounds.size.height * 0.5;
+    _countLabel.layer.masksToBounds = YES;
+}
+
+- (void)setInfoDict:(NSDictionary *)infoDict {
+    _infoDict = infoDict;
+    
+    _iconImageView.image = [UIImage imageNamed:infoDict[@"icon"]];
+    _titleLabel.text = infoDict[@"title"];
+    _countLabel.text = [NSString stringWithFormat:@"%@",infoDict[@"count"]];
+    int count = [infoDict[@"count"] intValue];
+    _countLabel.hidden = count == 0;
+}
+
+- (IBAction)pushButtonClicked:(id)sender {
+    if (_pushToDetailBlock) {
+        _pushToDetailBlock();
+    }
+}
+
+
+@end

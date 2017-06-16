@@ -1,0 +1,18 @@
+//
+//  HomeConcemViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/18.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "HomeConcemViewCell.h"
+
+@implementation HomeConcemViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+@end

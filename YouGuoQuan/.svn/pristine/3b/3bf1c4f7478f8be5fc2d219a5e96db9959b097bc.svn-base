@@ -1,0 +1,337 @@
+//
+//  RecommendViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "RecommendViewController.h"
+#import "ReportViewController.h"
+#import "UserCenterViewController.h"
+#import "TrendsDetailViewController.h"
+#import "ProductDetailViewController.h"
+
+#import "FocusTrendsViewCell.h"
+#import "FocusVideoViewCell.h"
+#import "FocusProductViewCell.h"
+#import "FocusRedEnvelopeViewCell.h"
+
+#import "HomeFocusModel.h"
+#import "MoreMenuHelp.h"
+#import "AlertViewTool.h"
+#import <MJRefresh.h>
+
+@interface RecommendViewController ()
+@property (nonatomic, strong) NSMutableArray *modelArray;
+@property (nonatomic, assign) int pageNo;
+@property (nonatomic, assign) int pageSize;
+@end
+
+static NSString * const tableViewCellID_trends   = @"FocusTrendsViewCell";
+static NSString * const tableViewCellID_video    = @"FocusVideoViewCell";
+static NSString * const tableViewCellID_product  = @"FocusProductViewCell";
+static NSString * const tableViewCellID_envelope = @"FocusRedEnvelopeViewCell";
+
+@implementation RecommendViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)modelArray {
+    if (!_modelArray) {
+        _modelArray = [NSMutableArray new];
+    }
+    return _modelArray;
+}
+
+#pragma mark -
+#pragma mark - 系统方法
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(screenMenuItemSelect:)
+                                                 name:kNotification_ShowScreenMenu
+                                               object:nil];
+    
+    [self configViewController];
+}
+
+- (void)screenMenuItemSelect:(NSNotification *)noti {
+    NSDictionary *userInfo = noti.userInfo;
+    NSInteger tabBarIndex = [userInfo[@"tabBarIndex"] integerValue];
+    if (tabBarIndex == 0) {
+        [MoreMenuHelp showScreenMenuWithResult:^(NSUInteger index) {
+            if (index != 0) {
+                
+            }
+        }];
+    }
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+    //    self.modelArray = nil;
+}
+
+#pragma mark -
+#pragma mark - 配置控制器
+- (void)configViewController {
+    self.pageNo = 1;
+    self.pageSize = 10;
+    
+    self.tableView.backgroundColor = BackgroundColor;
+    
+    self.tableView.separatorInset = UIEdgeInsetsMake(0, 8, 0, 8);
+    self.tableView.tableFooterView = [[UIView alloc] init];
+    
+    UINib *nib_trends = [UINib nibWithNibName:tableViewCellID_trends bundle:nil];
+    [self.tableView registerNib:nib_trends forCellReuseIdentifier:tableViewCellID_trends];
+    
+    UINib *nib_video  = [UINib nibWithNibName:tableViewCellID_video bundle:nil];
+    [self.tableView registerNib:nib_video forCellReuseIdentifier:tableViewCellID_video];
+    
+    UINib *nib_product = [UINib nibWithNibName:tableViewCellID_product bundle:nil];
+    [self.tableView registerNib:nib_product forCellReuseIdentifier:tableViewCellID_product];
+    
+    UINib *nib_envelope = [UINib nibWithNibName:tableViewCellID_envelope bundle:nil];
+    [self.tableView registerNib:nib_envelope forCellReuseIdentifier:tableViewCellID_envelope];
+    
+    // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingTarget:self
+                                                                     refreshingAction:@selector(loadNewData)];
+    
+    // 设置文字
+    [header setTitle:@"下拉刷新数据" forState:MJRefreshStateIdle];
+    [header setTitle:@"松开刷新" forState:MJRefreshStatePulling];
+    [header setTitle:@"加载中..." forState:MJRefreshStateRefreshing];
+    // 马上进入刷新状态
+    //[header beginRefreshing];
+    // 设置刷新控件
+    self.tableView.mj_header = header;
+    
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self
+                                                                             refreshingAction:@selector(loadMoreData)];
+    // 设置文字
+    [footer setTitle:@"上拉刷新数据" forState:MJRefreshStateIdle];
+    [footer setTitle:@"加载更多..." forState:MJRefreshStateRefreshing];
+    //[footer setTitle:@"到底了" forState:MJRefreshStateNoMoreData];
+    footer.automaticallyRefresh = NO;
+    footer.hidden = YES;
+    // 设置footer
+    self.tableView.mj_footer = footer;
+}
+
+- (void)loadNewData {
+    _pageNo = 1;
+    [self loadDataFromServer];
+}
+
+- (void)loadMoreData {
+    _pageNo++;
+    [self loadDataFromServer];
+}
+
+#pragma mark -
+#pragma mark - 从服务器加载数据
+- (void)loadDataFromServer {
+    __weak typeof(self) weakself = self;
+    [NetworkTool getDiscoveryTrendsListWithPageNo:@(_pageNo) pageSize:@(_pageSize) success:^(id result) {
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in result) {
+            HomeFocusModel *model = [HomeFocusModel homeFocusModelWithDict:dict];
+            if (![LoginData sharedLoginData].ope) {
+                if (model.feedsType != 3) {
+                    [muArray addObject:model];
+                }
+            } else {
+                [muArray addObject:model];
+            }
+        }
+        if (weakself.pageNo == 1) {
+            [weakself.tableView.mj_header endRefreshing];
+            weakself.modelArray = muArray;
+            [weakself.tableView reloadData];
+        } else {
+            [weakself.tableView.mj_footer endRefreshing];
+            [weakself.modelArray addObjectsFromArray:muArray];
+            [weakself.tableView reloadData];
+        }
+    } failure:^{
+        if (weakself.pageNo == 1) {
+            [weakself.tableView.mj_header endRefreshing];
+        } else {
+            [weakself.tableView.mj_footer endRefreshing];
+        }
+    }];
+}
+
+#pragma mark -
+#pragma mark - 更多按钮点击底部弹出ActionSheet
+- (void)moreButtonClicked:(NSUInteger)buttonIndex userId:(NSString *)userId aboutID:(NSString *)aboutId {
+    if (buttonIndex == 1) {
+        // 拉黑警告
+        [AlertViewTool showAlertViewWithTitle:nil Message:@"拉黑对方后，对方将无法与您聊天，您也无法查看对方动态，是否继续？" sureBlock:^{
+            // 拉黑操作
+            [NetworkTool doOperationWithType:@"3" userId:userId operationType:@"1" success:^{
+                [SVProgressHUD showSuccessWithStatus:@"已将对方拉黑"];
+            }];
+        }];
+    } else if (buttonIndex == 2) {
+        // 举报操作
+        UIStoryboard *discoverySB = [UIStoryboard storyboardWithName:@"Discovery" bundle:nil];
+        ReportViewController *reportVC = [discoverySB instantiateViewControllerWithIdentifier:@"Report"];
+        reportVC.aboutId = aboutId;
+        reportVC.reportType = ReportType_Trends;
+        reportVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        [self presentViewController:reportVC animated:YES completion:nil];
+    }
+}
+
+#pragma mark -
+#pragma mark - 跳转到详情页
+- (void)popToDetailViewController:(HomeFocusModel *)model {
+    if (model.feedsType == 3) {
+        UIStoryboard *focusSB = [UIStoryboard storyboardWithName:@"Focus" bundle:nil];
+        ProductDetailViewController *productDetailVC = [focusSB instantiateViewControllerWithIdentifier:@"ProductDetailVC"];
+        productDetailVC.hidesBottomBarWhenPushed = YES;
+        productDetailVC.homeFocusModel = model;
+        [self presentViewController:productDetailVC animated:YES completion:nil];
+    } else {
+        UIStoryboard *focusSB = [UIStoryboard storyboardWithName:@"Focus" bundle:nil];
+        TrendsDetailViewController *trendsDetailVC = [focusSB instantiateViewControllerWithIdentifier:@"TrendsDetailVC"];
+        trendsDetailVC.hidesBottomBarWhenPushed = YES;
+        trendsDetailVC.homeFocusModel = model;
+        [self.navigationController pushViewController:trendsDetailVC animated:YES];
+    }
+}
+
+#pragma mark -
+#pragma mark - 跳转到TA人中心
+- (void)popToUserCenterViewController:(NSString *)userId {
+    NSString *loginId = [LoginData sharedLoginData].userId;
+    if ([userId isEqualToString:loginId]) {
+        self.tabBarController.selectedIndex = 3;
+    } else {
+        UIStoryboard *otherSB = [UIStoryboard storyboardWithName:@"Other" bundle:nil];
+        UserCenterViewController *userCenterVC = [otherSB instantiateViewControllerWithIdentifier:@"UserCenter"];
+        userCenterVC.userId = userId;
+        UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:userCenterVC];
+        [self presentViewController:nav animated:YES completion:nil];
+    }
+}
+
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.modelArray.count;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    HomeFocusModel *model = self.modelArray[indexPath.row];
+    __weak typeof(self) weakself = self;
+    if (model.feedsType == 1) {
+        FocusTrendsViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_trends forIndexPath:indexPath];
+        cell.tapHeaderView = ^(NSString *userId) {
+            [weakself popToUserCenterViewController:userId];
+        };
+        cell.commentBlock = ^(HomeFocusModel *model) {
+            [weakself popToDetailViewController:model];
+        };
+        cell.actionSheetItemClicked = ^(NSUInteger index, NSString *userId, NSString *focusId) {
+            [weakself moreButtonClicked:index userId:userId aboutID:focusId];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    } else if (model.feedsType == 2) {
+        FocusVideoViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_video forIndexPath:indexPath];
+        cell.tapHeaderView = ^(NSString *userId) {
+            [weakself popToUserCenterViewController:userId];
+        };
+        cell.commentBlock = ^(HomeFocusModel *model) {
+            [weakself popToDetailViewController:model];
+        };
+        cell.actionSheetItemClicked = ^(NSUInteger index, NSString *userId, NSString *focusId) {
+            [weakself moreButtonClicked:index userId:userId aboutID:focusId];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    } else if (model.feedsType == 3) {
+        FocusProductViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_product forIndexPath:indexPath];
+        cell.tapHeaderView = ^(NSString *userId) {
+            [weakself popToUserCenterViewController:userId];
+        };
+        cell.actionSheetItemClicked = ^(NSUInteger index, NSString *userId, NSString *focusId) {
+            [weakself moreButtonClicked:index userId:userId aboutID:focusId];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    } else {
+        FocusRedEnvelopeViewCell *cell = [tableView dequeueReusableCellWithIdentifier:tableViewCellID_envelope forIndexPath:indexPath];
+        cell.tapHeaderView = ^(NSString *userId) {
+            [weakself popToUserCenterViewController:userId];
+        };
+        cell.commentBlock = ^(HomeFocusModel *model) {
+            [weakself popToDetailViewController:model];
+        };
+        cell.actionSheetItemClicked = ^(NSUInteger index, NSString *userId, NSString *focusId) {
+            [weakself moreButtonClicked:index userId:userId aboutID:focusId];
+        };
+        cell.homeFocusModel = model;
+        return cell;
+    }
+}
+
+#pragma mark -
+#pragma mark - Table View Delegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    HomeFocusModel *model = self.modelArray[indexPath.row];
+    return model.cellHeight;
+}
+
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
+    HomeFocusModel *model = self.modelArray[indexPath.row];
+    if (model.feedsType == 2) {
+        FocusVideoViewCell *videoCell = (FocusVideoViewCell *)cell;
+        [videoCell releaseWMPlayer];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (![LoginData sharedLoginData].userId) {
+        UIStoryboard *loginSB = [UIStoryboard storyboardWithName:@"Login" bundle:nil];
+        UIViewController *loginVC = [loginSB instantiateViewControllerWithIdentifier:@"LoginVC"];
+        [self presentViewController:loginVC animated:YES completion:nil];
+        return;
+    }
+    
+    // 跳详情页
+    HomeFocusModel *model = self.modelArray[indexPath.row];
+    [self popToDetailViewController:model];
+}
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

@@ -1,0 +1,18 @@
+//
+//  CrowdfundingDetailViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/29.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "CrowdfundingDetailViewCell.h"
+
+@implementation CrowdfundingDetailViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+@end

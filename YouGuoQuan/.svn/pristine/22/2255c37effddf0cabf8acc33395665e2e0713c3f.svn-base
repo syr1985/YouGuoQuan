@@ -1,0 +1,17 @@
+//
+//  MoreButtonHelp.h
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/5.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface MoreButtonHelp : NSObject
+@property (nonatomic,   copy) void (^actionSheetItemClicked)(NSUInteger buttonIndex);
+
++ (instancetype)sharedInstance;
+
+- (void)showMoreMenu:(void (^)(NSUInteger index))returnBlock;
+@end

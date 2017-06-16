@@ -1,0 +1,140 @@
+//
+//  NetworkTool.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/15.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "NetworkTool.h"
+#import "NetWorking.h"
+/**
+ *  获取验证码
+ */
+static NSString * const GetAuthCode = @"/iface/appuser/getVerifiCode";
+/**
+ *  注册账号
+ */
+static NSString * const RegisterPath =  @"/iface/appuser/registermobile";
+/**
+ *  重置密码
+ */
+static NSString * const ResetPassword = @"/iface/appuser/resetpwd";
+/**
+ *  用户登录
+ */
+static NSString * const LoginPath = @"/iface/appuser/loginmobile";
+
+@implementation NetworkTool
+
+//static NetworkTool *_instance;
+
+//+ (instancetype)sharedInstance {
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        _instance = [[self alloc] init];
+//    });
+//    return _instance;
+//}
+
++ (void)getMsgAuthCode:(NSString *)phoneNumber RetsetPassword:(BOOL)reset Result:(void (^)(NSString *code))returnResult {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]   = [NSString randomString];
+    muDict[@"sign"]         = @"";
+    muDict[@"mobile"]       = phoneNumber;
+    muDict[@"isResetPass"]  = @"";
+    
+    [NetWorking postSessionWithUrl:GetAuthCode parameters:muDict success:^(id responseObject) {
+        NSString *result = [responseObject objectForKey:@"result"];
+        if ([result isEqualToString:@"success"]) {
+            if (returnResult) {
+                NSString *authCode = [responseObject objectForKey:@"verifiCode"];
+                returnResult(authCode);
+            }
+            [SVProgressHUD showSuccessWithStatus:@"验证码已发送,注意查收"];
+        } else if ([result isEqualToString:@"error"]) {
+            [SVProgressHUD showErrorWithStatus:@"获取验证码失败"];
+        } else if ([result isEqualToString:@"notExit"]) {
+            [SVProgressHUD showErrorWithStatus:@"注册手机号不存在"];
+        }
+    } fail:^(NSError *error) {
+        [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+    }];
+}
+
++ (void)registerWithPhone:(NSString *)phoneNumber Password:(NSString *)password NickName:(NSString *)nickName Sex:(NSString *)sex City:(NSString *)city Failed:(void (^)())fail {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"] = [NSString randomString];
+    muDict[@"sign"]       = @"";
+    muDict[@"mobile"]     = phoneNumber;
+    muDict[@"passwd"]     = password;
+    muDict[@"nickName"]   = nickName;
+    muDict[@"sex"]        = sex;
+    muDict[@"city"]       = city;
+    //YGQLog(@"%@",muDict);
+    [NetWorking postSessionWithUrl:RegisterPath parameters:muDict success:^(id responseObject) {
+        //YGQLog(@"%@",responseObject);
+        NSString *result = [responseObject objectForKey:@"result"];
+        if ([result isEqualToString:@"success"]) {
+            [SVProgressHUD showSuccessWithStatus:@"注册成功"];
+        } else if ([result isEqualToString:@"error"]) {
+            NSString *errorMsg = [responseObject objectForKey:@"msg"];
+            if ([errorMsg isEqualToString:@"手机号已注册！"]) {
+                if (fail) {
+                    fail();
+                }
+            }
+            //[SVProgressHUD showErrorWithStatus:errorMsg];
+        }
+    } fail:^(NSError *error) {
+        //YGQLog(@"%@",error);
+        [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+    }];
+}
+
++ (void)resetPasswordWithPhone:(NSString *)phoneNumber Password:(NSString *)newPassword Result:(void (^)())returnResult {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]   = [NSString randomString];
+    muDict[@"sign"]         = @"";
+    muDict[@"mobile"]       = phoneNumber;
+    muDict[@"passwd"]       = newPassword;
+    
+    [NetWorking postSessionWithUrl:ResetPassword parameters:muDict success:^(id responseObject) {
+        NSString *result = [responseObject objectForKey:@"result"];
+        if ([result isEqualToString:@"success"]) {
+            if (returnResult) {
+                returnResult();
+            }
+            [SVProgressHUD showSuccessWithStatus:@"密码修改成功"];
+        } else if ([result isEqualToString:@"error"]) {
+            [SVProgressHUD showErrorWithStatus:@"密码修改失败"];
+        }
+    } fail:^(NSError *error) {
+        [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+    }];
+}
+
++ (void)loginWithPhone:(NSString *)phoneNumber Password:(NSString *)password Success:(void (^)())success {
+    NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
+    muDict[@"requestseq"]   = [NSString randomString];
+    muDict[@"sign"]         = @"";
+    muDict[@"mobile"]       = phoneNumber;
+    muDict[@"passwd"]       = password;
+    
+    [NetWorking postSessionWithUrl:LoginPath parameters:muDict success:^(id responseObject) {
+        NSString *result = [responseObject objectForKey:@"result"];
+        YGQLog(@"%@",responseObject);
+        if ([result isEqualToString:@"success"]) {
+            if (success) {
+                success();
+            }
+            [SVProgressHUD showSuccessWithStatus:@"登录成功"];
+        } else if ([result isEqualToString:@"error"]) {
+            [SVProgressHUD showErrorWithStatus:@"登录失败"];
+        }
+    } fail:^(NSError *error) {
+        [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+    }];
+}
+
+@end

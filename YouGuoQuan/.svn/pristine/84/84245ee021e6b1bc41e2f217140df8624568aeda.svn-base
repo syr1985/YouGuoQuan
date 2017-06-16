@@ -1,0 +1,46 @@
+//
+//  BaseTableViewController.m
+//  JinhuaMedical
+//
+//  Created by njfanya on 15/10/16.
+//  Copyright © 2015年 njfanya. All rights reserved.
+//
+
+#import "BaseTableViewController.h"
+
+@interface BaseTableViewController ()
+
+@end
+
+@implementation BaseTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Uncomment the following line to preserve selection between presentations.
+    // self.clearsSelectionOnViewWillAppear = NO;
+    
+    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    //    UILabel *titleLabel = [[UILabel alloc] init];
+    //    titleLabel.frame = CGRectMake(0, 0, 100, 44);
+    //    titleLabel.textColor = [UIColor whiteColor];
+    //    titleLabel.textAlignment = NSTextAlignmentCenter;
+    //    self.navigationItem.titleView = titleLabel;
+    //    self.titleLabel = titleLabel;
+    
+    self.tableView.separatorColor = RGBA(234, 234, 234, 1);
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    UIBarButtonItem *temporaryBarButtonItem = [[UIBarButtonItem alloc] init];
+    temporaryBarButtonItem.title = @"";
+    self.navigationItem.backBarButtonItem = temporaryBarButtonItem;
+    [self.navigationController.navigationBar setTintColor:[UIColor darkGrayColor]];
+    
+    self.tableView.showsVerticalScrollIndicator = NO;
+    self.tableView.showsHorizontalScrollIndicator = NO;
+}
+
+
+@end

@@ -1,0 +1,66 @@
+//
+//  ReplyCommentMessageCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/24.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "ReplyCommentMessageCell.h"
+#import "CommentMessageModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "NSDate+LXExtension.h"
+
+@interface ReplyCommentMessageCell ()
+@property (nonatomic, weak) IBOutlet UIImageView *headImgView;
+@property (nonatomic, weak) IBOutlet UIImageView *vipImgView;
+@property (nonatomic, weak) IBOutlet UIImageView *crownImgView;
+@property (nonatomic, weak) IBOutlet UILabel *nameLabel;
+@property (nonatomic, weak) IBOutlet UILabel *contentLabel;
+@property (nonatomic, weak) IBOutlet UILabel *timeLabel;
+@property (nonatomic, strong) NSDateFormatter *dateFormatter;
+@end
+
+@implementation ReplyCommentMessageCell
+
+- (NSDateFormatter *)dateFormatter {
+    if (!_dateFormatter) {
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        _dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_GB"];
+        _dateFormatter.timeZone = [NSTimeZone timeZoneWithName:@"GMT"];
+        _dateFormatter.dateFormat = @"yyyy年MM月dd日";
+    }
+    return _dateFormatter;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    _headImgView.layer.cornerRadius = _headImgView.bounds.size.height * 0.5;
+    _headImgView.layer.masksToBounds = YES;
+}
+
+- (void)setCommentMessageModel:(CommentMessageModel *)commentMessageModel {
+    _commentMessageModel = commentMessageModel;
+    
+    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:commentMessageModel.headImg
+                                                                  width:self.headImgView.bounds.size.width
+                                                                 height:self.headImgView.bounds.size.height];
+    [self.headImgView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.vipImgView.hidden = commentMessageModel.audit != 1;
+    self.crownImgView.hidden = !commentMessageModel.isRecommend;
+    self.nameLabel.text = commentMessageModel.nickName;
+    self.contentLabel.text = commentMessageModel.content;
+    NSTimeInterval timeInterval = [commentMessageModel.createtime doubleValue];
+    NSDate *createDate = [NSDate dateWithTimeIntervalSince1970:timeInterval / 1000];
+    LXDateItem *item = [[NSDate date] lx_timeIntervalSinceDate:createDate];
+    if (item.day == 0) {
+        self.timeLabel.text = [NSString stringWithFormat:@"%@前",item.description];
+    } else {
+        self.timeLabel.text = [self.dateFormatter stringFromDate:createDate];
+    }
+}
+
+@end

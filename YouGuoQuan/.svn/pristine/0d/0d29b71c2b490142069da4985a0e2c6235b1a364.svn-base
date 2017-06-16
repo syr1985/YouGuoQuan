@@ -1,0 +1,37 @@
+//
+//  DiscoveryVideoModel.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/26.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "DiscoveryVideoModel.h"
+#import <MJExtension.h>
+#import "NSString+StringSize.h"
+
+@implementation DiscoveryVideoModel
+
++ (instancetype)discoveryVideoModelWithDict:(NSDictionary *)dict {
+    [DiscoveryVideoModel mj_setupReplacedKeyFromPropertyName:^NSDictionary *{
+        return @{@"videoId" : @"id"};
+    }];
+    return [[DiscoveryVideoModel alloc] initDiscoveryVideoModelWithDict:dict];
+}
+
+- (instancetype)initDiscoveryVideoModelWithDict:(NSDictionary *)dict {
+    if (self = [super init]) {
+        self = [DiscoveryVideoModel mj_objectWithKeyValues:dict];
+        
+        CGFloat maxH = 62;//14 + 40 + 8;
+        CGFloat titleH = [NSString heightWithString:_instro
+                                            maxSize:CGSizeMake(WIDTH - 16, 0)
+                                            strFont:[UIFont systemFontOfSize:14]];
+        maxH += (titleH + 8);
+        maxH += (WIDTH - 16) * 185 / 320;
+        _cellHeight = maxH + 48;
+    }
+    return self;
+}
+
+@end

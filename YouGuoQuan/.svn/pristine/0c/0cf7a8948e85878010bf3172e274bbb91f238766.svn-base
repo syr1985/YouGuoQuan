@@ -1,0 +1,46 @@
+//
+//  ProductDetailHeaderViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/17.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "ProductDetailHeaderViewCell.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "ProductDetailModel.h"
+#import "NSString+AttributedText.h"
+
+@interface ProductDetailHeaderViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *productImageView;
+@property (weak, nonatomic) IBOutlet UILabel *productNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *productPriceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *productIntroLabel;
+
+@end
+
+@implementation ProductDetailHeaderViewCell
+
+- (void)dealloc {
+    NSLog(@"%@ dealloc", [self class]);
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setProductDetailModel:(ProductDetailModel *)productDetailModel {
+    _productDetailModel = productDetailModel;
+    
+    [_productImageView sd_setImageWithURL:[NSURL URLWithString:productDetailModel.imageUrl]];
+    _productNameLabel.text = productDetailModel.goodsName;
+    NSString *productPrice = [NSString stringWithFormat:@"¥%@",productDetailModel.price];
+    NSRange range = {0,1};
+    _productPriceLabel.attributedText = [NSString attributedStringWithString:productPrice
+                                                                        font:[UIFont systemFontOfSize:14]
+                                                                       range:range];
+    _productIntroLabel.text = productDetailModel.goodsInstro;
+}
+
+@end

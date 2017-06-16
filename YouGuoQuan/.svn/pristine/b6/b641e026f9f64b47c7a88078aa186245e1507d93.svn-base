@@ -1,0 +1,18 @@
+//
+//  FollowMessageCell.h
+//  YouGuoQuan
+//
+//  Created by liushuai on 16/12/10.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface FollowMessageCell : UITableViewCell
+
+- (void) refreshContent : (id) content;
+
++ (CGFloat) cellHeight;
+
++ (NSString *) reuseIdentifier;
+@end

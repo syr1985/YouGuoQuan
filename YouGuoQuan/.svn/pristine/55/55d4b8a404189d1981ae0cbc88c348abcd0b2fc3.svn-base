@@ -1,0 +1,16 @@
+//
+//  ChooseLocationViewController.h
+//  YouGuoQuan
+//
+//  Created by liushuai on 2017/1/1.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "MKMapView+ZoomLevel.h"
+
+@interface ChooseLocationViewController : UIViewController
+
+@property (nonatomic,   copy) void (^sendLocationInfo)(MKPlacemark *placemark, NSString *mapImageURL);
+
+@end

@@ -1,0 +1,316 @@
+//
+//  FocusRedEnvelopeViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/6.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "FocusRedEnvelopeViewCell.h"
+#import "HomeFocusModel.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "MoreMenuHelp.h"
+#import "NSDate+LXExtension.h"
+#import "UIImage+LXExtension.h"
+#import "PhotoBrowserHelp.h"
+#import "UIImage+Color.h"
+
+@interface FocusRedEnvelopeViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *sexImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *publishTimeLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *publishTitleLabel;
+@property (weak, nonatomic) IBOutlet UIView *redPacketBackgroundView;
+
+@property (weak, nonatomic) IBOutlet UIButton *favourButton;
+@property (weak, nonatomic) IBOutlet UIButton *commentButton;
+@property (weak, nonatomic) IBOutlet UIButton *payButton;
+@property (weak, nonatomic) IBOutlet UIButton *moreButton;
+
+@end
+
+//NSString * const kCommentSuccessNotification = @"HomeFocusCommentSuccess";
+
+@implementation FocusRedEnvelopeViewCell
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    self.headerImageView.layer.cornerRadius = 20;
+    self.headerImageView.layer.masksToBounds = YES;
+    
+    UITapGestureRecognizer *tapHeader = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                action:@selector(tapHeaderImageView)];
+    [self.headerImageView addGestureRecognizer:tapHeader];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(updateModelDataForComment:)
+                                                 name:kCommentSuccessNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(updateModelDataForBuyPhoto:)
+                                                 name:kUserCenterBuyPhotoSuccessNotification
+                                               object:nil];
+}
+
+- (void)setHomeFocusModel:(HomeFocusModel *)homeFocusModel {
+    _homeFocusModel = homeFocusModel;
+    
+    [self.headerImageView sd_setImageWithURL:[NSURL URLWithString:homeFocusModel.headImg]
+                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    self.nickNameLabel.text = homeFocusModel.nickName;
+    self.crownImageView.hidden = !homeFocusModel.isRecommend;
+    self.vipImageView.hidden = (homeFocusModel.audit != 1);
+    self.sexImageView.image = [UIImage imageNamed:homeFocusModel.sex];
+    self.levelImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"等级 %d",homeFocusModel.star]];
+    
+    NSTimeInterval timeInterval = [homeFocusModel.createTime doubleValue];
+    NSDate *createDate = [NSDate dateWithTimeIntervalSince1970:timeInterval / 1000];
+    LXDateItem *item = [[NSDate date] lx_timeIntervalSinceDate:createDate];
+    
+    self.publishTimeLabel.text = [NSString stringWithFormat:@"%@",item.description];
+    self.publishTitleLabel.text = homeFocusModel.instro;
+    
+    self.favourButton.selected = homeFocusModel.praise;
+    [self.favourButton setTitle:[homeFocusModel.recommendCount stringValue] forState:UIControlStateNormal];
+    [self.commentButton setTitle:[homeFocusModel.commentCount stringValue] forState:UIControlStateNormal];
+    self.payButton.selected = homeFocusModel.isBuy;
+    [self.payButton setTitle:[homeFocusModel.buyCount stringValue] forState:UIControlStateNormal];
+    
+    [self downloadRedPacketImage];
+}
+
+- (void)downloadRedPacketImage {
+    // 1.
+    if (self.redPacketBackgroundView.subviews.count) {
+        for (UIView *view in self.redPacketBackgroundView.subviews) {
+            [view removeFromSuperview];
+        }
+    }
+    
+    // 2.
+    NSUInteger margin = 5;
+    CGFloat defaultW = (WIDTH - 16 - 2 * margin) / 3;
+    UIImage *phImage = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]
+                                                     size:CGSizeMake(defaultW, defaultW)];
+    NSString *imageName = @"";
+    if (!_homeFocusModel.isBuy && ![_homeFocusModel.userId isEqualToString:[LoginData sharedLoginData].userId]) {
+        imageName = [NSString stringWithFormat:@"?imageMogr2/blur/%fx%f",defaultW * 0.5, defaultW * 0.5];
+    }
+    if (_homeFocusModel.imageUrl && _homeFocusModel.imageUrl.length) {
+        if ([_homeFocusModel.imageUrl containsString:@";"]) {
+            NSArray *urlArray = [_homeFocusModel.imageUrl componentsSeparatedByString:@";"];
+            NSUInteger count = urlArray.count;
+            NSUInteger col = 2;
+            // 算法得优化
+            if (count != 4) {
+                if (count > 2) {
+                    col = 3;
+                } else {
+                    col = count;
+                }
+            }
+            NSUInteger row = count / 3 + 1;
+            if (count % 3 == 0) {
+                row = count / 3;
+            }
+            
+            CGFloat viewW = (WIDTH - 16 - (col - 1) * margin) / col;
+            if (viewW > defaultW) {
+                viewW = defaultW;
+            }
+            CGFloat viewH = viewW;
+            for (NSUInteger i = 0; i < row; i++) {
+                CGFloat viewY = (viewH + margin) * i;
+                for (NSUInteger j = 0; j < col; j++) {
+                    CGFloat viewX = (viewH + margin) * j;
+                    NSUInteger index = i * col + j;
+                    if (index < count) {
+                        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                              action:@selector(popupPhotoBrowser:)];
+                        UIImageView *imageView = [[UIImageView alloc] init];
+                        imageView.frame = CGRectMake(viewX, viewY, viewW, viewH);
+                        imageView.userInteractionEnabled = YES;
+                        
+                        NSString *urlString = [urlArray[index] stringByAppendingString:imageName];
+                        [imageView sd_setImageWithURL:[NSURL URLWithString:urlString]
+                                     placeholderImage:phImage];
+                        [imageView addGestureRecognizer:tap];
+                        [self.redPacketBackgroundView addSubview:imageView];
+                    }
+                }
+            }
+        } else {
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                  action:@selector(popupPhotoBrowser:)];
+            UIImageView *imageView = [[UIImageView alloc] init];
+            imageView.frame = CGRectMake(0, 0, defaultW, defaultW);
+            imageView.userInteractionEnabled = YES;
+            
+            NSString *urlString = [_homeFocusModel.imageUrl stringByAppendingString:imageName];
+            [imageView sd_setImageWithURL:[NSURL URLWithString:urlString]
+                         placeholderImage:phImage];
+            [imageView addGestureRecognizer:tap];
+            [self.redPacketBackgroundView addSubview:imageView];
+        }
+    }
+}
+
+- (IBAction)moreButtonClicked {
+    __weak typeof(self) weakself = self;
+    if ([_homeFocusModel.userId isEqualToString:[LoginData sharedLoginData].userId]) {
+        [MoreMenuHelp showMoreMenuForMineTrendsWithResult:^(NSUInteger index) {
+            if (weakself.handleTrendsBlock) {
+                weakself.handleTrendsBlock(index, weakself.homeFocusModel.focusId, weakself.row);
+            }
+        }];
+    } else {
+        if (_isTrendsDetail) {
+            [MoreMenuHelp showMoreMenuForTrends:^(NSUInteger index) {
+                if (weakself.actionSheetItemClicked) {
+                    weakself.actionSheetItemClicked(index, weakself.homeFocusModel.userId, weakself.homeFocusModel.focusId);
+                }
+            }];
+        } else {
+            [MoreMenuHelp showMoreMenu:^(NSUInteger index) {
+                if (weakself.actionSheetItemClicked) {
+                    weakself.actionSheetItemClicked(index, weakself.homeFocusModel.userId, weakself.homeFocusModel.focusId);
+                }
+            }];
+        }
+    }
+}
+
+/**
+ *  点击赞按钮
+ */
+- (IBAction)favourToOther:(UIButton *)sender {
+    __weak typeof(self) weakself = self;
+    if (sender.isSelected) {
+        // 取消赞
+        [NetworkTool cancelFavourWithFeedsID:_homeFocusModel.focusId userID:_homeFocusModel.userId success:^{
+            sender.selected = NO;
+            NSInteger priseCount = [weakself.homeFocusModel.recommendCount integerValue];
+            //NSString *newPriseCount = [NSString stringWithFormat:@"%zd",priseCount - 1];
+            NSNumber *newPriseCount = @(priseCount - 1);
+            weakself.homeFocusModel.recommendCount = newPriseCount;
+            [weakself.favourButton setTitle:[newPriseCount stringValue] forState:UIControlStateNormal];
+            weakself.homeFocusModel.praise = NO;
+            
+            if (weakself.favourResultBlock) {
+                weakself.favourResultBlock(YES);
+            }
+        }];
+    } else {
+        // 点赞
+        [NetworkTool doFavourWithFeedsID:_homeFocusModel.focusId userId:_homeFocusModel.userId success:^{
+            sender.selected = YES;
+            NSInteger priseCount = [weakself.homeFocusModel.recommendCount integerValue];
+            //NSString *newPriseCount = [NSString stringWithFormat:@"%zd",priseCount + 1];
+            NSNumber *newPriseCount = @(priseCount + 1);
+            weakself.homeFocusModel.recommendCount = newPriseCount;
+            [weakself.favourButton setTitle:[newPriseCount stringValue] forState:UIControlStateNormal];
+            weakself.homeFocusModel.praise = YES;
+            
+            if (weakself.favourResultBlock) {
+                weakself.favourResultBlock(NO);
+            }
+        }];
+    }
+}
+
+/**
+ *  评论
+ */
+- (IBAction)messageToOther:(UIButton *)sender {
+    if (self.commentBlock) {
+        self.commentBlock(_homeFocusModel);
+    }
+}
+
+/**
+ *  购买红包照片
+ */
+- (IBAction)payForRedPacket:(UIButton *)sender {
+    if (_buyRedPacketBlock) {
+        NSUInteger price = 1;
+        if ([_homeFocusModel.imageUrl containsString:@";"]) {
+            NSArray *urlArray = [_homeFocusModel.imageUrl componentsSeparatedByString:@";"];
+            price = urlArray.count;
+        }
+        _buyRedPacketBlock(price, _homeFocusModel.goodsId, _homeFocusModel.focusId, _homeFocusModel.headImg, _homeFocusModel.nickName);
+    }
+}
+
+/**
+ *  点击头像进TA人主页
+ */
+- (void)tapHeaderImageView {
+    if (_tapHeaderView) {
+        _tapHeaderView(_homeFocusModel.userId);
+    }
+}
+
+/**
+ *  打开图片浏览器
+ */
+- (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
+    UIView *tapView = sender.view;
+    if (!_homeFocusModel.isBuy) {
+        [SVProgressHUD showInfoWithStatus:@"发个红包就可以看图片啦"];
+        return;
+    }
+    
+    if (_homeFocusModel.imageUrl && _homeFocusModel.imageUrl.length) {
+        NSArray *urlArray;
+        if ([_homeFocusModel.imageUrl containsString:@";"]) {
+            urlArray = [_homeFocusModel.imageUrl componentsSeparatedByString:@";"];
+        } else {
+            urlArray = @[_homeFocusModel.imageUrl];
+        }
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:tapView.tag];
+    }
+}
+
+#pragma mark - 更新模型数据
+#pragma mark - 评论后更新
+- (void)updateModelDataForComment:(NSNotification *)noti {
+    NSNumber *content = noti.userInfo[@"NewCommentTimes"];
+    NSString *focusId = noti.userInfo[@"CurrentFocusID"];
+    if ([_homeFocusModel.focusId isEqualToString:focusId]) {
+        _homeFocusModel.commentCount = content;
+        [_commentButton setTitle:[content stringValue] forState:UIControlStateNormal];
+    }
+}
+
+#pragma mark - 购买照片后更新
+- (void)updateModelDataForBuyPhoto:(NSNotification *)noti {
+    NSString *feedsId = noti.userInfo[@"PhotoFeedsID"];
+    if ([_homeFocusModel.focusId isEqualToString:feedsId]) {
+        NSInteger buyCount = [_homeFocusModel.buyCount integerValue];
+        NSString *newBuyCount = [NSString stringWithFormat:@"%zd",buyCount + 1];
+        _homeFocusModel.buyCount = @(buyCount + 1);//newBuyCount;
+        _homeFocusModel.isBuy = YES;
+        [_payButton setTitle:newBuyCount forState:UIControlStateNormal];
+        if (!_payButton.isSelected) {
+            _payButton.selected = YES;
+        }
+        // 显示原图
+        [self downloadRedPacketImage];
+    }
+}
+
+@end

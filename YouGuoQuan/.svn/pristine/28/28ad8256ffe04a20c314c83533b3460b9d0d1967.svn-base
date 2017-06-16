@@ -1,0 +1,84 @@
+//
+//  PayForNobilityViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/6.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "PayForNobilityViewController.h"
+#import "PayTool.h"
+#import "FuqianlaPayTool.h"
+#import "UserBaseInfoModel.h"
+
+@interface PayForNobilityViewController () <UITableViewDelegate>
+@property (nonatomic,   copy) NSString *orderNo;
+@end
+
+@implementation PayForNobilityViewController
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleString = @"贵族支付";
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool generateOrderNoWithGoodsType:@"NB" success:^(id result) {
+        weakself.orderNo = result;
+    } failure:nil];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 4;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSArray *mobilityPrice = @[@{@"month":@(12),@"price":@"96"},
+                               @{@"month":@(6),@"price":@"51"},
+                               @{@"month":@(3),@"price":@"27"},
+                               @{@"month":@(1),@"price":@"10"}];
+    NSDictionary *infoDict = mobilityPrice[indexPath.row];
+    __weak typeof(self) weakself = self;
+    [PayTool payWithResult:^(NSString *payType) {
+        [NetworkTool createBuyNobilityOrderWithOrderNo:_orderNo money:infoDict[@"price"] payMethod:payType month:infoDict[@"month"] success:^(id result) {
+            if ([payType isEqualToString:@"wallet"]) {
+                [NetworkTool payForNobilityWithOrderNo:result paymth:payType success:^{
+                    [SVProgressHUD showSuccessWithStatus:@"支付成功"];
+                    weakself.userBaseInfoModel.isRecommend = YES;
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                } failure:^{
+                    [SVProgressHUD showErrorWithStatus:@"支付失败"];
+                }];
+            } else {
+                // 第三方支付
+                NSDictionary *payInfo = @{@"orderNo":result,
+                                          @"amount":infoDict[@"price"],
+                                          @"subject":@"购买尤果贵族",
+                                          @"desc":[NSString stringWithFormat:@"购买%@个月尤果贵族",infoDict[@"month"]]};
+                [FuqianlaPayTool payWithType:payType dataParam:payInfo success:^{
+                    weakself.userBaseInfoModel.isRecommend = YES;
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }];
+            }
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+        }];
+    }];
+}
+
+@end

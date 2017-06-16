@@ -1,0 +1,72 @@
+//
+//  SellWeixinViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/28.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "SellWeixinViewController.h"
+#import "AlertViewTool.h"
+
+@interface SellWeixinViewController ()
+@property (weak, nonatomic) IBOutlet UITextField *priceTextField;
+@property (weak, nonatomic) IBOutlet UIButton *sellButton;
+//@property (nonatomic,   copy) NSString *sellPrice;
+@end
+
+@implementation SellWeixinViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - 关闭页面
+- (IBAction)dismissViewController {
+    __weak typeof(self) weakself = self;
+    [AlertViewTool showAlertViewWithTitle:nil Message:@"您确认放弃此次操作吗？" sureBlock:^{
+        [weakself dismissViewControllerAnimated:YES completion:nil];
+    }];
+}
+
+- (IBAction)sureSellButtonClicked:(id)sender {
+    NSString *price = _priceTextField.text;
+    if (!price || !price.length) {
+        [SVProgressHUD showInfoWithStatus:@"请输入出售价格"];
+        return;
+    }
+    
+    NSUInteger wxPrice = [price integerValue];
+    if (wxPrice < 99 || wxPrice > 1314 ) {
+        [SVProgressHUD showInfoWithStatus:@"请输入有效价格，限价99~1314元"];
+        return;
+    }
+    
+    __weak typeof(self) weakself = self;
+    [NetworkTool sellWeixin:price weixinID:@"" success:^{
+        [SVProgressHUD showSuccessWithStatus:@"出售微信成功"];
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [weakself dismissViewControllerAnimated:YES completion:^{
+                weakself.tabBarController.selectedIndex = 0;
+            }];
+        });
+    } failure:^{
+        [SVProgressHUD showSuccessWithStatus:@"出售微信失败"];
+    }];
+}
+
+#pragma mark - UITextFieldDelegate
+
+//- (void)textFieldDidEndEditing:(UITextField *)textField {
+//    self.sellPrice = textField.text;
+//}
+
+@end

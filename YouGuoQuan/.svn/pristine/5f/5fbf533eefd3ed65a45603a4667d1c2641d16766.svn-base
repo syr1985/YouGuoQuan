@@ -1,0 +1,123 @@
+//
+//  LoginViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/11.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "LoginViewController.h"
+#import "CityLocation.h"
+#import "UserDefaultsTool.h"
+
+@interface LoginViewController () <UITextFieldDelegate>
+@property (weak, nonatomic) IBOutlet UITextField *telephoneNumberTextField;
+@property (weak, nonatomic) IBOutlet UITextField *loginPasswordTextField;
+@property (weak, nonatomic) IBOutlet UIButton *loginButton;
+
+@end
+
+NSString * const kNotification_LoginSuccess = @"LoginSuccessNotification";
+
+@implementation LoginViewController
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    NSLog(@"%s",__func__);
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //self.navigationController.navigationBar.backgroundColor = NavBackgroundColor;
+    
+    _telephoneNumberTextField.layer.borderWidth = 1;
+    _telephoneNumberTextField.layer.cornerRadius = 5;
+    _telephoneNumberTextField.layer.borderColor = TextFieldBorderColor.CGColor;
+    
+    _loginPasswordTextField.layer.borderWidth = 1;
+    _loginPasswordTextField.layer.cornerRadius = 5;
+    _loginPasswordTextField.layer.borderColor = TextFieldBorderColor.CGColor;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(dismissViewController)
+                                                 name:kNotification_LoginSuccess
+                                               object:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    self.navigationController.navigationBarHidden = YES;
+}
+
+- (void)dismissViewController {
+     [[CityLocation sharedInstance] startLocation];
+    
+    __weak typeof(self) weakself = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [weakself dismissViewControllerAnimated:YES completion:nil];
+    });
+}
+
+- (IBAction)closeLoginUI:(id)sender {
+    [self dismissViewController];
+}
+
+/**
+ *  调取登录接口
+ */
+- (IBAction)loginButtonClicked {
+    NSString *telephoneNumber = _telephoneNumberTextField.text;
+    if (telephoneNumber.length == 0 || ![HelperUtil checkTelNumber:telephoneNumber]) {
+        [SVProgressHUD showInfoWithStatus:@"请输入11位手机号码"];
+        return;
+    }
+    
+    [self.view endEditing:YES];
+    [SVProgressHUD showWithStatus:@"登录中..."];
+    [NetworkTool loginWithPhone:_telephoneNumberTextField.text Password:_loginPasswordTextField.text Success:^(id result) {
+        [SVProgressHUD dismiss];
+        NSLog(@"%@",result);
+        
+        [LoginData loginDataWithDict:result];
+
+        BOOL isChangeAccount = NO;
+        NSDictionary *oldInfoDict = [SCUserDefault objectForKey:KEY_USER_ACCOUNT];
+        if (!oldInfoDict || ![oldInfoDict[@"id"] isEqualToString:[LoginData sharedLoginData].userId]) {
+            isChangeAccount = YES;
+            [UserDefaultsTool saveLoginData];
+        }
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_LoginSuccess
+                                                            object:nil
+                                                          userInfo:@{@"ChangeAccount":@(isChangeAccount)}];
+    }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - UITextFieldDelegate
+- (void)textFieldDidBeginEditing:(UITextField *)textField {
+    textField.layer.borderColor = NavColor.CGColor;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    textField.layer.borderColor = TextFieldBorderColor.CGColor;
+}
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

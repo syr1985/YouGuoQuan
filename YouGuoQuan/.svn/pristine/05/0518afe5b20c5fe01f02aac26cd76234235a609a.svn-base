@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PublishTrendsHeaderView" id="U6b-Vx-4bR" customClass="PublishTrendsHeaderView">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="151"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="J62-GF-CHn">
+                    <rect key="frame" x="8" y="0.0" width="304" height="139"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                    <connections>
+                        <outlet property="delegate" destination="U6b-Vx-4bR" id="6Un-9v-9I1"/>
+                    </connections>
+                </textView>
+            </subviews>
+            <constraints>
+                <constraint firstItem="J62-GF-CHn" firstAttribute="top" secondItem="U6b-Vx-4bR" secondAttribute="top" id="3kI-ff-S0K"/>
+                <constraint firstAttribute="bottom" secondItem="J62-GF-CHn" secondAttribute="bottom" constant="12" id="Tqu-xm-Tsy"/>
+                <constraint firstItem="J62-GF-CHn" firstAttribute="centerX" secondItem="U6b-Vx-4bR" secondAttribute="centerX" id="eXI-cT-iOi"/>
+                <constraint firstItem="J62-GF-CHn" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="8" id="fxd-rf-RUH"/>
+            </constraints>
+            <connections>
+                <outlet property="textView" destination="J62-GF-CHn" id="IVQ-7s-gHj"/>
+            </connections>
+            <point key="canvasLocation" x="-116" y="104.5"/>
+        </collectionReusableView>
+    </objects>
+</document>

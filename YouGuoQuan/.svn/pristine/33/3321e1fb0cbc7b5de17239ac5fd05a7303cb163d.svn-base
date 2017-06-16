@@ -1,0 +1,313 @@
+//
+//  PublishProductViewController.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/11/17.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "PublishProductViewController.h"
+#import "PublishProductHeaderView.h"
+#import "PublishProductFooterView.h"
+#import "ProductPhotoViewCell.h"
+#import "SYStickHeaderWaterFallLayout.h"
+#import "TakePhotoHelp.h"
+#import "AlertViewTool.h"
+
+@interface PublishProductViewController () <SYStickHeaderWaterFallDelegate>
+
+@property (weak, nonatomic) IBOutlet UICollectionView *photosCollectionView;
+@property (weak, nonatomic) IBOutlet UIButton *publishProductButton;
+@property (nonatomic, strong) NSMutableArray *photoArray;
+@property (nonatomic, strong) NSMutableArray *scalePhotoArray;
+@property (nonatomic,   copy) NSString       *coverUrl;
+@property (nonatomic,   copy) NSString       *imageUrl;
+@property (nonatomic, strong) UIImage        *coverImage;
+@property (nonatomic, strong) UIImage        *scaloeCoverImage;
+@property (nonatomic,   copy) NSString       *photosSize;
+@property (nonatomic,   copy) NSString       *productName;
+@property (nonatomic,   copy) NSString       *productPrice;
+@property (nonatomic,   copy) NSString       *productIntro;
+@property (nonatomic, assign) BOOL           isCover;
+@property (nonatomic, assign) BOOL           isUploadOrignalPhoto;
+
+@end
+
+static NSString * const collectionViewCellID_Header = @"PublishProductHeaderView";
+static NSString * const collectionViewCellID_Footer = @"PublishProductFooterView";
+static NSString * const collectionViewCellID_Photo  = @"ProductPhotoViewCell";
+
+@implementation PublishProductViewController
+
+#pragma mark -
+#pragma mark - 懒加载
+- (NSMutableArray *)photoArray {
+    if (!_photoArray) {
+        _photoArray = [NSMutableArray array];
+        [_photoArray addObject:[UIImage imageNamed:@"发布-添加"]];
+    }
+    return _photoArray;
+}
+
+#pragma mark - 
+#pragma mark - 系统方法
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    SYStickHeaderWaterFallLayout *cvLayout = [[SYStickHeaderWaterFallLayout alloc] init];
+    cvLayout.delegate = self;
+    cvLayout.isStickyHeader = NO;
+    self.photosCollectionView.collectionViewLayout = cvLayout;
+    
+    UINib *nib_photo  = [UINib nibWithNibName:collectionViewCellID_Photo bundle:nil];
+    [self.photosCollectionView registerNib:nib_photo forCellWithReuseIdentifier:collectionViewCellID_Photo];
+    
+    UINib *nib_header = [UINib nibWithNibName:collectionViewCellID_Header bundle:nil];
+    [self.photosCollectionView registerNib:nib_header forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:collectionViewCellID_Header];
+    
+    UINib *nib_footer = [UINib nibWithNibName:collectionViewCellID_Footer bundle:nil];
+    [self.photosCollectionView registerNib:nib_footer forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:collectionViewCellID_Footer];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -
+#pragma mark - 关闭页面
+- (IBAction)dismissViewController {
+    __weak typeof(self) weakself = self;
+    [AlertViewTool showAlertViewWithTitle:nil Message:@"您确认放弃此次操作吗？" sureBlock:^{
+        [weakself dismissViewControllerAnimated:YES completion:nil];
+    }];
+}
+
+#pragma mark -
+#pragma mark - 调取接口
+
+- (IBAction)publishProduct:(id)sender {
+    if (!self.coverImage) {
+        [SVProgressHUD showInfoWithStatus:@"请至少上传一张照片作为商品封面"];
+        return;
+    }
+    
+    if (!self.productName || self.productName.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"商品名称不能为空"];
+        return;
+    }
+    
+    if (self.productName.length > 15) {
+        [SVProgressHUD showInfoWithStatus:@"商品名称不能多于15个字"];
+        return;
+    }
+    
+    if (!self.productPrice || self.productPrice.length == 0) {
+        [SVProgressHUD showInfoWithStatus:@"商品价格不能为空"];
+        return;
+    }
+    
+    NSUInteger price = [self.productPrice integerValue];
+    if ( price < 99 || price > 1314) {
+        [SVProgressHUD showInfoWithStatus:@"商品价格限在99~1314之间"];
+        return;
+    }
+    
+    /**
+     *  上传封面
+     */
+    __weak typeof(self) weakself = self;
+    NSData *imageData = UIImageJPEGRepresentation(self.coverImage,0.1);
+    if (!_isUploadOrignalPhoto) {
+        imageData = UIImageJPEGRepresentation(self.coverImage,0.01);
+    }
+    [NetworkTool uploadImage:imageData progress:^(NSString *key, float percent) {
+        
+    } success:^(NSString *url) {
+        weakself.coverUrl = url;
+        
+        /**
+         *  上传图片
+         */
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSUInteger i = 0 ; i < weakself.photoArray.count - 1; i++) {
+            UIImage *image = weakself.photoArray[i];
+            NSData *imageData = UIImageJPEGRepresentation(image,0.1);
+            if (!_isUploadOrignalPhoto) {
+                imageData = UIImageJPEGRepresentation(image,0.01);
+            }
+            [muArray addObject:imageData];
+        }
+        
+        [NetworkTool uploadImages:muArray progress:^(CGFloat percent) {
+            //[SVProgressHUD showProgress:percent status:@"上传图片"];
+        } success:^(NSArray *urlArray) {
+            //[SVProgressHUD dismiss];
+            
+            NSMutableString *urlString = [NSMutableString string];
+            for (NSString *url in urlArray) {
+                [urlString appendString:url];
+                [urlString appendString:@";"];
+            }
+            
+            weakself.imageUrl = [urlString substringToIndex:NSMaxRange([urlString rangeOfComposedCharacterSequenceAtIndex:urlString.length - 2])];
+            
+            [NetworkTool publishProduct:weakself.productName price:weakself.productPrice cover:weakself.coverUrl image:weakself.imageUrl intro:weakself.productIntro success:^() {
+                [SVProgressHUD showSuccessWithStatus:@"已成功发布该商品"];
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [weakself dismissViewControllerAnimated:YES completion:^{
+                        weakself.tabBarController.selectedIndex = 0;
+                    }];
+                });
+            } failure:^{
+                //[SVProgressHUD showErrorWithStatus:@"发布商品失败"];
+            }];
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"上传图片失败"];
+        }];
+        
+    } failure:^{
+        [SVProgressHUD showErrorWithStatus:@"上传图片失败"];
+    }];
+}
+
+#pragma mark -
+#pragma mark - UICollectionView DataSource and Delegate
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.photoArray.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    ProductPhotoViewCell *cell_photo = [collectionView dequeueReusableCellWithReuseIdentifier:collectionViewCellID_Photo forIndexPath:indexPath];
+    cell_photo.photo = self.photoArray[indexPath.row];
+    cell_photo.index = indexPath.row;
+    cell_photo.isShowDeleteButton = (indexPath.row == (self.photoArray.count - 1));
+    
+    __weak typeof(self) weakself = self;
+    cell_photo.deletePhotoBlock = ^(NSUInteger index) {
+        [weakself.photoArray removeObjectAtIndex:index];
+        [weakself.photosCollectionView reloadData];
+    };
+    
+    return cell_photo;
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    UICollectionReusableView *reusableview = nil;
+    
+    if ([kind isEqualToString:UICollectionElementKindSectionFooter]) {
+        PublishProductFooterView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                                  withReuseIdentifier:collectionViewCellID_Footer
+                                                                                         forIndexPath:indexPath];
+        footerview.photosSize = self.photosSize;
+        __weak typeof(self) weakself = self;
+        footerview.setUploadOrignalPhoto = ^(BOOL isUploadOrignalPhoto) {
+            weakself.isUploadOrignalPhoto = isUploadOrignalPhoto;
+        };
+        reusableview = footerview;
+    } else {
+        PublishProductHeaderView *headerview = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                                  withReuseIdentifier:collectionViewCellID_Header
+                                                                                         forIndexPath:indexPath];
+        headerview.coverImage = _coverImage;
+        __weak typeof(self) weakself = self;
+        headerview.openPhotoAlbumBlock = ^() {
+            //[weakself takePhotoWithActionSheetWithTitle:@"设置封面"];
+            [[TakePhotoHelp sharedInstance] showActionSheetWithTitle:@"设置封面" viewController:weakself];
+            [TakePhotoHelp sharedInstance].selectedPhotosReturnBlock = ^(BOOL isCover, NSArray<UIImage *> *photos) {
+                weakself.isCover = isCover;
+                /**
+                 *  刷新界面
+                 */
+                if (isCover) {
+                    weakself.coverImage = photos[0];
+                } else {
+                    NSArray *oldArray = weakself.photoArray;
+                    NSMutableArray *muArray = [NSMutableArray array];
+                    [muArray addObjectsFromArray:photos];
+                    [muArray addObjectsFromArray:oldArray];
+                    weakself.photoArray = muArray;
+                }
+                [weakself.photosCollectionView reloadData];
+            };
+        };
+        headerview.setProductInfo = ^(NSString *productName, NSString *productPrice, NSString *productIntro) {
+            weakself.productName = productName;
+            weakself.productPrice = productPrice;
+            weakself.productIntro = productIntro;
+        };
+        reusableview = headerview;
+    }
+    
+    return reusableview;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row == self.photoArray.count - 1) {
+        //[self takePhotoWithActionSheetWithTitle:@"配置商品图片"];
+        __weak typeof(self) weakself = self;
+        [[TakePhotoHelp sharedInstance] showActionSheetWithTitle:@"配置商品图片" photosCount:_photoArray.count viewController:self];
+        [TakePhotoHelp sharedInstance].selectedPhotosReturnBlock = ^(BOOL isCover, NSArray<UIImage *> *photos) {
+            weakself.isCover = isCover;
+            /**
+             *  刷新界面
+             */
+            if (isCover) {
+                weakself.coverImage = photos[0];
+            } else {
+                NSArray *oldArray = weakself.photoArray;
+                NSMutableArray *muArray = [NSMutableArray array];
+                [muArray addObjectsFromArray:photos];
+                [muArray addObjectsFromArray:oldArray];
+                weakself.photoArray = muArray;
+            }
+            [weakself.photosCollectionView reloadData];
+        };
+    }
+}
+
+#pragma mark -
+#pragma mark - SYStickHeaderWaterFallDelegate
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(SYStickHeaderWaterFallLayout *)collectionViewLayout heightForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return (WIDTH - 40) / 3;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForHeaderAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    return WIDTH * 230 / 375 + 244;//8 + 30 + 8 + 1 + 8 + 30 + 8 + 1 + 8 + 134 + 8;
+}
+
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout heightForFooterAtIndexPath:(NSIndexPath *)indexPath {
+    return 30;
+}
+
+- (CGFloat)collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout widthForItemInSection:( NSInteger )section {
+    return (WIDTH - 40) / 3;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout topInSection:(NSInteger)section {
+    return 0;
+}
+
+- (CGFloat) collectionView:(nonnull UICollectionView *)collectionView layout:(nonnull SYStickHeaderWaterFallLayout *)collectionViewLayout bottomInSection:(NSInteger)section {
+    return 0;
+}
+
+
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
+
+@end

@@ -1,0 +1,48 @@
+//
+//  OthersConcemViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2016/12/2.
+//  Copyright © 2016年 NT. All rights reserved.
+//
+
+#import "OthersConcemViewCell.h"
+
+@interface OthersConcemViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *crownImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *certificationLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImageView;
+@property (weak, nonatomic) IBOutlet UIButton *concemButton;
+
+@end
+
+@implementation OthersConcemViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state
+}
+
+- (void)setInfoDict:(NSDictionary *)infoDict {
+    _infoDict = infoDict;
+    
+    self.crownImageView.hidden = [infoDict[@"HiddenCrown"] boolValue];
+    self.vipImageView.hidden = [infoDict[@"HiddenVip"] boolValue];
+    
+    self.nickNameLabel.text = infoDict[@"NickName"];
+    
+    self.levelImageView.image = [UIImage imageNamed:infoDict[@"Level"]];
+    self.certificationLabel.text = infoDict[@"Certification"];
+    
+}
+
+@end

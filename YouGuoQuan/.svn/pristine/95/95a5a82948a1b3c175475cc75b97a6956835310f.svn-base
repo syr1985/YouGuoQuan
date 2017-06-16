@@ -1,0 +1,52 @@
+//
+//  WaitingForPayMeetingViewCell.m
+//  YouGuoQuan
+//
+//  Created by YM on 2017/1/9.
+//  Copyright © 2017年 NT. All rights reserved.
+//
+
+#import "OngoingForPayMeetingViewCell.h"
+#import <UIImageView+WebCache.h>
+#import "MyOrderModel.h"
+
+@interface OngoingForPayMeetingViewCell ()
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *contentImageView;
+@property (weak, nonatomic) IBOutlet UILabel *contentTitleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentPriceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *meetingDateLabel;
+@property (weak, nonatomic) IBOutlet UILabel *meetingAddressLabel;
+
+@end
+
+@implementation OngoingForPayMeetingViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    _headerImageView.layer.cornerRadius = _headerImageView.bounds.size.width * 0.5;
+    _headerImageView.layer.masksToBounds = YES; // 导致离屏渲染
+}
+
+- (void)setOrderModel:(MyOrderModel *)orderModel {
+    _orderModel = orderModel;
+    
+    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:orderModel.headImg]
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+    
+    _titleLabel.text = orderModel.saleNickName;
+    
+    _contentImageView.image = [UIImage imageNamed:@"购买订单-约见-下午茶"];
+    _contentTitleLabel.text = @"约见-下午茶";
+    _contentPriceLabel.text = [NSString stringWithFormat:@"¥%@",orderModel.price];
+    //_meetingDateLabel.text = [NSString stringWithFormat:@"日期：%@"];
+}
+
+- (IBAction)surePayButtonClicked:(id)sender {
+    
+}
+
+@end

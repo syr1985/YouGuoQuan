@@ -1,0 +1,13 @@
+//
+//  LocationViewController.h
+//  RoomService
+//
+//  Created by YM on 16/1/16.
+//  Copyright © 2016年 SYR. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@interface LocationViewController : BaseViewController
+@property (copy, nonatomic) void (^cityBlock)(NSString *city);
+@end
