@@ -1186,7 +1186,7 @@ static NSString * const Profile_MyPromotionIncome  = @"/iface/payvoucher/promoti
  *  @param success      成功block
  *  @param failure      失败block
  */
-+ (void)publishProduct:(NSString *)goodsName price:(NSString *)goodsPrice cover:(NSString *)coverUrl image:(NSString *)imagesUrl intro:(NSString *)goodsIntro success:(void(^)())success failure:(void(^)())failure;
++ (void)publishProduct:(NSString *)goodsName price:(NSNumber *)goodsPrice cover:(NSString *)coverUrl image:(NSString *)imagesUrl intro:(NSString *)goodsIntro success:(void(^)())success failure:(void(^)())failure;
 /**
  *  发布红包
  *

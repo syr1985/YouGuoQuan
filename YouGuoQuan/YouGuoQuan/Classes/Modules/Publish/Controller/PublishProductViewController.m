@@ -99,68 +99,92 @@ NSString * const kNotification_PublishSuccess = @"kNotification_PublishSuccess";
 #pragma mark -
 #pragma mark - 调取接口
 
-- (IBAction)publishProduct:(id)sender {
+- (IBAction)publishProduct:(UIButton *)sender {
+    sender.enabled = NO;
+    [SVProgressHUD showWithStatus:@"发布商品"];
     NSData *imageData = UIImageJPEGRepresentation(self.coverImage,0.8);
     if (!_isUploadOrignalPhoto) {
         imageData = UIImageJPEGRepresentation(self.coverImage,0.1);
     }
-    __weak typeof(self) weakself = self;
-    [NetworkTool uploadImage:imageData progress:^(NSString *key, float percent) {
-        [SVProgressHUD showProgress:percent status:@"上传封面"];
-    } success:^(NSString *url) {
-        weakself.coverUrl = url;
-        if (weakself.photoArray.count == 1) {
-            [weakself publish:@""];
+ 
+    [NetworkTool uploadImage:imageData progress:nil success:^(NSString *url) {
+        self.coverUrl = url;
+        if (self.photoArray.count == 1) {
+            [self publish:@""];
         } else {
-            NSMutableArray *muArray = [NSMutableArray array];
-            for (NSUInteger i = 0 ; i < weakself.photoArray.count - 1; i++) {
-                UIImage *image = weakself.photoArray[i];
-                NSData *imageData = nil;
-                if (!_isUploadOrignalPhoto) {
-                    imageData = UIImageJPEGRepresentation(image,0.1);
-                } else {
-                    imageData = UIImageJPEGRepresentation(image,0.8);
-                }
-                if (imageData) {
-                    [muArray addObject:imageData];
-                }
-            }
-            
-            [NetworkTool uploadImages:muArray progress:^(CGFloat percent) {
-                [SVProgressHUD showProgress:percent status:@"上传图片"];
-            } success:^(NSArray *urlArray) {
-                NSMutableString *urlString = [NSMutableString string];
-                for (NSString *url in urlArray) {
-                    [urlString appendString:url];
-                    [urlString appendString:@";"];
-                }
-                NSUInteger maxRange = NSMaxRange([urlString rangeOfComposedCharacterSequenceAtIndex:urlString.length - 2]);
-                [weakself publish:[urlString substringToIndex:maxRange]];
-            } failure:^{
-                [SVProgressHUD showErrorWithStatus:@"上传图片失败"];
-                [SVProgressHUD dismissWithDelay:HUD_SHOW_TIME];
-            }];
+            [self uploadImages];
         }
     } failure:^{
-        [SVProgressHUD showErrorWithStatus:@"上传图片失败"];
-        [SVProgressHUD dismissWithDelay:HUD_SHOW_TIME];
+        [self publishFailure];
     }];
 }
 
+- (void)uploadImages {
+    NSMutableArray *muArray = [NSMutableArray array];
+    for (NSUInteger i = 0 ; i < self.photoArray.count - 1; i++) {
+        UIImage *image = self.photoArray[i];
+        NSData *imageData = nil;
+        if (_isUploadOrignalPhoto) {
+            imageData = UIImageJPEGRepresentation(image,0.9);
+        } else {
+            imageData = UIImageJPEGRepresentation(image,0.5);
+        }
+        if (imageData) {
+            [muArray addObject:imageData];
+        }
+    }
+    
+    [NetworkTool uploadImages:muArray
+                     progress:nil
+                      success:^(NSArray *urlArray) {
+                          [self pornImageWithUrls:urlArray];
+                      } failure:^{
+                          [self publishFailure];
+                      }];
+}
+
+- (void)pornImageWithUrls:(NSArray *)urlArray {
+    //    if ([urlArray containsObject:@""]) {
+    //        [SVProgressHUD showInfoWithStatus:@"您的图片违反了相关规定，无法上传"];
+    //        return;
+    //    }
+    NSMutableString *urlString = [NSMutableString string];
+    for (NSString *url in urlArray) {
+        [urlString appendString:url];
+        [urlString appendString:@";"];
+    }
+    NSUInteger maxRange = NSMaxRange([urlString rangeOfComposedCharacterSequenceAtIndex:urlString.length - 2]);
+    [self publish:[urlString substringToIndex:maxRange]];
+}
+
 - (void)publish:(NSString *)imageUrl {
-    __weak typeof(self) weakself = self;
-    [SVProgressHUD showWithStatus:@"发布商品"];
-    [NetworkTool publishProduct:_productName price:[_price stringValue] cover:_coverUrl image:imageUrl intro:_productIntro success:^() {
+    [NetworkTool publishProduct:_productName
+                          price:_price
+                          cover:_coverUrl
+                          image:imageUrl
+                          intro:_productIntro
+                        success:^{
+                            [self publishSuccess];
+                        } failure:^{
+                            [self publishFailure];
+                        }];
+}
+
+- (void)publishSuccess {
+    [SVProgressHUD dismiss];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_PublishSuccess object:nil];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [SVProgressHUD showSuccessWithStatus:@"发布商品成功"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_PublishSuccess object:nil];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(HUD_SHOW_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [SVProgressHUD dismiss];
-            [weakself dismissViewControllerAnimated:YES completion:nil];
-        });
-    } failure:^{
+        [self dismissViewControllerAnimated:YES completion:nil];
+    });
+}
+
+- (void)publishFailure {
+    self.publishProductButton.enabled = YES;
+    [SVProgressHUD dismiss];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [SVProgressHUD showErrorWithStatus:@"发布商品失败"];
-        [SVProgressHUD dismissWithDelay:HUD_SHOW_TIME];
-    }];
+    });
 }
 
 #pragma mark -

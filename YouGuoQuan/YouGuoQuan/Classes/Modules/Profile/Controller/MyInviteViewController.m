@@ -66,7 +66,7 @@
     }
     UILabel *moneyLabel = [[UILabel alloc] init];
     moneyLabel.text = [muString copy];
-    moneyLabel.font = [UIFont systemFontOfSize:48];
+    moneyLabel.font = [UIFont systemFontOfSize:48 weight:UIFontWeightLight];
     moneyLabel.textColor = [UIColor whiteColor];
     [headerView addSubview:moneyLabel];
     

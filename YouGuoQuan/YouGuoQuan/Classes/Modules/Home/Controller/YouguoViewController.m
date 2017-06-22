@@ -129,9 +129,9 @@ static NSString * const collectionViewCellID_Resource = @"HomeResourceViewCell";
 
 - (void)loadNewData {
     _pageNo = 1;
-    if (!self.bannerModelArray.count) {
-        [self loadBannerData];
-    }
+//    if (!self.bannerModelArray.count) {
+//        [self loadBannerData];
+//    }
     [self loadHomePageData];
 }
 

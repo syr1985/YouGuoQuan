@@ -12,12 +12,12 @@
 #import "NSString+emoji.h"
 
 //#ifdef DEBUG
-//#define ServerUrl   @"http://121.40.159.39:8080/YGQ"
+//#define ServerUrl   @"http://119.23.204.218:8080/YGQ"
 //#else
 //#define ServerUrl   @"https://api.youguowang.com/YGQ"
 //#endif
 
-#define ServerUrl   @"https://api.youguowang.com/YGQ"//@"http://121.40.159.39:8080/YGQ"//@"http://10.1.1.128:8080/YGQ"//
+#define ServerUrl   @"http://119.23.204.218:8080/YGQ"//@"https://api.youguowang.com/YGQ"//@"http://10.1.1.128:8080/YGQ"//
 
 #define EncryptCode @"newtouch"
 

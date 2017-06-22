@@ -53,6 +53,7 @@
     _auditImageView.image = nearbyUserModel.audit == 3 ? [UIImage imageNamed:@"列表头像团体认证"] : [UIImage imageNamed:@"头像加V"];
     
     _goldenVipImageView.hidden = nearbyUserModel.star != 5;
+    _goldenVipImageView.image = nearbyUserModel.star == 5 ? [UIImage imageNamed:@"壕"] : nil;
     _goldenVipImageViewWidthConstraint.constant = nearbyUserModel.star != 5 ? 0 : 39;
     _sexImageViewLeadingConstraint.constant = nearbyUserModel.star != 5 ? 0 : 4;
     

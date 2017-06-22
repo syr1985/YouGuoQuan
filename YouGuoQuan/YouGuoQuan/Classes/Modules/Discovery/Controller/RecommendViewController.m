@@ -238,6 +238,21 @@ static NSString * const tableViewCellID_envelope = @"FocusRedEnvelopeViewCell";
 }
 
 #pragma mark -
+#pragma mark - 置顶动态、删除动态
+- (void)handleMyTrendsWithIndex:(NSUInteger)index trendsID:(NSString *)trendsId modelIndex:(NSInteger)row {
+    if (index == 1) {
+        [NetworkTool deleteTrendsWithTrendsID:trendsId success:^{
+            [SVProgressHUD showSuccessWithStatus:@"删除动态成功"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_DeleteTrendsSuccess
+                                                                object:nil
+                                                              userInfo:@{@"trendsId":trendsId}];
+        } failure:^{
+            [SVProgressHUD showErrorWithStatus:@"删除动态失败"];
+        }];
+    }
+}
+
+#pragma mark -
 #pragma mark - 跳转到详情页
 - (void)popToDetailViewController:(HomeFocusModel *)model {
     if (model.feedsType == 3) {
@@ -309,6 +324,9 @@ static NSString * const tableViewCellID_envelope = @"FocusRedEnvelopeViewCell";
         cell.actionSheetItemClicked = ^(NSUInteger index, NSString *userId, NSString *focusId) {
             [weakself moreButtonClicked:index userId:userId aboutID:focusId];
         };
+        cell.handleTrendsBlock = ^(NSUInteger index, NSString *focusId, NSInteger row) {
+            [weakself handleMyTrendsWithIndex:index trendsID:focusId modelIndex:row];
+        };
         cell.homeFocusModel = model;
         return cell;
     } else if (model.feedsType == 2) {
@@ -322,6 +340,9 @@ static NSString * const tableViewCellID_envelope = @"FocusRedEnvelopeViewCell";
         cell.actionSheetItemClicked = ^(NSUInteger index, NSString *userId, NSString *focusId) {
             [weakself moreButtonClicked:index userId:userId aboutID:focusId];
         };
+        cell.handleTrendsBlock = ^(NSUInteger index, NSString *focusId, NSInteger row) {
+            [weakself handleMyTrendsWithIndex:index trendsID:focusId modelIndex:row];
+        };
         cell.homeFocusModel = model;
         return cell;
     } else if (model.feedsType == 3) {
@@ -331,6 +352,9 @@ static NSString * const tableViewCellID_envelope = @"FocusRedEnvelopeViewCell";
         };
         cell.actionSheetItemClicked = ^(NSUInteger index, NSString *userId, NSString *focusId) {
             [weakself moreButtonClicked:index userId:userId aboutID:focusId];
+        };
+        cell.handleTrendsBlock = ^(NSUInteger index, NSString *focusId, NSInteger row) {
+            [weakself handleMyTrendsWithIndex:index trendsID:focusId modelIndex:row];
         };
         cell.homeFocusModel = model;
         return cell;
@@ -347,6 +371,9 @@ static NSString * const tableViewCellID_envelope = @"FocusRedEnvelopeViewCell";
         };
         cell.buyRedPacketBlock =  ^(NSInteger price, NSString *goodsId, NSString *feedsId, NSString *headImg, NSString *nickName) {
             [weakself popToBuyPacketViewController:price goodsID:goodsId feedsID:feedsId headImg:headImg nickName:nickName];
+        };
+        cell.handleTrendsBlock = ^(NSUInteger index, NSString *focusId, NSInteger row) {
+            [weakself handleMyTrendsWithIndex:index trendsID:focusId modelIndex:row];
         };
         cell.homeFocusModel = model;
         return cell;

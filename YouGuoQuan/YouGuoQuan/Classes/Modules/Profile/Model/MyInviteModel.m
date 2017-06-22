@@ -22,4 +22,20 @@
     return self;
 }
 
+- (NSString *)mobile {
+    if (_mobile) {
+        if (_mobile.length > 8) {
+            NSMutableString *muString = [NSMutableString stringWithString:_mobile];
+            for (NSInteger i = 3; i < 8; i++) {
+                [muString replaceCharactersInRange:(NSRange){i,1} withString:@"*"];
+            }
+            return [muString copy];
+        } else {
+            return _mobile;
+        }
+    } else {
+        return @"";
+    }
+}
+
 @end

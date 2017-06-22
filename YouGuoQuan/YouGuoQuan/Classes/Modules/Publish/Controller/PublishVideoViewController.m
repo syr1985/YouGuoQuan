@@ -11,7 +11,7 @@
 #import <TZImagePickerController.h>
 #import <TZImageManager.h>
 #import "AlertViewTool.h"
-
+#import "TakePhotoHelp.h"
 
 @interface PublishVideoViewController () <UITextViewDelegate>
 @property (weak, nonatomic) IBOutlet UITextView *titleTextView;
@@ -73,32 +73,29 @@
 }
 
 - (IBAction)selectVideoButtonClicked {
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:1 delegate:nil];
-    imagePickerVc.allowTakePicture = NO;
-    imagePickerVc.allowPickingImage = NO;
-    imagePickerVc.allowPickingOriginalPhoto = NO;
-    
-    // 你可以通过block或者代理，来得到用户选择的照片.
     __weak typeof(self) weakself = self;
-    imagePickerVc.didFinishPickingVideoHandle = ^(UIImage *coverImage, id asset) {
-        weakself.videoCoverImage = coverImage;
-        weakself.publishVideoButton.enabled = weakself.titleTextView.text.length && weakself.videoCoverImage;
-        [weakself.selectVideoButton setBackgroundImage:coverImage forState:UIControlStateNormal];
-        [weakself.selectVideoButton setTitle:@"设置封面" forState:UIControlStateNormal];
-        weakself.asset = asset;
-        [[TZImageManager manager] getVideoWithAsset:asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
-            double time = CMTimeGetSeconds(playerItem.asset.duration);
+    [[TakePhotoHelp sharedInstance] showActionSheetForSelectVideoWithTitle:@"" viewController:self returnBlock:^(UIImage *coverImage, id asset, double time) {
+        NSUInteger seconds = (NSUInteger)roundf(time) % 60;
+        if (seconds > 10) {
+            [SVProgressHUD showInfoWithStatus:@"视频时长限制在10秒以内"];
+        } else {
             NSUInteger mintues = time / 60;
-            NSUInteger seconds = (NSUInteger)roundf(time) % 60;
+            weakself.asset = asset;
+            weakself.videoCoverImage = coverImage;
             weakself.duration  = [NSString stringWithFormat:@"%lu:%02lu", (unsigned long)mintues, (unsigned long)seconds];
-            weakself.videoTimeLabel.text = [NSString stringWithFormat:@"视频时长：%@",weakself.duration];
-        }];
-    };
-    
-    [self presentViewController:imagePickerVc animated:YES completion:nil];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                weakself.publishVideoButton.enabled = weakself.titleTextView.text.length && weakself.videoCoverImage;
+                [weakself.selectVideoButton setBackgroundImage:coverImage forState:UIControlStateNormal];
+                [weakself.selectVideoButton setTitle:@"设置封面" forState:UIControlStateNormal];
+                weakself.videoTimeLabel.text = [NSString stringWithFormat:@"视频时长：%@",weakself.duration];
+            });
+        }
+    }];
 }
 
-- (IBAction)publishVideo:(id)sender {
+- (IBAction)publishVideo:(UIButton *)sender {
+    sender.enabled = NO;
+    
     if (!self.titleTextView.text.length) {
         [SVProgressHUD showInfoWithStatus:@"请输入文字描述"];
         return;
@@ -111,34 +108,57 @@
     
     __weak typeof(self) weakself = self;
     NSData *imageData = UIImageJPEGRepresentation(self.videoCoverImage, 0.8);
-    [NetworkTool uploadImage:imageData progress:^(NSString *key, float percent) {
-        [SVProgressHUD showProgress:percent status:@"上传视频封面"];
-    } success:^(NSString *url) {
-        if ([weakself.asset isKindOfClass:[PHAsset class]]) {
-            [NetworkTool uploadVideoPHAssetToQiniu:weakself.asset progress:^(NSString *key, float percent) {
-                [SVProgressHUD showProgress:percent status:@"上传视频"];
-            } success:^(NSString *videoUrl) {
-                [SVProgressHUD showWithStatus:@"发布视频"];
-                [NetworkTool publishTrends:nil intro:weakself.titleTextView.text video:videoUrl cover:url trendsType:@"2" duration:weakself.duration success:^{
-                    [SVProgressHUD showSuccessWithStatus:@"发布视频成功"];
-                    [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_PublishSuccess object:nil];
-                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(HUD_SHOW_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                        [SVProgressHUD dismiss];
-                        [weakself dismissViewControllerAnimated:YES completion:nil];
-                    });
-                } failure:^{
-                    [SVProgressHUD showErrorWithStatus:@"发布视频失败"];
-                    [SVProgressHUD dismissWithDelay:HUD_SHOW_TIME];
-                }];
-            } failure:^{
-                [SVProgressHUD showErrorWithStatus:@"上传视频失败"];
-                [SVProgressHUD dismissWithDelay:HUD_SHOW_TIME];
-            }];
-        }
-    } failure:^{
-        [SVProgressHUD showErrorWithStatus:@"上传视频封面失败"];
-        [SVProgressHUD dismissWithDelay:HUD_SHOW_TIME];
-    }];
+    [SVProgressHUD showWithStatus:@"发布视频"];
+    [NetworkTool uploadImage:imageData
+                    progress:nil
+                     success:^(NSString *url) {
+                         if ([weakself.asset isKindOfClass:[PHAsset class]]) {
+                             [NetworkTool uploadVideoPHAssetToQiniu:weakself.asset
+                                                           progress:nil
+                                                            success:^(NSString *videoUrl) {
+                                                                [self publishWithVideoURL:videoUrl coverURL:url];
+                                                            } failure:^{
+                                                                [self publishFailure];
+                                                            }];
+                         }
+                     } failure:^{
+                         [self publishFailure];
+                     }];
+}
+
+- (void)publishWithVideoURL:(NSString *)videoUrl coverURL:(NSString *)url {
+    //    if (videoUrl.length == 0) {
+    //        [SVProgressHUD showInfoWithStatus:@"您的视频违反了相关规定，无法上传"];
+    //        return;
+    //    }
+    [NetworkTool publishTrends:nil
+                         intro:self.titleTextView.text
+                         video:videoUrl
+                         cover:url
+                    trendsType:@"2"
+                      duration:self.duration
+                       success:^{
+                           [self publishSuccess];
+                       } failure:^{
+                           [self publishFailure];
+                       }];
+}
+
+- (void)publishSuccess {
+    [SVProgressHUD dismiss];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_PublishSuccess object:nil];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [SVProgressHUD showSuccessWithStatus:@"发布视频成功"];
+        [self dismissViewControllerAnimated:YES completion:nil];
+    });
+}
+
+- (void)publishFailure {
+    self.publishVideoButton.enabled = YES;
+    [SVProgressHUD dismiss];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [SVProgressHUD showErrorWithStatus:@"发布视频失败"];
+    });
 }
 
 #pragma mark - textView delegate

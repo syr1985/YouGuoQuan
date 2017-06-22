@@ -93,7 +93,7 @@ static NSString * const collectionViewCellID_Photo  = @"RedEnvelopeViewCell";
 
 #pragma mark -
 #pragma mark - 发布红包
-- (IBAction)publishRedEnvelope:(id)sender {
+- (IBAction)publishRedEnvelope:(UIButton *)sender {
     if (!self.redEnvelopeTitle || !self.redEnvelopeTitle.length) {
         [SVProgressHUD showInfoWithStatus:@"请输入文字描述"];
         return;
@@ -104,64 +104,84 @@ static NSString * const collectionViewCellID_Photo  = @"RedEnvelopeViewCell";
         return;
     }
     
-    /**
-     *  上传图片
-     */
+    sender.enabled = NO;
+    [SVProgressHUD showWithStatus:@"发布红包照片"];
     NSMutableArray *muArray = [NSMutableArray array];
     for (NSUInteger i = 0 ; i < self.photoArray.count - 1; i++) {
         UIImage *image = self.photoArray[i];
         NSData *imageData = nil;
-        if (!_isUploadOrignalPhoto) {
-            imageData = UIImageJPEGRepresentation(image,0.1);
+        if (_isUploadOrignalPhoto) {
+            imageData = UIImageJPEGRepresentation(image,0.9);
         } else {
-            imageData = UIImageJPEGRepresentation(image,0.8);
+            imageData = UIImageJPEGRepresentation(image,0.5);
         }
         if (imageData) {
             [muArray addObject:imageData];
         }
     }
     
-    __weak typeof(self) weakself = self;
-    [NetworkTool uploadImages:muArray progress:^(CGFloat percent) {
-        [SVProgressHUD showProgress:percent status:@"正在上传图片"];
-    } success:^(NSArray *urlArray) {
-        NSMutableString *urlString = [NSMutableString string];
-        for (NSString *url in urlArray) {
-            [urlString appendString:url];
-            [urlString appendString:@";"];
-        }
-        
-        NSUInteger maxRange = NSMaxRange([urlString rangeOfComposedCharacterSequenceAtIndex:urlString.length - 2]);
-        NSString *imageUrl = [urlString substringToIndex:maxRange];
-        
-        NSInteger photoCount = weakself.photoArray.count - 1;
-        NSInteger price = 10;
-        if (photoCount < 3) {
-            price = 10;
-        } else if (photoCount < 5 && photoCount > 2) {
-            price = 30;
-        } else if (photoCount < 8 && photoCount > 4) {
-            price = 60;
-        } else {
-            price = 80;
-        }
+    [NetworkTool uploadImages:muArray
+                     progress:nil
+                      success:^(NSArray *urlArray) {
+                          [self pornImageWithUrls:urlArray];
+                      } failure:^{
+                          [self publishFailure];
+                      }];
+}
 
-        [SVProgressHUD showWithStatus:@"发布红包照片"];
-        [NetworkTool publishRedEnvelope:@(price) image:imageUrl intro:weakself.redEnvelopeTitle success:^{
-            [SVProgressHUD showInfoWithStatus:@"发布红包照片成功"];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_PublishSuccess object:nil];
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(HUD_SHOW_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [SVProgressHUD dismiss];
-                [weakself dismissViewControllerAnimated:YES completion:nil];
-            });
-        } failure:^{
-            [SVProgressHUD showInfoWithStatus:@"发布红包照片失败"];
-            [SVProgressHUD dismissWithDelay:HUD_SHOW_TIME];
-        }];
-    } failure:^{
-        [SVProgressHUD showInfoWithStatus:@"上传图片失败"];
-        [SVProgressHUD dismissWithDelay:HUD_SHOW_TIME];
-    }];
+- (void)pornImageWithUrls:(NSArray *)urlArray {
+    //    if ([urlArray containsObject:@""]) {
+    //        [SVProgressHUD showInfoWithStatus:@"您的图片违反了相关规定，无法上传"];
+    //        return;
+    //    }
+    NSMutableString *urlString = [NSMutableString string];
+    for (NSString *url in urlArray) {
+        [urlString appendString:url];
+        [urlString appendString:@";"];
+    }
+    NSUInteger maxRange = NSMaxRange([urlString rangeOfComposedCharacterSequenceAtIndex:urlString.length - 2]);
+    NSString *imageUrl = [urlString substringToIndex:maxRange];
+    [self publishRedPacketWithImageUrl:imageUrl];
+}
+
+- (void)publishRedPacketWithImageUrl:(NSString *)imageUrl {
+    NSInteger photoCount = self.photoArray.count - 1;
+    NSInteger price = 10;
+    if (photoCount < 3) {
+        price = 10;
+    } else if (photoCount < 5 && photoCount > 2) {
+        price = 30;
+    } else if (photoCount < 8 && photoCount > 4) {
+        price = 60;
+    } else {
+        price = 80;
+    }
+    
+    [NetworkTool publishRedEnvelope:@(price)
+                              image:imageUrl
+                              intro:self.redEnvelopeTitle
+                            success:^{
+                                [self publishSuccess];
+                            } failure:^{
+                                [self publishFailure];
+                            }];
+}
+
+- (void)publishSuccess {
+    [SVProgressHUD dismiss];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_PublishSuccess object:nil];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [SVProgressHUD showSuccessWithStatus:@"发布红包照片成功"];
+        [self dismissViewControllerAnimated:YES completion:nil];
+    });
+}
+
+- (void)publishFailure {
+    self.publishButton.enabled = YES;
+    [SVProgressHUD dismiss];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [SVProgressHUD showErrorWithStatus:@"发布红包照片失败"];
+    });
 }
 
 #pragma mark -

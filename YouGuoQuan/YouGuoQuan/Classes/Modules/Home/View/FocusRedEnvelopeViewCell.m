@@ -163,7 +163,8 @@
                                                imageUrl:urlArray[index]
                                        placeHolderImage:phImage
                                                    blur:isBlurImage
-                                           imageViewTag:index];
+                                           imageViewTag:index
+                                            singleImage:NO];
                     }
                 }
             }
@@ -176,12 +177,13 @@
                                    imageUrl:_homeFocusModel.imageUrl
                            placeHolderImage:phImage
                                        blur:isBlurImage
-                               imageViewTag:0];
+                               imageViewTag:0
+                                singleImage:YES];
         }
     }
 }
 
-- (void)createImageViewWithImageX:(CGFloat)x imageY:(CGFloat)y imageW:(CGFloat)w imageH:(CGFloat)h imageUrl:(NSString *)url placeHolderImage:(UIImage *)phImage blur:(BOOL)isBlurImage imageViewTag:(NSInteger)tag {
+- (void)createImageViewWithImageX:(CGFloat)x imageY:(CGFloat)y imageW:(CGFloat)w imageH:(CGFloat)h imageUrl:(NSString *)url placeHolderImage:(UIImage *)phImage blur:(BOOL)isBlurImage imageViewTag:(NSInteger)tag singleImage:(BOOL)single {
     UIImageView *imageView = [[UIImageView alloc] init];
     imageView.tag = tag;
     imageView.frame = CGRectMake(x, y, w, h);
@@ -190,13 +192,14 @@
     
     NSString *imageUrlStr = [NSString cropImageUrlWithUrlString:url
                                                           width:w
-                                                         height:w];
+                                                         height:h];
     if (isBlurImage) {
         [imageView sd_setImageWithURL:[NSURL URLWithString:imageUrlStr] placeholderImage:phImage options:SDWebImageAvoidAutoSetImage completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
             if (image) {
                 dispatch_queue_t blurImageDispatchQueue = dispatch_queue_create("cn.newtouch.YouGuoQuan.gcd.BlurImage", DISPATCH_QUEUE_CONCURRENT);
                 dispatch_async(blurImageDispatchQueue, ^{
-                    UIImage *blurimage = [image blurImageWithRadius:image.size.width * 0.25];
+                    CGFloat radius = single ? 50 : image.size.width * 0.25;
+                    UIImage *blurimage = [image blurImageWithRadius:radius];
                     dispatch_async(dispatch_get_main_queue(), ^{
                         imageView.image = blurimage;
                     });
@@ -249,9 +252,6 @@
             sender.selected = NO;
             NSInteger priseCount = [weakself.homeFocusModel.recommendCount integerValue];
             NSNumber *newPriseCount = @(priseCount - 1);
-//            weakself.homeFocusModel.recommendCount = newPriseCount;
-//            [weakself.favourButton setTitle:[newPriseCount stringValue] forState:UIControlStateNormal];
-//            weakself.homeFocusModel.praise = NO;
             [[NSNotificationCenter defaultCenter] postNotificationName:kFavourSuccessNotification
                                                                 object:nil
                                                               userInfo:@{@"NewFavourCount":newPriseCount,
@@ -268,9 +268,6 @@
             sender.selected = YES;
             NSInteger priseCount = [weakself.homeFocusModel.recommendCount integerValue];
             NSNumber *newPriseCount = @(priseCount + 1);
-//            weakself.homeFocusModel.recommendCount = newPriseCount;
-//            [weakself.favourButton setTitle:[newPriseCount stringValue] forState:UIControlStateNormal];
-//            weakself.homeFocusModel.praise = YES;
             [[NSNotificationCenter defaultCenter] postNotificationName:kFavourSuccessNotification
                                                                 object:nil
                                                               userInfo:@{@"NewFavourCount":newPriseCount,
@@ -376,9 +373,6 @@
         _homeFocusModel.buyCount = @(buyCount + 1);//newBuyCount;
         _homeFocusModel.isBuy = YES;
         [_payButton setTitle:newBuyCount forState:UIControlStateNormal];
-//        if (!_payButton.isSelected) {
-//            _payButton.selected = YES;
-//        }
         // 显示原图
         [self downloadRedPacketImage];
     }

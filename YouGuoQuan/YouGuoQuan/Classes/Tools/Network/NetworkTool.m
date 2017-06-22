@@ -1782,7 +1782,7 @@
     
     __weak typeof(uploadHelper) weakHelper = uploadHelper;
     
-    weakHelper.singleFailureBlock = ^() {
+    weakHelper.singleFailureBlock = ^{
         failure();
         return;
     };
@@ -1792,7 +1792,9 @@
         
         totalProgress += partProgress;
         
-        progress(totalProgress);
+        if (progress) {
+            progress(totalProgress);
+        }
         
         currentIndex++;
         
@@ -1888,7 +1890,7 @@
                                  failure:weakHelper.pornFailureBlock];
 }
 
-+ (void)publishProduct:(NSString *)goodsName price:(NSString *)goodsPrice cover:(NSString *)coverUrl image:(NSString *)imagesUrl intro:(NSString *)goodsIntro success:(void(^)())success failure:(void(^)())failure {
++ (void)publishProduct:(NSString *)goodsName price:(NSNumber *)goodsPrice cover:(NSString *)coverUrl image:(NSString *)imagesUrl intro:(NSString *)goodsIntro success:(void(^)())success failure:(void(^)())failure {
     NSMutableDictionary *muDict = [NSMutableDictionary dictionary];
     muDict[@"requestseq"]  = [NSString randomString];
     muDict[@"sign"]        = @"";

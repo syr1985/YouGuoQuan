@@ -113,7 +113,9 @@
     } cancelBlock:nil];
 }
 
-- (IBAction)sureSellButtonClicked:(id)sender {
+- (IBAction)sureSellButtonClicked:(UIButton *)sender {
+    sender.enabled = NO;
+    
     NSString *wxId = _accountTextField.text;
     if (!wxId || !wxId.length) {
         [SVProgressHUD showInfoWithStatus:@"请输入微信账号"];
@@ -128,21 +130,23 @@
     [SVProgressHUD showWithStatus:@"发布微信"];
     __weak typeof(self) weakself = self;
     [NetworkTool sellWeixin:_price weixinID:wxId success:^{
-        [SVProgressHUD showSuccessWithStatus:@"发布微信成功"];
+        [SVProgressHUD dismiss];
+        
         [LoginData sharedLoginData].havePublishWX = YES;
         [LoginData sharedLoginData].publishWX = wxId;
         [LoginData sharedLoginData].publishWXPrice = price;
-        
         [UserDefaultsTool saveLoginData];
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(HUD_SHOW_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [SVProgressHUD dismiss];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [SVProgressHUD showSuccessWithStatus:@"发布微信成功"];
             [weakself dismissViewControllerAnimated:YES completion:nil];
         });
     } failure:^{
-        [SVProgressHUD showErrorWithStatus:@"发布微信失败"];
-        [SVProgressHUD dismissWithDelay:HUD_SHOW_TIME];
-    }];
-}
+        sender.enabled = YES;
+        [SVProgressHUD dismiss];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [SVProgressHUD showErrorWithStatus:@"发布微信失败"];
+        });
+    }];}
 
 @end

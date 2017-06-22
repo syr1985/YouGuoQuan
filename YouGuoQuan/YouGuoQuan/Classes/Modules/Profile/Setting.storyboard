@@ -289,7 +289,7 @@
                         <sections>
                             <tableViewSection id="VDk-yS-rxP">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="204" id="QVh-X2-ifg">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" rowHeight="204" id="QVh-X2-ifg">
                                         <rect key="frame" x="0.0" y="35" width="375" height="204"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="QVh-X2-ifg" id="Ya9-so-iwn">
@@ -769,6 +769,7 @@ TA的所有虚拟消费和收入您都可以额外获得平台给
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="tgr-dc-19z" firstAttribute="trailing" secondItem="Ymq-Gl-02V" secondAttribute="trailing" constant="2" id="11I-tA-zMf"/>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="JYd-cq-ivx" secondAttribute="trailing" constant="8" id="2Sj-gy-Kfa"/>
                                                 <constraint firstItem="1WE-zJ-tdi" firstAttribute="centerY" secondItem="zOi-wZ-RZ7" secondAttribute="centerY" id="8oR-kd-bsz"/>
                                                 <constraint firstItem="CDY-rv-K9e" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="1WE-zJ-tdi" secondAttribute="trailing" constant="8" id="9oE-iX-yr0"/>
                                                 <constraint firstItem="Ymq-Gl-02V" firstAttribute="centerY" secondItem="7re-v9-woO" secondAttribute="centerY" id="CDG-GR-Q84"/>
@@ -784,7 +785,6 @@ TA的所有虚拟消费和收入您都可以额外获得平台给
                                                 <constraint firstItem="1WE-zJ-tdi" firstAttribute="leading" secondItem="zOi-wZ-RZ7" secondAttribute="trailing" constant="8" id="dia-s5-Ozb"/>
                                                 <constraint firstItem="wbR-c1-QdN" firstAttribute="leading" secondItem="zOi-wZ-RZ7" secondAttribute="leading" id="eKU-RA-c2e"/>
                                                 <constraint firstItem="Ymq-Gl-02V" firstAttribute="width" secondItem="Ymq-Gl-02V" secondAttribute="height" multiplier="1:1" id="gNe-NE-G1c"/>
-                                                <constraint firstItem="CDY-rv-K9e" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="JYd-cq-ivx" secondAttribute="trailing" constant="8" id="oJl-aa-Kie"/>
                                                 <constraint firstItem="CDY-rv-K9e" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="wbR-c1-QdN" secondAttribute="trailing" constant="8" id="phG-C6-eH0"/>
                                             </constraints>
                                         </tableViewCellContentView>

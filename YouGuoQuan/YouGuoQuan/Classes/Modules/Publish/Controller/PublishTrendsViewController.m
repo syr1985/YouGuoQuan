@@ -87,72 +87,84 @@ static NSString * const collectionViewCellID_Photo  = @"ProductPhotoViewCell";
     } cancelBlock:nil];
 }
 
-- (IBAction)publishTrends:(id)sender {
+- (IBAction)publishTrends:(UIButton *)sender {
     if (!self.trendsContent || !self.trendsContent.length) {
         [SVProgressHUD showInfoWithStatus:@"请输入文字描述"];
         return;
     }
     
+    sender.enabled = NO;
     if (self.photoArray.count > 1) {
+        [SVProgressHUD showWithStatus:@"发布图文动态"];
         NSMutableArray *muArray = [NSMutableArray array];
         for (NSUInteger i = 0 ; i < self.photoArray.count - 1; i++) {
             UIImage *image = self.photoArray[i];
             NSData *imageData = nil;
-            if (!_isUploadOrignalPhoto) {
-                imageData = UIImageJPEGRepresentation(image,0.1);
+            if (_isUploadOrignalPhoto) {
+                imageData = UIImageJPEGRepresentation(image,0.9);
             } else {
-                imageData = UIImageJPEGRepresentation(image,0.8);
+                imageData = UIImageJPEGRepresentation(image,0.5);
             }
             if (imageData) {
                 [muArray addObject:imageData];
             }
         }
-        
-        [NetworkTool uploadImages:muArray progress:^(CGFloat percent) {
-            [SVProgressHUD showProgress:percent status:@"上传图片"];
-        } success:^(NSArray *urlArray) {
-            
-            NSMutableArray *muArray = [NSMutableArray new];
-            for (NSString *url in urlArray) {
-                NSLog(@"%@",url);
-                [muArray addObject:[NSString stringWithFormat:@"%@?nrop",url]];
-            }
-            [NetworkTool pornImageOrVideoWithURLs:muArray success:^(id responseObject) {
-                NSLog(@"%@",responseObject);
-            } failure:^{
-                
-            }];
-            
-//            NSMutableString *urlString = [NSMutableString string];
-//            for (NSString *url in urlArray) {
-//                [urlString appendString:url];
-//                [urlString appendString:@";"];
-//            }
-//            NSUInteger maxRange = NSMaxRange([urlString rangeOfComposedCharacterSequenceAtIndex:urlString.length - 2]);
-//            NSString *imageUrl = [urlString substringToIndex:maxRange];
-//            [self publishTrendsWithImageUrl:imageUrl];
-        } failure:^{
-            [SVProgressHUD showErrorWithStatus:@"上传图片失败"];
-            [SVProgressHUD dismissWithDelay:HUD_SHOW_TIME];
-        }];
+        [NetworkTool uploadImages:muArray
+                         progress:nil
+                          success:^(NSArray *urlArray) {
+                              [self pornImageWithUrls:urlArray];
+                          } failure:^{
+                              [self publishFailure];
+                          }];
     } else {
+        [SVProgressHUD showWithStatus:@"发布图文动态"];
         [self publishTrendsWithImageUrl:@""];
     }
 }
 
+- (void)pornImageWithUrls:(NSArray *)urlArray {
+    //    if ([urlArray containsObject:@""]) {
+    //        [SVProgressHUD showInfoWithStatus:@"您的图片违反了相关规定，无法上传"];
+    //        return;
+    //    }
+    NSMutableString *urlString = [NSMutableString string];
+    for (NSString *url in urlArray) {
+        [urlString appendString:url];
+        [urlString appendString:@";"];
+    }
+    NSUInteger maxRange = NSMaxRange([urlString rangeOfComposedCharacterSequenceAtIndex:urlString.length - 2]);
+    NSString *imageUrl = [urlString substringToIndex:maxRange];
+    [self publishTrendsWithImageUrl:imageUrl];
+}
+
 - (void)publishTrendsWithImageUrl:(NSString *)imageUrl {
-    [SVProgressHUD showWithStatus:@"发布图文动态"];
-    [NetworkTool publishTrends:imageUrl intro:self.trendsContent video:nil cover:nil trendsType:@"1" duration:@"" success:^{
+    [NetworkTool publishTrends:imageUrl
+                         intro:self.trendsContent
+                         video:nil cover:nil
+                    trendsType:@"1"
+                      duration:@""
+                       success:^{
+                           [self publishSuccess];
+                       } failure:^{
+                           [self publishFailure];
+                       }];
+}
+
+- (void)publishSuccess {
+    [SVProgressHUD dismiss];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_PublishSuccess object:nil];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [SVProgressHUD showSuccessWithStatus:@"发布图文动态成功"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_PublishSuccess object:nil];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(HUD_SHOW_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [SVProgressHUD dismiss];
-            [self dismissViewControllerAnimated:YES completion:nil];
-        });
-    } failure:^{
+        [self dismissViewControllerAnimated:YES completion:nil];
+    });
+}
+
+- (void)publishFailure {
+    self.publishButton.enabled = YES;
+    [SVProgressHUD dismiss];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [SVProgressHUD showErrorWithStatus:@"发布图文动态失败"];
-        [SVProgressHUD dismissWithDelay:HUD_SHOW_TIME];
-    }];
+    });
 }
 
 #pragma mark -

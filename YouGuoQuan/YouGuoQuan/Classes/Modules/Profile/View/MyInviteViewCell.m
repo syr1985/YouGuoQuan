@@ -66,7 +66,7 @@
     NSDate *date = [NSDate dateWithTimeIntervalSince1970:myInviteModel.createTime.doubleValue / 1000];
     _registerDateTimeLabel.text = [NSString stringWithFormat:@"注册时间：%@",[self.dateFormatter stringFromDate:date]];
     
-    _incomeMoneyLabel.text = [NSString stringWithFormat:@"+%@",myInviteModel.totalMoney];
+    _incomeMoneyLabel.text = [NSString stringWithFormat:@"+%@ u币",myInviteModel.totalMoney];
 }
 
 @end
