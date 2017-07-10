@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="8Pn-uJ-yap">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="8Pn-uJ-yap">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -33,14 +33,14 @@
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="蓝色bg" translatesAutoresizingMaskIntoConstraints="NO" id="P7O-Xb-AsV">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="156"/>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="充值余额（u币）" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="60b-za-01f">
-                                        <rect key="frame" x="94.5" y="30" width="131" height="21"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="零钱（u币）" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="60b-za-01f">
+                                        <rect key="frame" x="112.5" y="30" width="95.5" height="17"/>
+                                        <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="17"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lTh-9M-iDC">
-                                        <rect key="frame" x="94.5" y="63" width="27" height="48"/>
+                                        <rect key="frame" x="112.5" y="59" width="27" height="48"/>
                                         <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="48"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
@@ -68,7 +68,7 @@
                                         </connections>
                                     </button>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="充值余额" translatesAutoresizingMaskIntoConstraints="NO" id="C3n-TZ-RFU">
-                                        <rect key="frame" x="10" y="52" width="64.5" height="52"/>
+                                        <rect key="frame" x="18.5" y="48" width="74" height="60"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="C3n-TZ-RFU" secondAttribute="height" multiplier="16:13" id="z0H-CY-TUE"/>
                                         </constraints>
@@ -102,23 +102,23 @@
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="绿色bg" translatesAutoresizingMaskIntoConstraints="NO" id="c7C-Hl-oCR">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="156"/>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="收入余额（u币）" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mTV-30-mVe">
-                                        <rect key="frame" x="94.5" y="30" width="131" height="21"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="收入（u币）" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mTV-30-mVe">
+                                        <rect key="frame" x="112.5" y="30" width="95.5" height="17"/>
+                                        <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="17"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vtj-PJ-PJT">
-                                        <rect key="frame" x="94.5" y="63" width="27" height="48"/>
+                                        <rect key="frame" x="112.5" y="59" width="27" height="48"/>
                                         <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="48"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Krd-x0-fmn">
-                                        <rect key="frame" x="224" y="119" width="84" height="25"/>
+                                        <rect key="frame" x="320" y="119" width="0.0" height="25"/>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.37930000000000003" colorSpace="calibratedRGB"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="84" id="48i-Xk-PyH"/>
+                                            <constraint firstAttribute="width" id="48i-Xk-PyH"/>
                                             <constraint firstAttribute="height" constant="25" id="crH-Pf-rKV"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
@@ -128,8 +128,11 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="23m-dY-TRP">
-                                        <rect key="frame" x="132" y="119" width="84" height="25"/>
+                                        <rect key="frame" x="228" y="119" width="84" height="25"/>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.37930000000000003" colorSpace="calibratedRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="84" id="Zgh-1D-Gsw"/>
+                                        </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                         <state key="normal" title="收入明细"/>
                                         <connections>
@@ -137,9 +140,10 @@
                                         </connections>
                                     </button>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="收入余额" translatesAutoresizingMaskIntoConstraints="NO" id="Hgn-Vv-YS8">
-                                        <rect key="frame" x="10" y="41.5" width="64.5" height="73"/>
+                                        <rect key="frame" x="20.5" y="41.5" width="72" height="73"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" secondItem="Hgn-Vv-YS8" secondAttribute="height" multiplier="64:73" id="t4O-Yy-gbS"/>
+                                            <constraint firstAttribute="width" secondItem="Hgn-Vv-YS8" secondAttribute="height" multiplier="72:73" id="MG8-JV-mbg"/>
+                                            <constraint firstAttribute="width" constant="72" id="qhb-7v-xOG"/>
                                         </constraints>
                                     </imageView>
                                 </subviews>
@@ -149,7 +153,7 @@
                                     <constraint firstItem="Hgn-Vv-YS8" firstAttribute="centerY" secondItem="HeJ-mN-m7l" secondAttribute="centerY" id="4JF-EP-XQn"/>
                                     <constraint firstItem="mTV-30-mVe" firstAttribute="centerX" secondItem="HeJ-mN-m7l" secondAttribute="centerX" id="BJU-Mw-zUA"/>
                                     <constraint firstItem="vtj-PJ-PJT" firstAttribute="top" secondItem="mTV-30-mVe" secondAttribute="bottom" constant="12" id="CdC-1G-HH8"/>
-                                    <constraint firstAttribute="trailing" secondItem="Krd-x0-fmn" secondAttribute="trailing" constant="12" id="MdT-Wp-cO3"/>
+                                    <constraint firstAttribute="trailing" secondItem="Krd-x0-fmn" secondAttribute="trailing" id="MdT-Wp-cO3"/>
                                     <constraint firstItem="Krd-x0-fmn" firstAttribute="height" secondItem="23m-dY-TRP" secondAttribute="height" id="Ppx-2d-3s6"/>
                                     <constraint firstItem="mTV-30-mVe" firstAttribute="top" secondItem="HeJ-mN-m7l" secondAttribute="top" constant="30" id="ThP-Xu-2A5"/>
                                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="vtj-PJ-PJT" secondAttribute="trailing" constant="12" id="Zmt-ea-pz0"/>
@@ -159,7 +163,6 @@
                                     <constraint firstItem="Krd-x0-fmn" firstAttribute="leading" secondItem="23m-dY-TRP" secondAttribute="trailing" constant="8" id="m2P-LT-xis"/>
                                     <constraint firstItem="Hgn-Vv-YS8" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="HeJ-mN-m7l" secondAttribute="leading" constant="10" id="odq-MN-qh1"/>
                                     <constraint firstAttribute="bottom" secondItem="c7C-Hl-oCR" secondAttribute="bottom" id="orD-rm-Nfw"/>
-                                    <constraint firstItem="Krd-x0-fmn" firstAttribute="width" secondItem="23m-dY-TRP" secondAttribute="width" id="pev-r0-Kdw"/>
                                     <constraint firstItem="vtj-PJ-PJT" firstAttribute="leading" secondItem="mTV-30-mVe" secondAttribute="leading" id="tyu-XR-o3a"/>
                                     <constraint firstItem="vtj-PJ-PJT" firstAttribute="leading" secondItem="Hgn-Vv-YS8" secondAttribute="trailing" constant="20" id="unM-1q-KBM"/>
                                     <constraint firstAttribute="bottom" secondItem="Krd-x0-fmn" secondAttribute="bottom" constant="12" id="zeD-8b-QuT"/>
@@ -1088,8 +1091,8 @@ Cg
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="充值" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s2B-Yb-0JP">
-                                            <rect key="frame" x="12" y="16" width="29" height="17"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <rect key="frame" x="12" y="16" width="28" height="14"/>
+                                            <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
                                             <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
@@ -1099,29 +1102,41 @@ Cg
                                             <color key="backgroundColor" red="0.92156862750000001" green="0.92156862750000001" blue="0.92156862750000001" alpha="1" colorSpace="calibratedRGB"/>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+0 u币" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DiM-0h-d7s">
-                                            <rect key="frame" x="255.5" y="23" width="52.5" height="20.5"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <rect key="frame" x="266" y="30" width="42" height="14"/>
+                                            <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
                                             <color key="textColor" red="0.070588235289999995" green="0.70980392160000005" blue="0.46666666670000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=" 2017-4-20  :  12:29:22" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0F7-VX-x2B">
-                                            <rect key="frame" x="12" y="39" width="131.5" height="14.5"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                            <rect key="frame" x="12" y="36" width="119.5" height="12"/>
+                                            <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="12"/>
                                             <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="收到礼物 跑车" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uR0-NR-lNx">
+                                            <rect key="frame" x="220" y="24" width="88" height="0.0"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" id="fo8-wU-Cy2"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
+                                            <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="0F7-VX-x2B" firstAttribute="top" secondItem="s2B-Yb-0JP" secondAttribute="bottom" constant="6" id="AKF-BZ-T2K"/>
+                                        <constraint firstItem="DiM-0h-d7s" firstAttribute="top" secondItem="uR0-NR-lNx" secondAttribute="bottom" constant="6" id="E6U-wt-CVV"/>
                                         <constraint firstItem="s2B-Yb-0JP" firstAttribute="leading" secondItem="dbY-Qw-Ogx" secondAttribute="leadingMargin" constant="4" id="Gjy-PS-Gey"/>
+                                        <constraint firstItem="uR0-NR-lNx" firstAttribute="centerY" secondItem="s2B-Yb-0JP" secondAttribute="centerY" id="H0M-I1-le8"/>
                                         <constraint firstItem="s2B-Yb-0JP" firstAttribute="top" secondItem="dbY-Qw-Ogx" secondAttribute="topMargin" constant="8" id="Il8-bm-6NI"/>
                                         <constraint firstItem="DiM-0h-d7s" firstAttribute="trailing" secondItem="dbY-Qw-Ogx" secondAttribute="trailingMargin" constant="-4" id="S4E-lc-lzb"/>
-                                        <constraint firstItem="DiM-0h-d7s" firstAttribute="centerY" secondItem="dbY-Qw-Ogx" secondAttribute="centerY" id="UYQ-pj-ANm"/>
                                         <constraint firstItem="0F7-VX-x2B" firstAttribute="leading" secondItem="s2B-Yb-0JP" secondAttribute="leading" id="Z76-ep-0In"/>
-                                        <constraint firstItem="DiM-0h-d7s" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="s2B-Yb-0JP" secondAttribute="trailing" constant="12" id="cg1-oc-iHn"/>
+                                        <constraint firstItem="DiM-0h-d7s" firstAttribute="trailing" secondItem="uR0-NR-lNx" secondAttribute="trailing" id="wPK-xW-sKz"/>
                                     </constraints>
                                 </tableViewCellContentView>
                                 <connections>
+                                    <outlet property="giftNameLabel" destination="uR0-NR-lNx" id="fSR-TX-rpC"/>
+                                    <outlet property="giftNameLabelHeightConstraint" destination="fo8-wU-Cy2" id="PKy-70-Lbu"/>
                                     <outlet property="recordContentLabel" destination="s2B-Yb-0JP" id="B7j-Pn-Sh9"/>
                                     <outlet property="recordDateLabel" destination="0F7-VX-x2B" id="N46-Kz-5GM"/>
                                     <outlet property="recordPriceLabel" destination="DiM-0h-d7s" id="rae-D9-Xis"/>

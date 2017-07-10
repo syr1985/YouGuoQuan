@@ -202,13 +202,13 @@
         id obj = photoArray[i];
         CGFloat imageViewX = imageViewH * i + 8 * (i + 1);
         UIImageView *imageView = [[UIImageView alloc] init];
-        imageView.tag = i;
         imageView.layer.cornerRadius = 5;
         imageView.layer.masksToBounds = YES;
         imageView.userInteractionEnabled = YES;
         imageView.frame = CGRectMake(imageViewX, 0, imageViewH, imageViewH);
         
         if ([obj isKindOfClass:[PhotoWallModel class]]) {
+            imageView.tag = i - 1;// 这要确保+图放在第一个
             PhotoWallModel *model = (PhotoWallModel *)obj;
             UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
                                                                                   action:@selector(popupPhotoBrowser:)];
@@ -226,6 +226,7 @@
             [imageView sd_setImageWithURL:[NSURL URLWithString:imageUrlStr]
                          placeholderImage:phImage];
         } else {
+            imageView.tag = photoCount;
             imageView.image = [UIImage imageNamed:obj];
             imageView.userInteractionEnabled = YES;
             UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self
@@ -254,7 +255,7 @@
  *  打开图片浏览器
  */
 - (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
-    UIView *tapView = sender.view;
+    UIImageView *tapView = (UIImageView *)sender.view;
     if (_photoArray.count > 1) {
         NSRange range = {1, _photoArray.count - 1};
         NSArray *modelArray = [_photoArray subarrayWithRange:range];
@@ -262,7 +263,7 @@
         for (PhotoWallModel *model in modelArray) {
             [urlArray addObject:model.imageUrl];
         }
-        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:tapView.tag - 1 canDeleteImage:YES];
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray sourceImageView:tapView canDeleteImage:YES];
     }
 }
 

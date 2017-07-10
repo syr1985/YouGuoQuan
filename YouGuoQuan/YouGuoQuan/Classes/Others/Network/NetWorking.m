@@ -45,7 +45,7 @@
     NSArray *allKeys = [param allKeys];
     NSArray *sortArray = [allKeys sortedArrayUsingSelector:@selector(compare:)];
     NSString *paramString = @"";
-    if (bGetSign) {
+    if (bGetSign) {// 带不带sign参数
         for (NSString *key in sortArray) {
             if (![key isEqualToString:@"sign"]) {
                 NSString *sectionString = [NSString stringWithFormat:@"%@=%@",key,[param objectForKey:key]];

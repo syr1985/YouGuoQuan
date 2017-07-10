@@ -11,8 +11,7 @@
 #import "UIImageView+WebCache.h"
 #import <QuartzCore/QuartzCore.h>
 
-@interface MJPhotoView ()
-{
+@interface MJPhotoView () {
     BOOL _doubleTap;
     UIImageView *_imageView;
     MJPhotoLoadingView *_photoLoadingView;
@@ -21,8 +20,7 @@
 
 @implementation MJPhotoView
 
-- (id)initWithFrame:(CGRect)frame
-{
+- (id)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         self.clipsToBounds = YES;
         // 图片
@@ -74,7 +72,7 @@
             return;
         }
         
-        _imageView.image = _photo.placeholder; // 占位图片
+        //_imageView.image = _photo.placeholder; // 占位图片
         _photo.srcImageView.image = nil;
         
         // 不是gif，就马上开始下载
@@ -100,8 +98,7 @@
 }
 
 #pragma mark 开始加载图片
-- (void)photoStartLoad
-{
+- (void)photoStartLoad {
     if (_photo.image) {
         self.scrollEnabled = YES;
         _imageView.image = _photo.image;
@@ -156,9 +153,9 @@
     // 设置缩放比例
     [self adjustFrame];
 }
+
 #pragma mark 调整frame
-- (void)adjustFrame
-{
+- (void)adjustFrame {
     if (_imageView.image == nil) return;
     
     // 基本尺寸参数
@@ -221,8 +218,7 @@
     [self performSelector:@selector(hide) withObject:nil afterDelay:0.2];
 }
 
-- (void)hide
-{
+- (void)hide {
     if (_doubleTap) return;
     
     // 移除进度条
@@ -230,28 +226,31 @@
     self.contentOffset = CGPointZero;
     
     // 清空底部的小图
-    _photo.srcImageView.image = nil;
+    //_photo.srcImageView.image = nil;
     
     CGFloat duration = 0.15;
     if (_photo.srcImageView.clipsToBounds) {
         [self performSelector:@selector(reset) withObject:nil afterDelay:duration];
     }
     
+    // gif图片仅显示第0张
+    if (_imageView.image.images) {
+        _imageView.image = _imageView.image.images[0];
+    }
+    
+    // 通知代理
+    if ([self.photoViewDelegate respondsToSelector:@selector(photoViewSingleTap:)]) {
+        [self.photoViewDelegate photoViewSingleTap:self];
+    }
+
     [UIView animateWithDuration:duration + 0.1 animations:^{
-        _imageView.frame = [_photo.srcImageView convertRect:_photo.srcImageView.bounds toView:nil];
-        
-        // gif图片仅显示第0张
-        if (_imageView.image.images) {
-            _imageView.image = _imageView.image.images[0];
-        }
-        
-        // 通知代理
-        if ([self.photoViewDelegate respondsToSelector:@selector(photoViewSingleTap:)]) {
-            [self.photoViewDelegate photoViewSingleTap:self];
-        }
+        CGRect rect = [_photo.srcImageView convertRect:_photo.srcImageView.bounds toView:nil];
+        CGFloat imgX = rect.origin.x + rect.size.width * 0.5;
+        CGFloat imgY = rect.origin.y + rect.size.height * 0.5;
+        _imageView.frame = CGRectMake(imgX, imgY, 0, 0);
     } completion:^(BOOL finished) {
         // 设置底部的小图片
-        _photo.srcImageView.image = _photo.placeholder;
+        //_photo.srcImageView.image = _photo.placeholder;
         
         // 通知代理
         if ([self.photoViewDelegate respondsToSelector:@selector(photoViewDidEndZoom:)]) {
@@ -260,9 +259,8 @@
     }];
 }
 
-- (void)reset
-{
-    _imageView.image = _photo.capture;
+- (void)reset {
+    _imageView.image = _photo.placeholder;
     _imageView.contentMode = UIViewContentModeScaleToFill;
 }
 
@@ -277,18 +275,17 @@
     }
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     // 取消请求
-    [_imageView sd_setImageWithURL:[NSURL URLWithString:@"file:///abc"]];
+    //[_imageView sd_setImageWithURL:[NSURL URLWithString:@"file:///abc"]];
+    [_imageView sd_cancelCurrentImageLoad];
 }
 
 - (void)savePhoto:(UILongPressGestureRecognizer *)longPress {
-    if (longPress.state != UIGestureRecognizerStateBegan) {
-        return;
-    }
-    if (self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(savePhoto)]) {
-        [self.photoViewDelegate savePhoto];
+    if (longPress.state == UIGestureRecognizerStateBegan) {
+        if (self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(savePhoto)]) {
+            [self.photoViewDelegate savePhoto];
+        }
     }
 }
 

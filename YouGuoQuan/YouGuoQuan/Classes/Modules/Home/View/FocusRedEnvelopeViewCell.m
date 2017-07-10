@@ -334,7 +334,7 @@
  *  打开图片浏览器
  */
 - (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
-    UIView *tapView = sender.view;
+    UIImageView *tapView = (UIImageView *)sender.view;
     if (!_homeFocusModel.isBuy &&
         ![_homeFocusModel.userId isEqualToString:[LoginData sharedLoginData].userId] &&
         [LoginData sharedLoginData].ope) {
@@ -349,7 +349,7 @@
         } else {
             urlArray = @[_homeFocusModel.imageUrl];
         }
-        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:tapView.tag];
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray sourceImageView:tapView];
     }
 }
 

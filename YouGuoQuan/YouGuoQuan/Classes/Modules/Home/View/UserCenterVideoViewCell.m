@@ -143,7 +143,7 @@
     if (_wmPlayer.state == WMPlayerStatePlaying) {
         [_wmPlayer pause];
     }
-    [self releaseWMPlayer];
+    //[self releaseWMPlayer];
 }
 
 - (void)stopPlayingVideo:(NSNotification *)noti {
@@ -177,10 +177,6 @@
             sender.selected = NO;
             NSInteger priseCount = [weakself.userCenterModel.recommendCount integerValue];
             NSNumber *newPriseCount = @(priseCount - 1);
-//            NSString *newPriseCount = [NSString stringWithFormat:@"%zd",priseCount - 1];
-//            weakself.userCenterModel.recommendCount = @(priseCount - 1);//newPriseCount;
-//            [weakself.favourButton setTitle:newPriseCount forState:UIControlStateNormal];
-//            weakself.userCenterModel.praise = NO;
             [[NSNotificationCenter defaultCenter] postNotificationName:kFavourSuccessNotification
                                                                 object:nil
                                                               userInfo:@{@"NewFavourCount":newPriseCount,
@@ -193,10 +189,6 @@
             sender.selected = YES;
             NSInteger priseCount = [weakself.userCenterModel.recommendCount integerValue];
             NSNumber *newPriseCount = @(priseCount + 1);
-//            NSString *newPriseCount = [NSString stringWithFormat:@"%zd",priseCount + 1];
-//            weakself.userCenterModel.recommendCount = @(priseCount + 1);//newPriseCount;
-//            [weakself.favourButton setTitle:newPriseCount forState:UIControlStateNormal];
-//            weakself.userCenterModel.praise = YES;
             [[NSNotificationCenter defaultCenter] postNotificationName:kFavourSuccessNotification
                                                                 object:nil
                                                               userInfo:@{@"NewFavourCount":newPriseCount,
@@ -229,15 +221,14 @@
 #pragma mark - 播放按钮
 - (IBAction)startPlayVideo:(UIButton *)sender {
     // 判断当前网络
-    _wmPlayer.URLString = _userCenterModel.videoUrl;
+    self.wmPlayer.URLString = _userCenterModel.videoUrl;
     //_wmPlayer.placeholderImage = _videoCoverImageView.image;
-    [_wmPlayer play];
+    [self.wmPlayer play];
     [_videoBackgroundView sendSubviewToBack:_playButton.superview];
     
     // 增加播放次数
-    __weak typeof(self) weakself = self;
     [NetworkTool updatePlayTimesWithVideoTrendsID:_userCenterModel.trendsId success:^{
-        [weakself updateLocalPlayTimes];
+        [self updateLocalPlayTimes];
     }];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kPlayingVideoNotification
@@ -290,7 +281,7 @@
 /**
  *  旋转屏幕通知
  */
-- (void)onDeviceOrientationChange:(NSNotification *)notification{
+- (void)onDeviceOrientationChange:(NSNotification *)notification {
     if (!_wmPlayer || !_wmPlayer.superview || _wmPlayer.state != WMPlayerStatePlaying) {
         return;
     }
@@ -337,7 +328,7 @@
         }];
         
         [UIView animateWithDuration:0.25 animations:^{
-            weakself.wmPlayer.transform = CGAffineTransformIdentity;
+            self.wmPlayer.transform = CGAffineTransformIdentity;
         }];
     } else {
         //获取到当前状态条的方向
@@ -345,11 +336,6 @@
         
         //这个地方加判断是为了从全屏的一侧,直接到全屏的另一侧不用修改限制,否则会出错;
         if (currentOrientation == UIInterfaceOrientationPortrait) {
-//            [_wmPlayer mas_remakeConstraints:^(MASConstraintMaker *make) {
-//                make.width.equalTo(@([UIScreen mainScreen].bounds.size.height));
-//                make.height.equalTo(@([UIScreen mainScreen].bounds.size.width));
-//                make.center.equalTo([UIApplication sharedApplication].keyWindow);
-//            }];
             CGSize size = self.wmPlayer.currentItem.presentationSize;
             if (size.width < size.height) {// 竖屏拍的
                 [self.wmPlayer mas_remakeConstraints:^(MASConstraintMaker *make) {
@@ -379,6 +365,7 @@
  *  打开图片浏览器
  */
 - (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
+     UIImageView *tapView = (UIImageView *)sender.view;
     if (_userCenterModel.videoEvelope && _userCenterModel.videoEvelope.length) {
         NSArray *urlArray;
         if ([_userCenterModel.videoEvelope containsString:@";"]) {
@@ -386,7 +373,7 @@
         } else {
             urlArray = @[_userCenterModel.videoEvelope];
         }
-        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:0];
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray sourceImageView:tapView];
     }
 }
 

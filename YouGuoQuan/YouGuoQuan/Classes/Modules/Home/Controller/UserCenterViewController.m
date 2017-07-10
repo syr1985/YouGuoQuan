@@ -39,6 +39,7 @@
 #import "ShareTool.h"
 #import "AlertViewTool.h"
 #import "AuthorityTool.h"
+#import "PayTool.h"
 
 @interface UserCenterViewController ()
 @property (nonatomic, strong) UserBaseInfoModel *userBaseInfoModel;
@@ -50,7 +51,7 @@
 @property (nonatomic, strong) NSMutableArray *modelArray;
 @property (nonatomic, strong) NSMutableArray *titleArray;
 @property (nonatomic, strong) NSMutableArray *photoArray;
-@property (nonatomic, strong) NSMutableArray *contrArray;
+//@property (nonatomic, strong) NSMutableArray *contrArray;
 @property (nonatomic, assign) int pageNo;
 @property (nonatomic, assign) int pageSize;
 @property (nonatomic,   copy) NSString *wxPrice; // Ta发布的微信价格
@@ -87,19 +88,18 @@ static NSString * const tableViewCellID_envelope = @"UserCenterRedEnvelopeViewCe
     }
     return _photoArray;
 }
-#pragma mark - 用户的贡献榜数组（只需3条）
-- (NSMutableArray *)contrArray {
-    if (!_contrArray) {
-        _contrArray = [NSMutableArray new];
-    }
-    return _contrArray;
-}
+//#pragma mark - 用户的贡献榜数组（只需3条）
+//- (NSMutableArray *)contrArray {
+//    if (!_contrArray) {
+//        _contrArray = [NSMutableArray new];
+//    }
+//    return _contrArray;
+//}
 #pragma mark - dateFormatter 防止重复创建（创建时速度慢性能较差）
 - (NSDateFormatter *)dateFormatter {
     if (!_dateFormatter) {
         _dateFormatter = [[NSDateFormatter alloc] init];
         _dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CH"];
-//        _dateFormatter.timeZone = [NSTimeZone timeZoneWithName:@"GMT"];
     }
     return _dateFormatter;
 }
@@ -284,29 +284,6 @@ static NSString * const tableViewCellID_envelope = @"UserCenterRedEnvelopeViewCe
 }
 
 #pragma mark - 调接口
-//- (void)getUserInfo {
-//    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-//    dispatch_group_t group = dispatch_group_create();
-//    
-//    dispatch_group_async(group, queue, ^{
-//        [self getUserBaseInfo];
-//    });
-//    
-//    dispatch_group_async(group, queue, ^{
-//        [self getPhotoWallImages];
-//    });
-//    
-//    dispatch_group_async(group, queue, ^{
-//        [self getContributerList];
-//    });
-//    
-//    dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, 1ull * NSEC_PER_SEC);
-//    long result = dispatch_group_wait(group, time);
-//    if (result == 0) {
-//        [self updateUserBaseInfo];
-//    }
-//}
-
 #pragma mark - 获取用户基本信息
 - (void)getUserBaseInfo {
     [NetworkTool getOthersInfoWithUserId:_userId success:^(id result) {
@@ -321,6 +298,30 @@ static NSString * const tableViewCellID_envelope = @"UserCenterRedEnvelopeViewCe
         [self updateUserBaseInfo];
     }];
 }
+
+#pragma mark - 刷新用户信息
+- (void)updateUserBaseInfo {
+    __weak typeof(self) weakself = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [weakself.tableView beginUpdates];
+        [weakself.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
+        [weakself.tableView endUpdates];
+    });
+}
+
+#pragma mark - 下拉刷新加载用户发布的动态数据
+- (void)loadNewData {
+    _pageNo = 1;
+    [self getUserBaseInfo];
+    [self getPhotoWallImages];
+    [self getUserTrendsList];
+}
+#pragma mark - 上拉继续加载用户发布的动态数据
+- (void)loadMoreData {
+    _pageNo++;
+    [self getUserTrendsList];
+}
+
 #pragma mark - 获取用户照片墙信息
 - (void)getPhotoWallImages {
     [NetworkTool getOtherPhotosWithUserID:_userId success:^(id result) {
@@ -332,38 +333,7 @@ static NSString * const tableViewCellID_envelope = @"UserCenterRedEnvelopeViewCe
         [self updateUserBaseInfo];
     }];
 }
-#pragma mark - 获取用户贡献榜信息
-- (void)getContributerList {
-    [NetworkTool getOtherContributerWithPageNo:@1 pageSize:@3 userID:_userId success:^(id result) {
-        NSMutableArray *muArray = [NSMutableArray array];
-        for (NSDictionary *dict in result) {
-            OthersContributerModel *model = [OthersContributerModel othersContributerModelWithDict:dict];
-            [muArray addObject:model];
-        }
-        self.contrArray = [muArray mutableCopy];
-        [self updateUserBaseInfo];
-    } failure:nil];
-}
-#pragma mark - 刷新用户信息
-- (void)updateUserBaseInfo {
-    [self.tableView beginUpdates];
-    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
-    [self.tableView endUpdates];
-}
 
-#pragma mark - 下拉刷新加载用户发布的动态数据
-- (void)loadNewData {
-    _pageNo = 1;
-    [self getUserBaseInfo];
-    [self getPhotoWallImages];
-    [self getContributerList];
-    [self getUserTrendsList];
-}
-#pragma mark - 上拉继续加载用户发布的动态数据
-- (void)loadMoreData {
-    _pageNo++;
-    [self getUserTrendsList];
-}
 #pragma mark - 加载用户发布的动态数据
 - (void)getUserTrendsList {
     __weak typeof(self) weakself = self;
@@ -555,12 +525,12 @@ static NSString * const tableViewCellID_envelope = @"UserCenterRedEnvelopeViewCe
     __weak typeof(self) weakself = self;
     UIStoryboard *otherSB = [UIStoryboard storyboardWithName:@"Other" bundle:nil];
     BuyWeiXinViewController *buyWXVC = [otherSB instantiateViewControllerWithIdentifier:@"BuyWeiXin"];
+    buyWXVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
     buyWXVC.price = _wxPrice;
     buyWXVC.salerID = _userBaseInfoModel.userId;
-    buyWXVC.payRewardSucess = ^{
+    buyWXVC.payWeiXinSucess = ^{
         weakself.hasBuyWX = 0;
     };
-    buyWXVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
     [self presentViewController:buyWXVC animated:YES completion:nil];
 }
 #pragma mark - 跳打赏界面
@@ -568,15 +538,36 @@ static NSString * const tableViewCellID_envelope = @"UserCenterRedEnvelopeViewCe
     UIStoryboard *otherSB = [UIStoryboard storyboardWithName:@"Other" bundle:nil];
     RewardViewController *rewardVC = [otherSB instantiateViewControllerWithIdentifier:@"Reward"];
     rewardVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-    rewardVC.headImg = _userBaseInfoModel.headImg;
     rewardVC.userID  = _userId;
     rewardVC.rType   = @"ds";
-    __weak typeof(self) weakself = self;
-    rewardVC.payRewardSucess = ^(CGFloat amount, NSString *payType) {
-        weakself.isReward = YES;
+    rewardVC.payForReward = ^(NSNumber *amount, NSString *payType, NSString *orderNo) {
+        NSString *message = [NSString stringWithFormat:@"本次消费您需支付%@ u币，确定支付？",amount];
+        [AlertViewTool showAlertViewWithTitle:nil Message:message cancelTitle:@"取消" sureTitle:@"零钱支付" sureBlock:^{
+            [self payByWalletWithOrderNo:orderNo payMethod:payType];
+        } cancelBlock:^{
+            
+        }];
     };
     [self presentViewController:rewardVC animated:YES completion:nil];
 }
+
+- (void)payByWalletWithOrderNo:(NSString *)orderNo payMethod:(NSString *)payType {
+    [NetworkTool payForRewardWithOrderNo:orderNo success:^{
+        [SVProgressHUD showSuccessWithStatus:@"打赏成功"];
+        self.isReward = YES;
+    } failure:^(NSError *error, NSString *msg){
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        } else if ([msg isEqualToString:@"金额不足"]) {
+            [PayTool payFailureTranslateToRechargeVC:self rechargeSuccess:^{
+                [self payByWalletWithOrderNo:orderNo payMethod:payType];
+            } rechargeFailure:nil];
+        } else {
+            [SVProgressHUD showErrorWithStatus:@"打赏失败"];
+        }
+    }];
+}
+
 #pragma mark - 关注与取消关注操作
 - (void)concemUser {
     __weak typeof(self) weakself = self;
@@ -606,7 +597,6 @@ static NSString * const tableViewCellID_envelope = @"UserCenterRedEnvelopeViewCe
 #pragma mark - 跳聊天界面
 - (void)chatToUser {
     if (_userBaseInfoModel) {
-        __weak typeof(self) weakself = self;
         if ([LoginData sharedLoginData].audit == 1 ||
             [LoginData sharedLoginData].audit == 3 ||
             [LoginData sharedLoginData].isRecommend ||
@@ -615,7 +605,7 @@ static NSString * const tableViewCellID_envelope = @"UserCenterRedEnvelopeViewCe
             [self pushToChatViewController];
         } else {
             [AuthorityTool chatPermissionDeniedFromViewController:self returnBlock:^{
-                [weakself rewardUser];
+                [self rewardUser];
             }];
         }
     } else {
@@ -843,8 +833,8 @@ static NSString * const tableViewCellID_envelope = @"UserCenterRedEnvelopeViewCe
         if (_userBaseInfoModel) {
             cell.userBaseInfoModel = _userBaseInfoModel;
         }
+        
         cell.photoArray = self.photoArray;
-        cell.contributerArray = self.contrArray;
         return cell;
     }
 }

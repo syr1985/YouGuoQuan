@@ -10,8 +10,7 @@
 @implementation MJPhoto
 
 #pragma mark 截图
-- (UIImage *)capture:(UIView *)view
-{
+- (UIImage *)capture:(UIView *)view {
     UIGraphicsBeginImageContextWithOptions(view.bounds.size, YES, 0.0);
     [view.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
@@ -19,8 +18,7 @@
     return img;
 }
 
-- (void)setSrcImageView:(UIImageView *)srcImageView
-{
+- (void)setSrcImageView:(UIImageView *)srcImageView {
     _srcImageView = srcImageView;
     _placeholder = srcImageView.image;
     if (srcImageView.clipsToBounds) {

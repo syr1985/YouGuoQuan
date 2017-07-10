@@ -18,7 +18,7 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         UIButton *plusBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        [plusBtn setBackgroundImage:[UIImage imageNamed:@"Oval"] forState:UIControlStateNormal];
+        [plusBtn setBackgroundImage:[UIImage imageNamed:@"发布功能"] forState:UIControlStateNormal];
         plusBtn.adjustsImageWhenHighlighted = NO;
         //plusBtn.titleLabel.font = [UIFont systemFontOfSize:9];
         plusBtn.titleEdgeInsets = UIEdgeInsetsMake(80, 0, 0, 0);

@@ -10,10 +10,10 @@
 
 @interface PhotoBrowserHelp : NSObject
 
-+ (void)openPhotoBrowserWithImages:(NSArray *)imageUrlArray currentIndex:(NSUInteger)index;
++ (void)openPhotoBrowserWithImages:(NSArray *)imageUrlArray sourceImageView:(UIImageView *)imageView;
 
-+ (void)openPhotoBrowserWithImageArray:(NSArray *)imageArray currentIndex:(NSUInteger)index;
++ (void)openPhotoBrowserWithImageArray:(NSArray *)imageArray sourceImageView:(UIImageView *)imageView;
 
-+ (void)openPhotoBrowserWithImages:(NSArray *)imageUrlArray currentIndex:(NSUInteger)index canDeleteImage:(BOOL)canDelete;
++ (void)openPhotoBrowserWithImages:(NSArray *)imageUrlArray sourceImageView:(UIImageView *)imageView canDeleteImage:(BOOL)canDelete;
 
 @end

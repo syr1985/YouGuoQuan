@@ -14,10 +14,7 @@
 #import "AlertViewTool.h"
 
 @interface LookPhotosViewController ()
-@property (weak, nonatomic) IBOutlet UIImageView *backgroundImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *redbagImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
-@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *giftImageView;
 @property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
 @property (nonatomic,   copy) NSString *orderNo;
 @end
@@ -31,23 +28,29 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    //    self.redbagImageView.layer.cornerRadius = 10;
-    //    self.redbagImageView.layer.masksToBounds = YES;
     
-    _headerImageView.layer.cornerRadius = self.headerImageView.bounds.size.width * 0.5;
-    _headerImageView.layer.masksToBounds = YES;
-    
-    NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:_headImg
-                                                                  width:_headerImageView.bounds.size.width
-                                                                 height:_headerImageView.bounds.size.height];
-    [_headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
-                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
-    _nickNameLabel.text = _nickName;
-    _moneyLabel.text = [NSString stringWithFormat:@"%zd u币",_price];
-    
-    __weak typeof(self) weakself = self;
+    if (_price) {
+        NSString *giftName = @"";
+        switch (_price) {
+            case 10:
+                giftName = @"爱心";
+                break;
+            case 30:
+                giftName = @"棒棒糖";
+                break;
+            case 60:
+                giftName = @"玫瑰花";
+                break;
+            case 80:
+                giftName = @"冰淇淋";
+                break;
+        }
+        _giftImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"看红包照片-%@",giftName]];
+        _moneyLabel.text = [NSString stringWithFormat:@"%@ 售价：%zd u币",giftName, _price];
+    }
+
     [NetworkTool generateOrderNoWithGoodsType:@"RP" success:^(id result) {
-        weakself.orderNo = result;
+        self.orderNo = result;
     } failure:nil];
 }
 
@@ -61,28 +64,38 @@
 }
 
 - (IBAction)buyButtonClicked:(id)sender {
-    [PayTool payWithResult:^(NSString *payType) {
-        __weak typeof(self) weakself = self;
-        [NetworkTool createRedPacketOrderWithGoodsId:_goodsId
-                                             feedsId:_feedsId
-                                           payMethod:payType
-                                               phone:@""
-                                             orderNo:_orderNo
-                                             success:^(id result, id payOrderNo) {
-            if ([payType isEqualToString:@"wallet"]) {
-                [weakself payByWalletWithOrderNo:result];
-            } else {
-//                NSString *productID = [NSString stringWithFormat:@"youguoquan.photo%zdu",_price];
-//                [[IAPurchaseTool sharedInstance] purchaseWithProductID:productID orderNo:result success:^{
-//                     [weakself dismissViewControllerAfterShowMessage];
-//                } failure:^{
-//                     [weakself dismissViewControllerAfterShowMessage];
-//                }];
-            }
-        } failure:^{
-            [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
-        }];
-    }];
+//    [PayTool payWithResult:^(NSString *payType) {
+//        __weak typeof(self) weakself = self;
+//        [NetworkTool createRedPacketOrderWithGoodsId:_goodsId
+//                                             feedsId:_feedsId
+//                                           payMethod:payType
+//                                               phone:@""
+//                                             orderNo:_orderNo
+//                                             success:^(id result, id payOrderNo) {
+//            if ([payType isEqualToString:@"wallet"]) {
+//                [weakself payByWalletWithOrderNo:result];
+//            } else {
+////                NSString *productID = [NSString stringWithFormat:@"youguoquan.photo%zdu",_price];
+////                [[IAPurchaseTool sharedInstance] purchaseWithProductID:productID orderNo:result success:^{
+////                     [weakself dismissViewControllerAfterShowMessage];
+////                } failure:^{
+////                     [weakself dismissViewControllerAfterShowMessage];
+////                }];
+//            }
+//        } failure:^{
+//            [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+//        }];
+//    }];
+    [NetworkTool createRedPacketOrderWithGoodsId:_goodsId
+                                         feedsId:_feedsId
+                                       payMethod:@"wallet"
+                                           phone:@""
+                                         orderNo:_orderNo
+                                         success:^(id result, id payOrderNo) {
+                                             [self payByWalletWithOrderNo:result];
+                                         } failure:^{
+                                             [SVProgressHUD showErrorWithStatus:@"创建订单失败"];
+                                         }];
 }
 
 - (void)payByWalletWithOrderNo:(NSString *)orderNo {

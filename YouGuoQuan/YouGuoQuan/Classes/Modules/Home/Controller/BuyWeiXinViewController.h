@@ -11,5 +11,5 @@
 @interface BuyWeiXinViewController : UIViewController
 @property (nonatomic,   copy) NSString *price;
 @property (nonatomic,   copy) NSString *salerID;
-@property (nonatomic,   copy) void (^payRewardSucess)();
+@property (nonatomic,   copy) void (^payWeiXinSucess)();
 @end

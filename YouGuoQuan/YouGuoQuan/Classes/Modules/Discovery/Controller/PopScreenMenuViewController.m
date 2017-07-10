@@ -19,7 +19,7 @@
         if (_type == ScreenMenuType_User) {
             _titleArray = @[@"查看全部",@"只看男神",@"只看女神"];
         } else if (_type == ScreenMenuType_Income) {
-            _titleArray = @[@"全部明细",@"提现明细",@"推广收入",@"其他收入"];
+            _titleArray = @[@"全部明细",@"结算明细",@"平台收入",@"推广收入"];
         } else if (_type == ScreenMenuType_Recharge) {
             _titleArray = @[@"全部明细",@"充值明细",@"消费明细"];
         }

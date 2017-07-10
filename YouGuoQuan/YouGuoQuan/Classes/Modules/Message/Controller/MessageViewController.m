@@ -23,6 +23,7 @@
 #import "EMClient.h"
 #import "AlertViewTool.h"
 #import "AuthorityTool.h"
+#include "PayTool.h"
 
 NSString * const kNotification_RefreshUnreadMsgNumber = @"kNotification_RefreshUnreadMsgNumber";
 
@@ -354,15 +355,53 @@ NSString * const kNotification_RefreshUnreadMsgNumber = @"kNotification_RefreshU
     UIStoryboard *otherSB = [UIStoryboard storyboardWithName:@"Other" bundle:nil];
     RewardViewController *rewardVC = [otherSB instantiateViewControllerWithIdentifier:@"Reward"];
     rewardVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-    rewardVC.headImg = headImg;
     rewardVC.userID  = userId;
     rewardVC.rType   = @"ds";
-    rewardVC.payRewardSucess = ^(CGFloat amount, NSString *payType) {
-        if (reset) {
-            reset();
-        }
+//    rewardVC.payRewardSucess = ^(CGFloat amount, NSString *payType) {
+//        if (reset) {
+//            reset();
+//        }
+//    };
+    __weak typeof(self) weakself = self;
+    rewardVC.payForReward = ^(NSNumber *amount, NSString *payType, NSString *orderNo) {
+        NSString *message = [NSString stringWithFormat:@"本次消费您需支付%@ u币，确定支付？",amount];
+        [AlertViewTool showAlertViewWithTitle:nil Message:message cancelTitle:@"取消" sureTitle:@"零钱支付" sureBlock:^{
+            [weakself payByWalletWithOrderNo:orderNo payMethod:payType paySuccessBlock:^{
+                if (reset) {
+                    reset();
+                }
+            }];
+        } cancelBlock:^{
+            
+        }];
     };
     [self.tabBarController presentViewController:rewardVC animated:YES completion:nil];
+}
+
+- (void)payByWalletWithOrderNo:(NSString *)orderNo payMethod:(NSString *)payType paySuccessBlock:(void (^)())paySuccess {
+    [NetworkTool payForRewardWithOrderNo:orderNo success:^{
+        [SVProgressHUD showSuccessWithStatus:@"打赏成功"];
+        if (paySuccess) {
+            paySuccess();
+        }
+    } failure:^(NSError *error, NSString *msg){
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        } else if ([msg isEqualToString:@"金额不足"]) {
+            [PayTool payFailureTranslateToRechargeVC:self rechargeSuccess:^{
+                [self payByWalletWithOrderNo:orderNo payMethod:payType paySuccessBlock:^{
+                    NSIndexPath *indexPath = self.tableView.indexPathForSelectedRow;
+                    EMConversation *conversation = self.dataArray[indexPath.row];
+                    NSDictionary *userInfoDict = conversation.ext[Key_Conversation_Ext];
+                    [userInfoDict setValue:@1 forKey:@"isReward"];
+                    [conversation.ext setValue:userInfoDict forKey:Key_Conversation_Ext];
+                    [self.dataArray replaceObjectAtIndex:indexPath.row withObject:conversation];
+                }];
+            } rechargeFailure:nil];
+        } else {
+            [SVProgressHUD showErrorWithStatus:@"打赏失败"];
+        }
+    }];
 }
 
 

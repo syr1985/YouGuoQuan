@@ -188,7 +188,7 @@ NSString * const kUserCenterCommentSuccessNotification = @"UserCenterCommentSucc
  *  打开图片浏览器
  */
 - (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
-    UIView *tapView = sender.view;
+    UIImageView *tapView = (UIImageView *)sender.view;
     if (_userCenterModel.imageUrl && _userCenterModel.imageUrl.length) {
         NSArray *urlArray;
         if ([_userCenterModel.imageUrl containsString:@";"]) {
@@ -196,7 +196,7 @@ NSString * const kUserCenterCommentSuccessNotification = @"UserCenterCommentSucc
         } else {
             urlArray = @[_userCenterModel.imageUrl];
         }
-        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:tapView.tag];
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray sourceImageView:tapView];
     }
 }
 

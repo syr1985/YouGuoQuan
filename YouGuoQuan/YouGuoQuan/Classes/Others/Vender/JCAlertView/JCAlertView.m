@@ -621,6 +621,8 @@ buttonType ButtonTitle:(NSString *)buttonTitle Click:(clickHandle)click ButtonTy
             [btn setBackgroundColor:[UIColor whiteColor]];
             if ([title isEqualToString:@"确定"] && i == 0) {
                 [btn setTitleColor:WarningTipsTextColor forState:UIControlStateNormal];
+            } else if ([title isEqualToString:@"零钱支付"] && i == 1) {
+                [btn setTitleColor:NavTabBarColor forState:UIControlStateNormal];
             } else {
                 [btn setTitleColor:FontColor forState:UIControlStateNormal];
             }

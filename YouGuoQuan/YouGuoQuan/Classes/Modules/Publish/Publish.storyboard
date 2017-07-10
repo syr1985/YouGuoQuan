@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="华文细黑.ttf">
+            <string>STXihei</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--发布商品-->
         <scene sceneID="3hH-ee-MbS">
@@ -85,14 +90,14 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Gjb-hV-bcn">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="196.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="230"/>
                                             <color key="backgroundColor" red="0.98039215690000003" green="0.98039215690000003" blue="0.98039215690000003" alpha="1" colorSpace="calibratedRGB"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" secondItem="Gjb-hV-bcn" secondAttribute="height" multiplier="75:46" id="KEl-GL-c6y"/>
                                             </constraints>
                                         </imageView>
                                         <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="请输入商品名称（限15字以内）" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="O6a-kC-4xT">
-                                            <rect key="frame" x="20" y="205.5" width="292" height="30"/>
+                                            <rect key="frame" x="20" y="239" width="347" height="30"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="30" id="mJu-Ii-Gqn"/>
                                             </constraints>
@@ -104,7 +109,7 @@
                                             </connections>
                                         </textField>
                                         <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="选择您商品的发布价格" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Av4-al-k34">
-                                            <rect key="frame" x="20" y="253.5" width="292" height="30"/>
+                                            <rect key="frame" x="20" y="287" width="347" height="30"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="30" id="lWf-cN-MvS"/>
                                             </constraints>
@@ -116,7 +121,7 @@
                                             </connections>
                                         </textField>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E5F-Bx-veZ">
-                                            <rect key="frame" x="20" y="243.5" width="300" height="2"/>
+                                            <rect key="frame" x="20" y="277" width="355" height="2"/>
                                             <color key="backgroundColor" red="0.92156862750000001" green="0.92156862750000001" blue="0.92156862750000001" alpha="1" colorSpace="calibratedRGB"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="2" id="ZL9-Nr-C6M"/>
@@ -126,7 +131,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UUj-SC-jfp">
-                                            <rect key="frame" x="20" y="291.5" width="300" height="2"/>
+                                            <rect key="frame" x="20" y="325" width="355" height="2"/>
                                             <color key="backgroundColor" red="0.92156862745098034" green="0.92156862745098034" blue="0.92156862745098034" alpha="1" colorSpace="calibratedRGB"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="2" id="Vxv-OW-UTc"/>
@@ -136,7 +141,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" showsVerticalScrollIndicator="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="vbA-hg-11N">
-                                            <rect key="frame" x="15" y="301.5" width="297" height="134"/>
+                                            <rect key="frame" x="15" y="335" width="352" height="134"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="134" id="nlV-Ir-O5r"/>
@@ -149,7 +154,7 @@
                                             </connections>
                                         </textView>
                                         <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="m8F-nt-F21">
-                                            <rect key="frame" x="107.5" y="81.5" width="104" height="33"/>
+                                            <rect key="frame" x="135" y="98.5" width="104" height="33"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <state key="normal" title="点击更换封面">
                                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -159,7 +164,7 @@
                                             </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VT5-R2-8Rr" customClass="CameraButton">
-                                            <rect key="frame" x="85.5" y="66.5" width="149" height="63"/>
+                                            <rect key="frame" x="113" y="83.5" width="149" height="63"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                             <state key="normal" title="上传商品照片" image="上传商品封面">
                                                 <color key="titleColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
@@ -169,7 +174,7 @@
                                             </connections>
                                         </button>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3Ap-Yw-gjp">
-                                            <rect key="frame" x="0.0" y="475" width="320" height="12"/>
+                                            <rect key="frame" x="0.0" y="475" width="375" height="12"/>
                                             <color key="backgroundColor" red="0.98039215690000003" green="0.98039215690000003" blue="0.98039215690000003" alpha="1" colorSpace="calibratedRGB"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="12" id="46d-Ub-k8d"/>
@@ -380,7 +385,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="GkP-LO-U8Y">
-                                            <rect key="frame" x="7" y="0.0" width="306" height="135"/>
+                                            <rect key="frame" x="7" y="0.0" width="361" height="135"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <inset key="scrollIndicatorInsets" minX="0.0" minY="0.0" maxX="138" maxY="0.0"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -390,13 +395,13 @@
                                             </connections>
                                         </textView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="没发红包的朋友只能看到模糊的照片哦！" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" translatesAutoresizingMaskIntoConstraints="NO" id="Oeu-sE-naS">
-                                            <rect key="frame" x="12" y="159" width="296" height="17"/>
+                                            <rect key="frame" x="12" y="159" width="351" height="17"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                             <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MNc-iq-YD7">
-                                            <rect key="frame" x="0.0" y="135" width="320" height="12"/>
+                                            <rect key="frame" x="0.0" y="135" width="375" height="12"/>
                                             <color key="backgroundColor" red="0.96470588239999999" green="0.96470588239999999" blue="0.96470588239999999" alpha="1" colorSpace="calibratedRGB"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="12" id="cfz-Od-eUt"/>
@@ -615,7 +620,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="iVE-Je-VyR">
-                                            <rect key="frame" x="8" y="0.0" width="304" height="126"/>
+                                            <rect key="frame" x="8" y="0.0" width="359" height="126"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                             <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -624,7 +629,7 @@
                                             </connections>
                                         </textView>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="i6R-LB-7ri">
-                                            <rect key="frame" x="0.0" y="126" width="320" height="12"/>
+                                            <rect key="frame" x="0.0" y="126" width="375" height="12"/>
                                             <color key="backgroundColor" red="0.98039215690000003" green="0.98039215690000003" blue="0.98039215690000003" alpha="1" colorSpace="calibratedRGB"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="12" id="VdB-d2-Q0o"/>
@@ -755,7 +760,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="选择您微信的发布价格" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="e5c-sX-56m">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="请选择礼物类型" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="e5c-sX-56m">
                                 <rect key="frame" x="27" y="135" width="321" height="36"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -898,7 +903,7 @@
                                                 </attributes>
                                             </fragment>
                                             <fragment>
-                                                <string key="content">小时内添加已打赏用户的微信号并确认已添加，如果超时将视为交易失败，用户打赏的u币将会退还给该用户。
+                                                <string key="content">小时内添加已打赏用户的微信号并确认已添加，如果超时将视为交易失败，用户支付的u币将会退还给该用户。
 </string>
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -914,7 +919,7 @@
                                                 </attributes>
                                             </fragment>
                                             <fragment>
-                                                <string key="content">双方确认微信添加成功后，您可获得打赏的u币，在【个人中心】&gt;【我的钱包】&gt;【收入明细】中查询。
+                                                <string key="content">双方确认微信添加成功后，您可获得支付的u币，在【个人中心】&gt;【我的钱包】&gt;【收入明细】中查询。
 </string>
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -979,207 +984,499 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jD8-z2-liY">
-                                <rect key="frame" x="0.0" y="457" width="375" height="210"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fEq-L1-Cbo">
+                                <rect key="frame" x="0.0" y="357" width="375" height="310"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="选择您微信的发布价格" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dNt-mu-ltu">
-                                        <rect key="frame" x="115.5" y="30" width="143" height="17"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="请选择礼物类型" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S4R-x9-1iQ">
+                                        <rect key="frame" x="137.5" y="30" width="100" height="21"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="21" id="Ywc-Uf-yop"/>
+                                        </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="textColor" red="0.96078431369999995" green="0.57647058819999997" blue="0.13725490200000001" alpha="0.94999999999999996" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gZA-BN-rSe">
-                                        <rect key="frame" x="0.0" y="71" width="375" height="139"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="XnK-jg-paw">
+                                        <rect key="frame" x="0.0" y="66" width="375" height="220"/>
                                         <subviews>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="DxJ-7D-KB9">
-                                                <rect key="frame" x="0.0" y="0.0" width="125" height="139"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="aEj-D1-Ui3">
+                                                <rect key="frame" x="0.0" y="0.0" width="375" height="110"/>
                                                 <subviews>
-                                                    <button opaque="NO" tag="999" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="characterWrap" translatesAutoresizingMaskIntoConstraints="NO" id="xZh-K6-aIu">
-                                                        <rect key="frame" x="0.0" y="0.0" width="125" height="46.5"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <inset key="contentEdgeInsets" minX="-7" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <state key="normal" title="999 u币  " image="支付未选中">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <state key="selected" image="图片选中框">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
+                                                    <view tag="999" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fTY-68-tGB">
+                                                        <rect key="frame" x="0.0" y="0.0" width="74" height="110"/>
+                                                        <subviews>
+                                                            <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="购买微信-口红" translatesAutoresizingMaskIntoConstraints="NO" id="kE3-Po-kJ2">
+                                                                <rect key="frame" x="0.0" y="0.0" width="74" height="69"/>
+                                                            </imageView>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="口红" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UZ7-bp-PJJ">
+                                                                <rect key="frame" x="23" y="69" width="28" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="syc-sr-MM6"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
+                                                                <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="999 u币" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ohr-ng-BY4">
+                                                                <rect key="frame" x="16" y="89.5" width="42.5" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="LSr-FS-OEQ"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="12"/>
+                                                                <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <gestureRecognizers/>
+                                                        <constraints>
+                                                            <constraint firstItem="ohr-ng-BY4" firstAttribute="top" secondItem="UZ7-bp-PJJ" secondAttribute="bottom" id="6Cf-8l-ec1"/>
+                                                            <constraint firstItem="UZ7-bp-PJJ" firstAttribute="centerX" secondItem="fTY-68-tGB" secondAttribute="centerX" id="7XV-W5-cvc"/>
+                                                            <constraint firstAttribute="bottom" secondItem="ohr-ng-BY4" secondAttribute="bottom" id="B96-Uf-4AV"/>
+                                                            <constraint firstItem="kE3-Po-kJ2" firstAttribute="leading" secondItem="fTY-68-tGB" secondAttribute="leading" id="NgH-21-Hmw"/>
+                                                            <constraint firstItem="UZ7-bp-PJJ" firstAttribute="top" secondItem="kE3-Po-kJ2" secondAttribute="bottom" id="bd0-4Z-WIt"/>
+                                                            <constraint firstItem="kE3-Po-kJ2" firstAttribute="centerX" secondItem="fTY-68-tGB" secondAttribute="centerX" id="lOi-Hf-3wD"/>
+                                                            <constraint firstItem="ohr-ng-BY4" firstAttribute="centerX" secondItem="fTY-68-tGB" secondAttribute="centerX" id="tkk-Qn-9gs"/>
+                                                            <constraint firstItem="kE3-Po-kJ2" firstAttribute="top" secondItem="fTY-68-tGB" secondAttribute="top" id="zX7-DV-npi"/>
+                                                        </constraints>
                                                         <connections>
-                                                            <action selector="priceButtonClicked:" destination="eZ6-70-4em" eventType="touchUpInside" id="eyZ-tu-YHg"/>
+                                                            <outletCollection property="gestureRecognizers" destination="bwu-GS-jUd" appends="YES" id="Wr7-oE-0Yf"/>
                                                         </connections>
-                                                    </button>
-                                                    <button opaque="NO" tag="6666" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="characterWrap" translatesAutoresizingMaskIntoConstraints="NO" id="s4d-cA-lpM">
-                                                        <rect key="frame" x="0.0" y="46.5" width="125" height="46"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <inset key="contentEdgeInsets" minX="-7" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <state key="normal" title="6666 u币" image="支付未选中">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <state key="selected" image="图片选中框">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
+                                                    </view>
+                                                    <view tag="1314" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tjj-yi-xb2">
+                                                        <rect key="frame" x="75" y="0.0" width="74.5" height="110"/>
+                                                        <subviews>
+                                                            <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="购买微信-香水" translatesAutoresizingMaskIntoConstraints="NO" id="By9-5G-Gjj">
+                                                                <rect key="frame" x="0.0" y="0.0" width="74.5" height="69"/>
+                                                            </imageView>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="香水" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="n1O-N8-ion">
+                                                                <rect key="frame" x="23.5" y="69" width="28" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="Slu-Tj-5tM"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
+                                                                <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1314 u币" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z0W-vN-VnW">
+                                                                <rect key="frame" x="13" y="89.5" width="49" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="cEO-sd-F84"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="12"/>
+                                                                <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <gestureRecognizers/>
+                                                        <constraints>
+                                                            <constraint firstItem="By9-5G-Gjj" firstAttribute="top" secondItem="tjj-yi-xb2" secondAttribute="top" id="6ce-Gx-CDc"/>
+                                                            <constraint firstItem="n1O-N8-ion" firstAttribute="top" secondItem="By9-5G-Gjj" secondAttribute="bottom" id="9ke-8K-YQg"/>
+                                                            <constraint firstItem="Z0W-vN-VnW" firstAttribute="top" secondItem="n1O-N8-ion" secondAttribute="bottom" id="XZx-gk-nCz"/>
+                                                            <constraint firstAttribute="bottom" secondItem="Z0W-vN-VnW" secondAttribute="bottom" id="ajh-Qi-zrE"/>
+                                                            <constraint firstItem="By9-5G-Gjj" firstAttribute="centerX" secondItem="tjj-yi-xb2" secondAttribute="centerX" id="fxJ-51-vOf"/>
+                                                            <constraint firstItem="n1O-N8-ion" firstAttribute="centerX" secondItem="tjj-yi-xb2" secondAttribute="centerX" id="gUX-yx-msR"/>
+                                                            <constraint firstItem="Z0W-vN-VnW" firstAttribute="centerX" secondItem="tjj-yi-xb2" secondAttribute="centerX" id="tTr-Zu-tK7"/>
+                                                            <constraint firstItem="By9-5G-Gjj" firstAttribute="leading" secondItem="tjj-yi-xb2" secondAttribute="leading" id="xkJ-KA-hMj"/>
+                                                        </constraints>
                                                         <connections>
-                                                            <action selector="priceButtonClicked:" destination="eZ6-70-4em" eventType="touchUpInside" id="jpY-Yg-vEd"/>
+                                                            <outletCollection property="gestureRecognizers" destination="YbR-u9-aje" appends="YES" id="Nu6-sW-Mzw"/>
                                                         </connections>
-                                                    </button>
-                                                    <button opaque="NO" tag="19999" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="characterWrap" translatesAutoresizingMaskIntoConstraints="NO" id="R2w-Xg-hU9">
-                                                        <rect key="frame" x="0.0" y="92.5" width="125" height="46.5"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <state key="normal" title="19999 u币" image="支付未选中">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <state key="selected" image="图片选中框">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
+                                                    </view>
+                                                    <view tag="5200" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kpp-kT-keC">
+                                                        <rect key="frame" x="150.5" y="0.0" width="74" height="110"/>
+                                                        <subviews>
+                                                            <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="发布微信&amp;打赏-耳坠" translatesAutoresizingMaskIntoConstraints="NO" id="0BO-F5-42m">
+                                                                <rect key="frame" x="0.0" y="0.0" width="74" height="69"/>
+                                                            </imageView>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="耳坠" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Hfn-eP-ywP">
+                                                                <rect key="frame" x="23.5" y="69" width="28" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="J9T-wn-tAd"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
+                                                                <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="5200 u币" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zLt-d8-Hkc">
+                                                                <rect key="frame" x="12.5" y="89.5" width="49" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="ybt-FD-mZW"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="12"/>
+                                                                <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <gestureRecognizers/>
+                                                        <constraints>
+                                                            <constraint firstItem="zLt-d8-Hkc" firstAttribute="centerX" secondItem="kpp-kT-keC" secondAttribute="centerX" id="2Cd-bM-4Ik"/>
+                                                            <constraint firstItem="zLt-d8-Hkc" firstAttribute="top" secondItem="Hfn-eP-ywP" secondAttribute="bottom" id="2sR-Qh-woS"/>
+                                                            <constraint firstAttribute="bottom" secondItem="zLt-d8-Hkc" secondAttribute="bottom" id="OL3-4H-GLE"/>
+                                                            <constraint firstItem="0BO-F5-42m" firstAttribute="leading" secondItem="kpp-kT-keC" secondAttribute="leading" id="Tvx-fC-gox"/>
+                                                            <constraint firstItem="0BO-F5-42m" firstAttribute="centerX" secondItem="kpp-kT-keC" secondAttribute="centerX" id="f5A-M2-J2E"/>
+                                                            <constraint firstItem="Hfn-eP-ywP" firstAttribute="top" secondItem="0BO-F5-42m" secondAttribute="bottom" id="pac-d5-Nb3"/>
+                                                            <constraint firstItem="Hfn-eP-ywP" firstAttribute="centerX" secondItem="kpp-kT-keC" secondAttribute="centerX" id="vNL-j7-GHI"/>
+                                                            <constraint firstItem="0BO-F5-42m" firstAttribute="top" secondItem="kpp-kT-keC" secondAttribute="top" id="vgY-Vo-Xdg"/>
+                                                        </constraints>
                                                         <connections>
-                                                            <action selector="priceButtonClicked:" destination="eZ6-70-4em" eventType="touchUpInside" id="stf-Gi-tkT"/>
+                                                            <outletCollection property="gestureRecognizers" destination="dz4-2u-ICR" appends="YES" id="pxj-q3-d1t"/>
                                                         </connections>
-                                                    </button>
+                                                    </view>
+                                                    <view tag="6666" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dlq-I7-vCf">
+                                                        <rect key="frame" x="225.5" y="0.0" width="74.5" height="110"/>
+                                                        <subviews>
+                                                            <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="购买微信-项链" translatesAutoresizingMaskIntoConstraints="NO" id="bwY-b5-b4w">
+                                                                <rect key="frame" x="0.0" y="0.0" width="74.5" height="69"/>
+                                                            </imageView>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="项链" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uNY-Fx-jSU">
+                                                                <rect key="frame" x="23" y="69" width="28" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="yjf-37-kMs"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
+                                                                <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="6666 u币" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gzR-mb-pl2">
+                                                                <rect key="frame" x="12.5" y="89.5" width="49" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="qT7-cH-fEj"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="12"/>
+                                                                <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <gestureRecognizers/>
+                                                        <constraints>
+                                                            <constraint firstItem="uNY-Fx-jSU" firstAttribute="centerX" secondItem="Dlq-I7-vCf" secondAttribute="centerX" id="GLd-bC-dXS"/>
+                                                            <constraint firstItem="uNY-Fx-jSU" firstAttribute="top" secondItem="bwY-b5-b4w" secondAttribute="bottom" id="Vzm-TC-jkT"/>
+                                                            <constraint firstItem="gzR-mb-pl2" firstAttribute="top" secondItem="uNY-Fx-jSU" secondAttribute="bottom" id="aWV-ZH-Thn"/>
+                                                            <constraint firstItem="bwY-b5-b4w" firstAttribute="top" secondItem="Dlq-I7-vCf" secondAttribute="top" id="cwa-BB-UBF"/>
+                                                            <constraint firstItem="gzR-mb-pl2" firstAttribute="centerX" secondItem="Dlq-I7-vCf" secondAttribute="centerX" id="dze-AG-5kO"/>
+                                                            <constraint firstItem="bwY-b5-b4w" firstAttribute="leading" secondItem="Dlq-I7-vCf" secondAttribute="leading" id="hFl-3I-cfX"/>
+                                                            <constraint firstAttribute="bottom" secondItem="gzR-mb-pl2" secondAttribute="bottom" id="hbH-sC-LHP"/>
+                                                            <constraint firstItem="bwY-b5-b4w" firstAttribute="centerX" secondItem="Dlq-I7-vCf" secondAttribute="centerX" id="rh3-vJ-0SW"/>
+                                                        </constraints>
+                                                        <connections>
+                                                            <outletCollection property="gestureRecognizers" destination="8aT-CK-n6Q" appends="YES" id="kLq-lV-mok"/>
+                                                        </connections>
+                                                    </view>
+                                                    <view tag="8888" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yZj-Rd-0XJ">
+                                                        <rect key="frame" x="301" y="0.0" width="74" height="110"/>
+                                                        <subviews>
+                                                            <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="购买微信-手镯" translatesAutoresizingMaskIntoConstraints="NO" id="NLL-FY-QaW">
+                                                                <rect key="frame" x="0.0" y="0.0" width="74" height="69"/>
+                                                            </imageView>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="手镯" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="STW-xb-DYR">
+                                                                <rect key="frame" x="23" y="69" width="28" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="yCg-pT-9mk"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
+                                                                <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="8888 u币" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="k5k-mf-eCy">
+                                                                <rect key="frame" x="12.5" y="89.5" width="49" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="6QF-JE-7gB"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="12"/>
+                                                                <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <gestureRecognizers/>
+                                                        <constraints>
+                                                            <constraint firstItem="NLL-FY-QaW" firstAttribute="centerX" secondItem="yZj-Rd-0XJ" secondAttribute="centerX" id="85G-cI-O8F"/>
+                                                            <constraint firstItem="NLL-FY-QaW" firstAttribute="top" secondItem="yZj-Rd-0XJ" secondAttribute="top" id="BTO-Uj-KjI"/>
+                                                            <constraint firstItem="STW-xb-DYR" firstAttribute="top" secondItem="NLL-FY-QaW" secondAttribute="bottom" id="SfA-mU-fnL"/>
+                                                            <constraint firstItem="k5k-mf-eCy" firstAttribute="top" secondItem="STW-xb-DYR" secondAttribute="bottom" id="cxl-D2-2nT"/>
+                                                            <constraint firstItem="k5k-mf-eCy" firstAttribute="centerX" secondItem="yZj-Rd-0XJ" secondAttribute="centerX" id="jxQ-HM-Xl6"/>
+                                                            <constraint firstItem="STW-xb-DYR" firstAttribute="centerX" secondItem="yZj-Rd-0XJ" secondAttribute="centerX" id="mhH-Nn-uls"/>
+                                                            <constraint firstItem="NLL-FY-QaW" firstAttribute="leading" secondItem="yZj-Rd-0XJ" secondAttribute="leading" id="r7a-lv-7JS"/>
+                                                            <constraint firstAttribute="bottom" secondItem="k5k-mf-eCy" secondAttribute="bottom" id="vEb-w8-rAd"/>
+                                                        </constraints>
+                                                        <connections>
+                                                            <outletCollection property="gestureRecognizers" destination="8a9-LO-SAz" appends="YES" id="b5S-96-pw1"/>
+                                                        </connections>
+                                                    </view>
                                                 </subviews>
                                                 <constraints>
-                                                    <constraint firstItem="s4d-cA-lpM" firstAttribute="height" secondItem="xZh-K6-aIu" secondAttribute="height" id="eks-iE-fDb"/>
-                                                    <constraint firstItem="R2w-Xg-hU9" firstAttribute="height" secondItem="xZh-K6-aIu" secondAttribute="height" id="vrc-iU-7Q7"/>
+                                                    <constraint firstItem="Dlq-I7-vCf" firstAttribute="width" secondItem="fTY-68-tGB" secondAttribute="width" id="754-W0-gZ3"/>
+                                                    <constraint firstItem="kpp-kT-keC" firstAttribute="width" secondItem="fTY-68-tGB" secondAttribute="width" id="Q3H-8Q-TEe"/>
+                                                    <constraint firstItem="tjj-yi-xb2" firstAttribute="width" secondItem="fTY-68-tGB" secondAttribute="width" id="as9-Jz-71a"/>
+                                                    <constraint firstItem="yZj-Rd-0XJ" firstAttribute="width" secondItem="fTY-68-tGB" secondAttribute="width" id="tPt-Ba-twV"/>
                                                 </constraints>
                                             </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="bXc-TA-tx2">
-                                                <rect key="frame" x="125" y="0.0" width="125" height="139"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="z8t-hr-Mfd">
+                                                <rect key="frame" x="0.0" y="110" width="375" height="110"/>
                                                 <subviews>
-                                                    <button opaque="NO" tag="1314" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="characterWrap" translatesAutoresizingMaskIntoConstraints="NO" id="pVs-Iu-QIT">
-                                                        <rect key="frame" x="0.0" y="0.0" width="125" height="46.5"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <inset key="contentEdgeInsets" minX="-7" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <state key="normal" title="1314 u币 " image="支付未选中">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <state key="selected" image="图片选中框">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
+                                                    <view tag="9999" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="r1M-SR-Wj6">
+                                                        <rect key="frame" x="0.0" y="0.0" width="74" height="110"/>
+                                                        <subviews>
+                                                            <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="购买微信-钻戒" translatesAutoresizingMaskIntoConstraints="NO" id="yFc-bF-QgQ">
+                                                                <rect key="frame" x="0.0" y="0.0" width="74" height="69"/>
+                                                            </imageView>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="钻戒" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fpc-9G-KZs">
+                                                                <rect key="frame" x="23" y="69" width="28" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="hTO-xg-I8d"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
+                                                                <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="9999 u币" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LRL-Du-Vs8">
+                                                                <rect key="frame" x="12.5" y="89.5" width="49" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="WUt-PS-kFC"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="12"/>
+                                                                <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <gestureRecognizers/>
+                                                        <constraints>
+                                                            <constraint firstItem="yFc-bF-QgQ" firstAttribute="leading" secondItem="r1M-SR-Wj6" secondAttribute="leading" id="Edx-tt-31F"/>
+                                                            <constraint firstItem="yFc-bF-QgQ" firstAttribute="top" secondItem="r1M-SR-Wj6" secondAttribute="top" id="W43-if-hQl"/>
+                                                            <constraint firstItem="Fpc-9G-KZs" firstAttribute="top" secondItem="yFc-bF-QgQ" secondAttribute="bottom" id="exx-sC-3lT"/>
+                                                            <constraint firstItem="Fpc-9G-KZs" firstAttribute="centerX" secondItem="r1M-SR-Wj6" secondAttribute="centerX" id="hWh-Qa-ERG"/>
+                                                            <constraint firstItem="yFc-bF-QgQ" firstAttribute="centerX" secondItem="r1M-SR-Wj6" secondAttribute="centerX" id="jaE-RH-NrS"/>
+                                                            <constraint firstAttribute="bottom" secondItem="LRL-Du-Vs8" secondAttribute="bottom" id="taX-0J-EPU"/>
+                                                            <constraint firstItem="LRL-Du-Vs8" firstAttribute="top" secondItem="Fpc-9G-KZs" secondAttribute="bottom" id="yUe-P0-igd"/>
+                                                            <constraint firstItem="LRL-Du-Vs8" firstAttribute="centerX" secondItem="r1M-SR-Wj6" secondAttribute="centerX" id="zRE-x9-aMs"/>
+                                                        </constraints>
                                                         <connections>
-                                                            <action selector="priceButtonClicked:" destination="eZ6-70-4em" eventType="touchUpInside" id="5gp-A7-6eA"/>
+                                                            <outletCollection property="gestureRecognizers" destination="tm1-Wz-1Kv" appends="YES" id="ry2-3i-HBo"/>
                                                         </connections>
-                                                    </button>
-                                                    <button opaque="NO" tag="8888" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="characterWrap" translatesAutoresizingMaskIntoConstraints="NO" id="nuh-1Y-DOU">
-                                                        <rect key="frame" x="0.0" y="46.5" width="125" height="46"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <inset key="contentEdgeInsets" minX="-7" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <state key="normal" title="8888 u币" image="支付未选中">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <state key="selected" image="图片选中框">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
+                                                    </view>
+                                                    <view tag="19999" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ydm-9F-Jmy">
+                                                        <rect key="frame" x="75" y="0.0" width="74.5" height="110"/>
+                                                        <subviews>
+                                                            <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="购买微信-跑车" translatesAutoresizingMaskIntoConstraints="NO" id="fpX-RU-et8">
+                                                                <rect key="frame" x="0.0" y="0.0" width="74.5" height="69"/>
+                                                            </imageView>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="跑车" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="whX-Oz-4mv">
+                                                                <rect key="frame" x="23.5" y="69" width="28" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="63U-i0-RrB"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
+                                                                <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="19999 u币" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="T0u-Yy-gd8">
+                                                                <rect key="frame" x="10" y="89.5" width="56" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="fHI-G3-Np5"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="12"/>
+                                                                <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <gestureRecognizers/>
+                                                        <constraints>
+                                                            <constraint firstItem="T0u-Yy-gd8" firstAttribute="top" secondItem="whX-Oz-4mv" secondAttribute="bottom" id="9kX-pH-0Zh"/>
+                                                            <constraint firstItem="T0u-Yy-gd8" firstAttribute="centerX" secondItem="ydm-9F-Jmy" secondAttribute="centerX" id="N7v-1N-NFf"/>
+                                                            <constraint firstItem="fpX-RU-et8" firstAttribute="centerX" secondItem="ydm-9F-Jmy" secondAttribute="centerX" id="Xoq-Hr-H24"/>
+                                                            <constraint firstAttribute="bottom" secondItem="T0u-Yy-gd8" secondAttribute="bottom" id="cOz-aA-Iei"/>
+                                                            <constraint firstItem="whX-Oz-4mv" firstAttribute="centerX" secondItem="ydm-9F-Jmy" secondAttribute="centerX" id="fO4-Od-obT"/>
+                                                            <constraint firstItem="fpX-RU-et8" firstAttribute="top" secondItem="ydm-9F-Jmy" secondAttribute="top" id="fZy-is-ocw"/>
+                                                            <constraint firstItem="fpX-RU-et8" firstAttribute="leading" secondItem="ydm-9F-Jmy" secondAttribute="leading" id="nuF-D1-Bhm"/>
+                                                            <constraint firstItem="whX-Oz-4mv" firstAttribute="top" secondItem="fpX-RU-et8" secondAttribute="bottom" id="rVh-3m-XRh"/>
+                                                        </constraints>
                                                         <connections>
-                                                            <action selector="priceButtonClicked:" destination="eZ6-70-4em" eventType="touchUpInside" id="nLQ-3d-AlY"/>
+                                                            <outletCollection property="gestureRecognizers" destination="hp0-3F-ocB" appends="YES" id="vVf-LY-rjh"/>
                                                         </connections>
-                                                    </button>
-                                                    <button opaque="NO" tag="29999" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="characterWrap" translatesAutoresizingMaskIntoConstraints="NO" id="VMp-HK-ofb">
-                                                        <rect key="frame" x="0.0" y="92.5" width="125" height="46.5"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <state key="normal" title="29999 u币" image="支付未选中">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <state key="selected" image="图片选中框">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
+                                                    </view>
+                                                    <view tag="29999" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="P8y-K5-U2f">
+                                                        <rect key="frame" x="150.5" y="0.0" width="74" height="110"/>
+                                                        <subviews>
+                                                            <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="购买微信-游艇" translatesAutoresizingMaskIntoConstraints="NO" id="I19-0u-h8e">
+                                                                <rect key="frame" x="0.0" y="0.0" width="74" height="69"/>
+                                                            </imageView>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="游艇" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sHZ-lM-oRm">
+                                                                <rect key="frame" x="23" y="69" width="28" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="Se9-Vw-wu9"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
+                                                                <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="29999 u币" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="crg-7e-EDP">
+                                                                <rect key="frame" x="10" y="89.5" width="56" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="z87-cX-4BE"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="12"/>
+                                                                <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <gestureRecognizers/>
+                                                        <constraints>
+                                                            <constraint firstItem="I19-0u-h8e" firstAttribute="centerX" secondItem="P8y-K5-U2f" secondAttribute="centerX" id="4gA-CT-0gF"/>
+                                                            <constraint firstItem="I19-0u-h8e" firstAttribute="top" secondItem="P8y-K5-U2f" secondAttribute="top" id="MKt-hh-eoZ"/>
+                                                            <constraint firstItem="crg-7e-EDP" firstAttribute="top" secondItem="sHZ-lM-oRm" secondAttribute="bottom" id="Von-yu-SBp"/>
+                                                            <constraint firstItem="sHZ-lM-oRm" firstAttribute="centerX" secondItem="P8y-K5-U2f" secondAttribute="centerX" id="atw-Zr-HX8"/>
+                                                            <constraint firstItem="I19-0u-h8e" firstAttribute="leading" secondItem="P8y-K5-U2f" secondAttribute="leading" id="bNj-Xm-ac5"/>
+                                                            <constraint firstAttribute="bottom" secondItem="crg-7e-EDP" secondAttribute="bottom" id="cjn-Na-aYJ"/>
+                                                            <constraint firstItem="sHZ-lM-oRm" firstAttribute="top" secondItem="I19-0u-h8e" secondAttribute="bottom" id="doy-Dh-miw"/>
+                                                            <constraint firstItem="crg-7e-EDP" firstAttribute="centerX" secondItem="P8y-K5-U2f" secondAttribute="centerX" id="ewf-6F-53e"/>
+                                                        </constraints>
                                                         <connections>
-                                                            <action selector="priceButtonClicked:" destination="eZ6-70-4em" eventType="touchUpInside" id="ilp-Ft-ehG"/>
+                                                            <outletCollection property="gestureRecognizers" destination="nSf-tC-bW2" appends="YES" id="vUQ-5L-veP"/>
                                                         </connections>
-                                                    </button>
+                                                    </view>
+                                                    <view tag="59999" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TbV-Si-fe8">
+                                                        <rect key="frame" x="225.5" y="0.0" width="74.5" height="110"/>
+                                                        <subviews>
+                                                            <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="购买微信-别墅" translatesAutoresizingMaskIntoConstraints="NO" id="jBb-Zj-p3Y">
+                                                                <rect key="frame" x="0.0" y="0.0" width="74.5" height="69"/>
+                                                            </imageView>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="别墅" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="o5s-ix-WXg">
+                                                                <rect key="frame" x="23" y="69" width="28" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="b3C-W9-q7u"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
+                                                                <color key="textColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="59999 u币" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Afx-AZ-jQy">
+                                                                <rect key="frame" x="9.5" y="89.5" width="56" height="20.5"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="20.5" id="cJ3-OJ-f5q"/>
+                                                                </constraints>
+                                                                <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="12"/>
+                                                                <color key="textColor" red="0.6705882353" green="0.6705882353" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <gestureRecognizers/>
+                                                        <constraints>
+                                                            <constraint firstItem="Afx-AZ-jQy" firstAttribute="centerX" secondItem="TbV-Si-fe8" secondAttribute="centerX" id="1Vp-zm-FWX"/>
+                                                            <constraint firstItem="o5s-ix-WXg" firstAttribute="centerX" secondItem="TbV-Si-fe8" secondAttribute="centerX" id="6Vr-2u-YLt"/>
+                                                            <constraint firstItem="Afx-AZ-jQy" firstAttribute="top" secondItem="o5s-ix-WXg" secondAttribute="bottom" id="Fae-sC-GAT"/>
+                                                            <constraint firstAttribute="bottom" secondItem="Afx-AZ-jQy" secondAttribute="bottom" id="Ljb-wg-Yhk"/>
+                                                            <constraint firstItem="jBb-Zj-p3Y" firstAttribute="top" secondItem="TbV-Si-fe8" secondAttribute="top" id="Ult-wR-xsd"/>
+                                                            <constraint firstItem="jBb-Zj-p3Y" firstAttribute="leading" secondItem="TbV-Si-fe8" secondAttribute="leading" id="WZ3-i2-Tbm"/>
+                                                            <constraint firstItem="jBb-Zj-p3Y" firstAttribute="centerX" secondItem="TbV-Si-fe8" secondAttribute="centerX" id="mgH-SD-med"/>
+                                                            <constraint firstItem="o5s-ix-WXg" firstAttribute="top" secondItem="jBb-Zj-p3Y" secondAttribute="bottom" id="sA5-ad-o22"/>
+                                                        </constraints>
+                                                        <connections>
+                                                            <outletCollection property="gestureRecognizers" destination="YL5-WL-MBQ" appends="YES" id="GXH-Lq-HqB"/>
+                                                        </connections>
+                                                    </view>
+                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="29V-Ls-iuG">
+                                                        <rect key="frame" x="301" y="0.0" width="74" height="110"/>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    </view>
                                                 </subviews>
                                                 <constraints>
-                                                    <constraint firstItem="VMp-HK-ofb" firstAttribute="height" secondItem="pVs-Iu-QIT" secondAttribute="height" id="7Fz-qn-7hl"/>
-                                                    <constraint firstItem="nuh-1Y-DOU" firstAttribute="height" secondItem="pVs-Iu-QIT" secondAttribute="height" id="v1S-bp-KPb"/>
-                                                </constraints>
-                                            </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="v8s-mm-l95">
-                                                <rect key="frame" x="250" y="0.0" width="125" height="139"/>
-                                                <subviews>
-                                                    <button opaque="NO" tag="5200" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="characterWrap" translatesAutoresizingMaskIntoConstraints="NO" id="5FI-Si-Zez">
-                                                        <rect key="frame" x="0.0" y="0.0" width="125" height="46.5"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <inset key="contentEdgeInsets" minX="-7" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <state key="normal" title="5200 u币 " image="支付未选中">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <state key="selected" image="图片选中框">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <connections>
-                                                            <action selector="priceButtonClicked:" destination="eZ6-70-4em" eventType="touchUpInside" id="R5m-CL-YhS"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" tag="9999" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="characterWrap" translatesAutoresizingMaskIntoConstraints="NO" id="ifV-Ev-WjZ">
-                                                        <rect key="frame" x="0.0" y="46.5" width="125" height="46"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <inset key="contentEdgeInsets" minX="-7" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <state key="normal" title="9999 u币 " image="支付未选中">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <state key="selected" image="图片选中框">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <connections>
-                                                            <action selector="priceButtonClicked:" destination="eZ6-70-4em" eventType="touchUpInside" id="DoM-IU-ymn"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button opaque="NO" tag="59999" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="characterWrap" translatesAutoresizingMaskIntoConstraints="NO" id="2Kg-a6-ChH">
-                                                        <rect key="frame" x="0.0" y="92.5" width="125" height="46.5"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                                        <state key="normal" title="59999 u币" image="支付未选中">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <state key="selected" image="图片选中框">
-                                                            <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </state>
-                                                        <connections>
-                                                            <action selector="priceButtonClicked:" destination="eZ6-70-4em" eventType="touchUpInside" id="Lcd-FZ-jVg"/>
-                                                        </connections>
-                                                    </button>
-                                                </subviews>
-                                                <constraints>
-                                                    <constraint firstItem="ifV-Ev-WjZ" firstAttribute="height" secondItem="5FI-Si-Zez" secondAttribute="height" id="4wd-fc-Pkd"/>
-                                                    <constraint firstItem="2Kg-a6-ChH" firstAttribute="height" secondItem="5FI-Si-Zez" secondAttribute="height" id="RoN-4m-0GJ"/>
+                                                    <constraint firstItem="P8y-K5-U2f" firstAttribute="width" secondItem="r1M-SR-Wj6" secondAttribute="width" id="1b2-51-MBL"/>
+                                                    <constraint firstItem="29V-Ls-iuG" firstAttribute="width" secondItem="r1M-SR-Wj6" secondAttribute="width" id="5jk-fs-Wue"/>
+                                                    <constraint firstItem="TbV-Si-fe8" firstAttribute="width" secondItem="r1M-SR-Wj6" secondAttribute="width" id="dRH-pa-YiO"/>
+                                                    <constraint firstItem="ydm-9F-Jmy" firstAttribute="width" secondItem="r1M-SR-Wj6" secondAttribute="width" id="rFC-Q4-BVr"/>
                                                 </constraints>
                                             </stackView>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstItem="bXc-TA-tx2" firstAttribute="width" secondItem="DxJ-7D-KB9" secondAttribute="width" id="Yd6-uF-9xz"/>
-                                            <constraint firstItem="v8s-mm-l95" firstAttribute="width" secondItem="DxJ-7D-KB9" secondAttribute="width" id="dhH-d0-bpq"/>
+                                            <constraint firstItem="z8t-hr-Mfd" firstAttribute="height" secondItem="aEj-D1-Ui3" secondAttribute="height" id="KWQ-7m-faB"/>
                                         </constraints>
                                     </stackView>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstItem="gZA-BN-rSe" firstAttribute="leading" secondItem="jD8-z2-liY" secondAttribute="leading" id="2Cf-j4-D13"/>
-                                    <constraint firstItem="gZA-BN-rSe" firstAttribute="top" secondItem="dNt-mu-ltu" secondAttribute="bottom" constant="24" id="J2f-CN-5qd"/>
-                                    <constraint firstAttribute="height" constant="210" id="VwK-hM-mgk"/>
-                                    <constraint firstAttribute="bottom" secondItem="gZA-BN-rSe" secondAttribute="bottom" id="ly1-sm-RTZ"/>
-                                    <constraint firstAttribute="trailing" secondItem="gZA-BN-rSe" secondAttribute="trailing" id="mJG-l1-xUp"/>
-                                    <constraint firstItem="dNt-mu-ltu" firstAttribute="top" secondItem="jD8-z2-liY" secondAttribute="top" constant="30" id="nZj-po-YNh"/>
-                                    <constraint firstItem="dNt-mu-ltu" firstAttribute="centerX" secondItem="jD8-z2-liY" secondAttribute="centerX" id="yMu-0F-vrA"/>
+                                    <constraint firstItem="S4R-x9-1iQ" firstAttribute="top" secondItem="fEq-L1-Cbo" secondAttribute="top" constant="30" id="QOh-l2-5wl"/>
+                                    <constraint firstItem="S4R-x9-1iQ" firstAttribute="centerX" secondItem="fEq-L1-Cbo" secondAttribute="centerX" id="R7w-Ck-ti0"/>
+                                    <constraint firstAttribute="height" constant="310" id="S8m-8M-xCr"/>
+                                    <constraint firstItem="XnK-jg-paw" firstAttribute="leading" secondItem="fEq-L1-Cbo" secondAttribute="leading" id="XKK-Ye-bY6"/>
+                                    <constraint firstAttribute="bottom" secondItem="XnK-jg-paw" secondAttribute="bottom" constant="24" id="n5H-2e-FyA"/>
+                                    <constraint firstItem="XnK-jg-paw" firstAttribute="top" secondItem="S4R-x9-1iQ" secondAttribute="bottom" constant="15" id="vfc-LR-lRR"/>
+                                    <constraint firstAttribute="trailing" secondItem="XnK-jg-paw" secondAttribute="trailing" id="ykO-O6-eu3"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.34999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                        <gestureRecognizers/>
                         <constraints>
-                            <constraint firstItem="jD8-z2-liY" firstAttribute="leading" secondItem="0O8-56-E84" secondAttribute="leading" id="83X-J4-N1I"/>
-                            <constraint firstAttribute="trailing" secondItem="jD8-z2-liY" secondAttribute="trailing" id="bXa-sq-7Wh"/>
-                            <constraint firstItem="Aqw-SL-Jqa" firstAttribute="top" secondItem="jD8-z2-liY" secondAttribute="bottom" id="pef-jr-iV8"/>
+                            <constraint firstAttribute="trailing" secondItem="fEq-L1-Cbo" secondAttribute="trailing" id="LCP-5E-LR8"/>
+                            <constraint firstItem="fEq-L1-Cbo" firstAttribute="leading" secondItem="0O8-56-E84" secondAttribute="leading" id="Scd-VN-gHU"/>
+                            <constraint firstItem="Aqw-SL-Jqa" firstAttribute="top" secondItem="fEq-L1-Cbo" secondAttribute="bottom" id="WwW-dg-X7N"/>
                         </constraints>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="bvT-ch-6oL" appends="YES" id="9Rv-x0-va4"/>
+                        </connections>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ccJ-Kr-6tk" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="bwu-GS-jUd">
+                    <connections>
+                        <action selector="tapAction:" destination="eZ6-70-4em" id="mif-6m-5D0"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="YbR-u9-aje">
+                    <connections>
+                        <action selector="tapAction:" destination="eZ6-70-4em" id="AX0-HP-YJy"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="dz4-2u-ICR">
+                    <connections>
+                        <action selector="tapAction:" destination="eZ6-70-4em" id="gHE-wd-Auw"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="8aT-CK-n6Q">
+                    <connections>
+                        <action selector="tapAction:" destination="eZ6-70-4em" id="Vv4-dv-su1"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="8a9-LO-SAz">
+                    <connections>
+                        <action selector="tapAction:" destination="eZ6-70-4em" id="ZNp-wD-YkW"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="tm1-Wz-1Kv">
+                    <connections>
+                        <action selector="tapAction:" destination="eZ6-70-4em" id="PcH-AR-2FT"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="hp0-3F-ocB">
+                    <connections>
+                        <action selector="tapAction:" destination="eZ6-70-4em" id="HcW-Em-rvt"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="nSf-tC-bW2">
+                    <connections>
+                        <action selector="tapAction:" destination="eZ6-70-4em" id="JDF-O5-48w"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="YL5-WL-MBQ">
+                    <connections>
+                        <action selector="tapAction:" destination="eZ6-70-4em" id="Dfe-lQ-Txv"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="bvT-ch-6oL">
+                    <connections>
+                        <action selector="tapBackgroundViewAction:" destination="eZ6-70-4em" id="GN9-1C-nfh"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="3434" y="788"/>
+            <point key="canvasLocation" x="3432.8000000000002" y="787.55622188905556"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="1PD-D5-zkD">
@@ -1347,7 +1644,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zlp-Vf-GMr">
-                                <rect key="frame" x="25" y="133.5" width="325" height="400"/>
+                                <rect key="frame" x="25" y="148" width="325" height="371"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="红包照片发布规则" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hfR-Rz-ydF">
                                         <rect key="frame" x="6" y="42" width="313" height="21"/>
@@ -1356,12 +1653,13 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lkb-Jy-c38">
-                                        <rect key="frame" x="24" y="319" width="277" height="36"/>
+                                        <rect key="frame" x="24" y="290" width="277" height="36"/>
+                                        <color key="backgroundColor" red="0.99607843139999996" green="0.85098039219999999" blue="0.56078431370000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="36" id="iJR-BZ-aKt"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <state key="normal" title="我知道了" backgroundImage="黄色Button">
+                                        <fontDescription key="fontDescription" name="STXihei" family="STHeiti" pointSize="14"/>
+                                        <state key="normal" title="我知道了">
                                             <color key="titleColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>
@@ -1369,7 +1667,7 @@
                                         </connections>
                                     </button>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" editable="NO" usesAttributedText="YES" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mxr-5i-fC7">
-                                        <rect key="frame" x="19" y="93" width="287" height="191"/>
+                                        <rect key="frame" x="19" y="75" width="287" height="200"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <attributedString key="attributedText">
                                             <fragment content="1.">
@@ -1379,162 +1677,162 @@
                                                     <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
-                                            <fragment content="单次发布不能超过9张照片；">
+                                            <fragment>
+                                                <string key="content">单次发布不能超过9张照片；
+</string>
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
                                                     <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
-                                            <fragment>
-                                                <string key="content">
-2.</string>
+                                            <fragment content="2.">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".AppleSystemUIFont"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="单">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="次">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="发布">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="1-2">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".AppleSystemUIFont"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="张">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="照">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="片，">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
-                                            <fragment content="统一售价为">
+                                            <fragment content="售价1个，价值为">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
-                                            <fragment content="10">
+                                            <fragment content="10 ">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="STYuanti-SC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="u">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="Monaco"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="币">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment content="；">
-                                                <attributes>
-                                                    <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                    <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment>
-                                                <string key="content">
-3.</string>
+                                                <string key="content">；
+</string>
+                                                <attributes>
+                                                    <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                                </attributes>
+                                            </fragment>
+                                            <fragment content="3.">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784313730000001" green="0.12549019610000001" blue="0.027450980390000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".AppleSystemUIFont"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="单次发布">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="3-4">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="HelveticaNeue"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="张照片，">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
-                                            <fragment content="统一售价为">
+                                            <fragment content="售价1个，价值为">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
-                                            <fragment content="30">
+                                            <fragment content="30 ">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="STYuanti-SC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="u">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="Monaco"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="币">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment>
@@ -1543,63 +1841,63 @@
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="4.">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="HelveticaNeue"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="单次发布">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="5-7">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="HelveticaNeue"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="张照片，">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
-                                            <fragment content="统一售价为">
+                                            <fragment content="售价1个，价值为">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
-                                            <fragment content="60">
+                                            <fragment content="60 ">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="STYuanti-SC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="u">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="Monaco"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="币">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment>
@@ -1608,70 +1906,70 @@
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" paragraphSpacing="10" paragraphSpacingBefore="10" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="5.">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="HelveticaNeue"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineHeightMultiple="1.5" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="单次发布">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineHeightMultiple="1.5" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="8-9">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="HelveticaNeue"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineHeightMultiple="1.5" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="张照片，">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineHeightMultiple="1.5" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
-                                            <fragment content="统一售价为">
+                                            <fragment content="售价1个，价值为">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineHeightMultiple="1.5" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
-                                            <fragment content="80">
+                                            <fragment content="80 ">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="STYuanti-SC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineHeightMultiple="1.5" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="u">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="Monaco"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineHeightMultiple="1.5" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="币">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name="PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineHeightMultiple="1.5" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="；">
                                                 <attributes>
                                                     <color key="NSColor" red="0.20784" green="0.12548999999999999" blue="0.027449999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <font key="NSFont" size="14" name=".PingFangSC-Regular"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" lineHeightMultiple="1.5" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                 </attributes>
                                             </fragment>
                                         </attributedString>
@@ -1683,9 +1981,9 @@
                                     <constraint firstItem="lkb-Jy-c38" firstAttribute="leading" secondItem="Zlp-Vf-GMr" secondAttribute="leading" constant="24" id="3qO-FS-atA"/>
                                     <constraint firstItem="hfR-Rz-ydF" firstAttribute="centerX" secondItem="Zlp-Vf-GMr" secondAttribute="centerX" id="45s-Zb-mOT"/>
                                     <constraint firstItem="mxr-5i-fC7" firstAttribute="leading" secondItem="Zlp-Vf-GMr" secondAttribute="leading" constant="19" id="RYG-ru-GXe"/>
-                                    <constraint firstItem="lkb-Jy-c38" firstAttribute="top" secondItem="mxr-5i-fC7" secondAttribute="bottom" constant="35" id="RwQ-KY-Ouw"/>
+                                    <constraint firstItem="lkb-Jy-c38" firstAttribute="top" secondItem="mxr-5i-fC7" secondAttribute="bottom" constant="15" id="RwQ-KY-Ouw"/>
                                     <constraint firstAttribute="bottom" secondItem="lkb-Jy-c38" secondAttribute="bottom" constant="45" id="X9y-q6-0d4"/>
-                                    <constraint firstItem="mxr-5i-fC7" firstAttribute="top" secondItem="hfR-Rz-ydF" secondAttribute="bottom" constant="30" id="c4q-E9-9HI"/>
+                                    <constraint firstItem="mxr-5i-fC7" firstAttribute="top" secondItem="hfR-Rz-ydF" secondAttribute="bottom" constant="12" id="c4q-E9-9HI"/>
                                     <constraint firstItem="mxr-5i-fC7" firstAttribute="centerX" secondItem="Zlp-Vf-GMr" secondAttribute="centerX" id="gNl-dv-hzy"/>
                                     <constraint firstItem="lkb-Jy-c38" firstAttribute="centerX" secondItem="Zlp-Vf-GMr" secondAttribute="centerX" id="uWp-NM-lDL"/>
                                     <constraint firstItem="hfR-Rz-ydF" firstAttribute="leading" secondItem="Zlp-Vf-GMr" secondAttribute="leading" constant="6" id="zev-Z2-L81"/>
@@ -1700,6 +1998,9 @@
                             <constraint firstItem="Zlp-Vf-GMr" firstAttribute="centerY" secondItem="UVo-1A-5Q0" secondAttribute="centerY" id="wJ8-i7-CbT"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="textView" destination="mxr-5i-fC7" id="MCB-z1-SYB"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="a7z-fV-s9i" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -1918,11 +2219,20 @@
         <image name="上传商品封面" width="63" height="63"/>
         <image name="删除照片" width="21" height="21"/>
         <image name="发布-添加" width="113" height="113"/>
+        <image name="发布微信&amp;打赏-耳坠" width="75" height="75"/>
         <image name="发布按钮-笑脸" width="10" height="10"/>
         <image name="发布按钮-笑脸禁用" width="10" height="10"/>
         <image name="图片选中框" width="20" height="20"/>
         <image name="支付未选中" width="20" height="20"/>
         <image name="禁用button" width="313" height="36"/>
+        <image name="购买微信-别墅" width="90" height="90"/>
+        <image name="购买微信-口红" width="90" height="90"/>
+        <image name="购买微信-手镯" width="90" height="90"/>
+        <image name="购买微信-游艇" width="90" height="90"/>
+        <image name="购买微信-跑车" width="90" height="90"/>
+        <image name="购买微信-钻戒" width="90" height="90"/>
+        <image name="购买微信-项链" width="90" height="90"/>
+        <image name="购买微信-香水" width="90" height="90"/>
         <image name="选框" width="20" height="20"/>
         <image name="选框选中" width="20" height="20"/>
         <image name="黄色Button" width="313" height="36"/>

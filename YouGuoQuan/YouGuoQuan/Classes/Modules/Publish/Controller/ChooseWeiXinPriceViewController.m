@@ -9,7 +9,7 @@
 #import "ChooseWeiXinPriceViewController.h"
 
 @interface ChooseWeiXinPriceViewController ()
-//@property (nonatomic, strong) UIButton *selectButton;
+
 @end
 
 @implementation ChooseWeiXinPriceViewController
@@ -24,14 +24,30 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (IBAction)priceButtonClicked:(UIButton *)sender {
-    sender.selected = YES;
-    if (_selectPublishPriceBlock) {
-        _selectPublishPriceBlock(sender.titleLabel.text, @(sender.tag));
-    }
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self dismissViewControllerAnimated:YES completion:nil];
+- (IBAction)tapBackgroundViewAction:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)tapAction:(UITapGestureRecognizer *)sender {
+    UIView *tapView = sender.view;
+    UIImageView *imageView = [tapView viewWithTag:1];
+    imageView.layer.borderWidth = 1;
+    imageView.layer.borderColor = NavTabBarColor.CGColor;
+    
+    UILabel *titleLabel = [tapView viewWithTag:2];
+    titleLabel.textColor = NavTabBarColor;
+    
+    UILabel *priceLabel = [tapView viewWithTag:3];
+    priceLabel.textColor = NavTabBarColor;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self dismissViewControllerAnimated:YES completion:^{
+            if (_selectPublishPriceBlock) {
+                _selectPublishPriceBlock(priceLabel.text, @(tapView.tag));
+            }
+        }];
     });
 }
+
 
 @end

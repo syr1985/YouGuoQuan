@@ -42,18 +42,9 @@ NSString * const kNotification_BuyVipSuccess = @"kNotification_BuyVIPSuccess";
 
 #pragma mark - Table view data source
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 2;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return section == 0 ? 1 : 5;
-}
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == 1) {
-        NSArray *vipPrice = @[@{@"month":@(0), @"price":@998},
-                              @{@"month":@(12),@"price":@588},
+        NSArray *vipPrice = @[@{@"month":@(12),@"price":@588},
                               @{@"month":@(6), @"price":@388},
                               @{@"month":@(3), @"price":@238},
                               @{@"month":@(1), @"price":@98}];

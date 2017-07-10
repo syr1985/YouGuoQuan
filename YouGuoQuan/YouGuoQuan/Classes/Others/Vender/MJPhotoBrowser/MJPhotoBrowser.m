@@ -32,6 +32,7 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
     // 一开始的状态栏
     //    BOOL _statusBarHiddenInited;
 }
+
 @end
 
 @implementation MJPhotoBrowser
@@ -41,8 +42,7 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
 }
 
 #pragma mark - Lifecycle
-- (void)loadView
-{
+- (void)loadView {
     //_statusBarHiddenInited = [UIApplication sharedApplication].isStatusBarHidden;
     // 隐藏状态栏
     //[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
@@ -51,8 +51,7 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
     self.view.backgroundColor = [UIColor blackColor];
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     
     // 1.创建UIScrollView
@@ -62,11 +61,11 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
     [self createToolbar];
 }
 
-- (void)show
-{
+- (void)show {
     UIWindow *window = [UIApplication sharedApplication].keyWindow;
     [window addSubview:self.view];
     [window.rootViewController addChildViewController:self];
+    //self.transitioningDelegate = self;
     
     if (_currentPhotoIndex == 0) {
         [self showPhotos];
@@ -75,8 +74,7 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
 
 #pragma mark - 私有方法
 #pragma mark 创建工具条
-- (void)createToolbar
-{
+- (void)createToolbar {
     CGFloat barHeight = 44;
     CGFloat barY = self.view.frame.size.height - barHeight;
     _toolbar = [[MJPhotoToolbar alloc] init];
@@ -108,8 +106,7 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
 }
 
 #pragma mark 创建UIScrollView
-- (void)createScrollView
-{
+- (void)createScrollView {
     CGRect frame = self.view.bounds;
     frame.origin.x -= kPadding;
     frame.size.width += (2 * kPadding);
@@ -125,8 +122,7 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
     _photoScrollView.contentOffset = CGPointMake(_currentPhotoIndex * frame.size.width, 0);
 }
 
-- (void)setPhotos:(NSArray *)photos
-{
+- (void)setPhotos:(NSArray *)photos {
     _photos = photos;
     
     if (photos.count > 1) {
@@ -142,8 +138,7 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
 }
 
 #pragma mark 设置选中的图片
-- (void)setCurrentPhotoIndex:(NSUInteger)currentPhotoIndex
-{
+- (void)setCurrentPhotoIndex:(NSUInteger)currentPhotoIndex {
     _currentPhotoIndex = currentPhotoIndex;
     
     // 这边的代码跟setPhotos 重复了，但是存在的意义是谁先setter
@@ -162,23 +157,21 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
 }
 
 #pragma mark - MJPhotoView代理
-- (void)photoViewSingleTap:(MJPhotoView *)photoView
-{
-    //[UIApplication sharedApplication].statusBarHidden = _statusBarHiddenInited;
+- (void)photoViewSingleTap:(MJPhotoView *)photoView {
+//    [UIApplication sharedApplication].statusBarHidden = _statusBarHiddenInited;
     self.view.backgroundColor = [UIColor clearColor];
     
-    // 移除工具条
+    //移除工具条
     [_toolbar removeFromSuperview];
 }
 
-- (void)photoViewDidEndZoom:(MJPhotoView *)photoView
-{
+- (void)photoViewDidEndZoom:(MJPhotoView *)photoView {
     [self.view removeFromSuperview];
     [self removeFromParentViewController];
+//    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)photoViewImageFinishLoad:(MJPhotoView *)photoView
-{
+- (void)photoViewImageFinishLoad:(MJPhotoView *)photoView {
     _toolbar.currentPhotoIndex = _currentPhotoIndex;
 }
 
@@ -295,8 +288,7 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
 }
 
 #pragma mark 显示一个图片view
-- (void)showPhotoViewAtIndex:(NSInteger)index
-{
+- (void)showPhotoViewAtIndex:(NSInteger)index {
     MJPhotoView *photoView = [self dequeueReusablePhotoView];
     if (!photoView) { // 添加新的图片view
         photoView = [[MJPhotoView alloc] init];
@@ -321,8 +313,7 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
 }
 
 #pragma mark 加载index附近的图片
-- (void)loadImageNearIndex:(NSInteger)index
-{
+- (void)loadImageNearIndex:(NSInteger)index {
     if (index > 0) {
         MJPhoto *photo = _photos[index - 1];
         [SDWebImageManager downloadWithURL:photo.url];
@@ -345,8 +336,7 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
 }
 
 #pragma mark 循环利用某个view
-- (MJPhotoView *)dequeueReusablePhotoView
-{
+- (MJPhotoView *)dequeueReusablePhotoView {
     MJPhotoView *photoView = [_reusablePhotoViews anyObject];
     if (photoView) {
         [_reusablePhotoViews removeObject:photoView];
@@ -355,8 +345,7 @@ NSString * const kNotification_DeletePhotoWallImage = @"kDeletePhotoWallImageNot
 }
 
 #pragma mark 更新toolbar状态
-- (void)updateTollbarState
-{
+- (void)updateTollbarState {
     _currentPhotoIndex = _photoScrollView.contentOffset.x / _photoScrollView.frame.size.width;
     _toolbar.currentPhotoIndex = _currentPhotoIndex;
 }

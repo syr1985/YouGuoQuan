@@ -628,10 +628,6 @@ NSString * const kNotification_Logout = @"LogoutNotitfication";
         cell.tapBackgroundImageViewBlock = ^{
             [[TakePhotoHelp sharedInstance] showActionSheetWithTitle:@"更换背景封面" viewController:weakself returnBlock:^(BOOL isCover, NSArray<UIImage *> *photos) {
                 if (photos.count) {
-//                    [[NSNotificationCenter defaultCenter] postNotificationName:kNotification_ModifyImage
-//                                                                        object:nil
-//                                                                      userInfo:@{@"photos"  : photos,
-//                                                                                 @"isCover" : @(isCover)}];
                     [weakself uploadImageWith:isCover images:photos];
                 }
             }];

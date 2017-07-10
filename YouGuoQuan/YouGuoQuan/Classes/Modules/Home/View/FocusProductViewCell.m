@@ -149,15 +149,6 @@
     if (_buyButtonClickedBlock) {
         _buyButtonClickedBlock(_homeFocusModel);
     }
-//    if (_homeFocusModel.imageUrl && _homeFocusModel.imageUrl.length) {
-//        NSArray *urlArray;
-//        if ([_homeFocusModel.imageUrl containsString:@";"]) {
-//            urlArray = [_homeFocusModel.imageUrl componentsSeparatedByString:@";"];
-//        } else {
-//            urlArray = @[_homeFocusModel.imageUrl];
-//        }
-//        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:0];
-//    }
 }
 
 @end

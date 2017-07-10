@@ -2632,8 +2632,8 @@
 		9964EC9C1DCC971300E4E787 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				9964ECF61DCC979500E4E787 /* Home */,
 				9964ECA51DCC971300E4E787 /* Login */,
+				9964ECF61DCC979500E4E787 /* Home */,
 				9964EC9D1DCC971300E4E787 /* Discovery */,
 				9937E43A1DD1A53D00A2F2E2 /* Publish */,
 				9918BEFC1DDD951A006E5C65 /* Message */,
@@ -4653,8 +4653,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.newtouch.YouGuoQuan;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "ad068c59-0ffd-4414-97d3-144e7b248134";
-				PROVISIONING_PROFILE_SPECIFIER = yougouquan_dis_pp;
+				PROVISIONING_PROFILE = "f82931d8-c3ec-4b7a-977a-49b3fb932df5";
+				PROVISIONING_PROFILE_SPECIFIER = youguoquan_adhoc_pp;
 			};
 			name = Release;
 		};

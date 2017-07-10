@@ -26,7 +26,7 @@
 //#define EaseMob_App_Key     @"1139161122178530#youguo"
 //#endif
 
-#define EaseMob_App_Key   @"1139161122178530#youguo" // @"1198161114178843#ygq"//
+#define EaseMob_App_Key    @"1198161114178843#ygq"//@"1139161122178530#youguo" //
 // Umeng
 #define Umeng_App_Key       @"58350033ae1bf8148f0020f6"
 #define Umeng_App_Secret    @"gaqr0ej1wpntudhfftvkvdxswlqufeoj"

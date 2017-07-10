@@ -19,7 +19,7 @@
 
 @implementation PhotoBrowserHelp
 
-+ (void)openPhotoBrowserWithImages:(NSArray *)imageUrlArray currentIndex:(NSUInteger)index {
++ (void)openPhotoBrowserWithImages:(NSArray *)imageUrlArray sourceImageView:(UIImageView *)imageView {
     // 1.封装图片数据
     NSMutableArray *myphotos = [NSMutableArray array];
     for (NSString *imgUrl in imageUrlArray) {
@@ -28,10 +28,6 @@
         // 一个MJPhoto对应一张显示的图片
         MJPhoto *mjphoto = [[MJPhoto alloc] init];
         
-        UIImageView *imageView = [[UIImageView alloc] init];
-        imageView.userInteractionEnabled = YES;
-        imageView.image = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]];
-        
         mjphoto.srcImageView = imageView; // 来源于哪个UIImageView
         mjphoto.url = [NSURL URLWithString:urlString]; // 图片路径
         [myphotos addObject:mjphoto];
@@ -39,20 +35,17 @@
     
     // 2.显示相册
     MJPhotoBrowser *browser = [[MJPhotoBrowser alloc] init];
-    browser.currentPhotoIndex = index; // 弹出相册时显示的第一张图片是？
+    browser.currentPhotoIndex = imageView.tag; // 弹出相册时显示的第一张图片是？
     browser.photos = myphotos; // 设置所有的图片
     [browser show];
 }
 
-+ (void)openPhotoBrowserWithImageArray:(NSArray *)imageArray currentIndex:(NSUInteger)index {
++ (void)openPhotoBrowserWithImageArray:(NSArray *)imageArray sourceImageView:(UIImageView *)imageView {
     // 1.封装图片数据
     NSMutableArray *myphotos = [NSMutableArray array];
     for (UIImage *image in imageArray) {
         // 一个MJPhoto对应一张显示的图片
         MJPhoto *mjphoto = [[MJPhoto alloc] init];
-        UIImageView *imageView = [[UIImageView alloc] init];
-        imageView.image = image;
-        imageView.userInteractionEnabled = YES;
         mjphoto.image = image;
         mjphoto.srcImageView = imageView;
         
@@ -66,7 +59,7 @@
     [browser show];
 }
 
-+ (void)openPhotoBrowserWithImages:(NSArray *)imageUrlArray currentIndex:(NSUInteger)index canDeleteImage:(BOOL)canDelete {
++ (void)openPhotoBrowserWithImages:(NSArray *)imageUrlArray sourceImageView:(UIImageView *)imageView canDeleteImage:(BOOL)canDelete {
     // 1.封装图片数据
     NSMutableArray *myphotos = [NSMutableArray array];
     for (NSString *imgUrl in imageUrlArray) {
@@ -74,11 +67,6 @@
         
         // 一个MJPhoto对应一张显示的图片
         MJPhoto *mjphoto = [[MJPhoto alloc] init];
-        
-        UIImageView *imageView = [[UIImageView alloc] init];
-        imageView.image = [UIImage imageFromContextWithColor:[UIColor colorWithWhite:0 alpha:0.1]];
-        imageView.userInteractionEnabled = YES;
-        
         mjphoto.srcImageView = imageView; // 来源于哪个UIImageView
         mjphoto.url = [NSURL URLWithString:urlString]; // 图片路径
         
@@ -87,10 +75,11 @@
     
     // 2.显示相册
     MJPhotoBrowser *browser = [[MJPhotoBrowser alloc] init];
-    browser.currentPhotoIndex = index; // 弹出相册时显示的第一张图片是？
+    browser.currentPhotoIndex = imageView.tag; // 弹出相册时显示的第一张图片是？
     browser.photos = myphotos; // 设置所有的图片
     browser.canDeleteImage = canDelete;
     [browser show];
 }
+
 
 @end

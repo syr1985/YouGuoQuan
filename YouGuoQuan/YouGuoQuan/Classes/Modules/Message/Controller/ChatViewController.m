@@ -41,11 +41,13 @@
 #import "JZLocationConverter.h"
 #import <IQKeyboardManager.h>
 #import <AMapSearchKit/AMapSearchKit.h>
+#import "PayTool.h"
 
 NSString * const Flag_BlackTips = @"black";     // 被拉黑提示消息的扩展key,根据这个判断是不是拉黑提示的消息
 NSString * const Flag_Redpacket = @"Redpacket"; // 打赏消息的扩展key,根据这个判断是不是打赏的消息
 
-@interface ChatViewController () <EaseMessageCellDelegate, EMChatManagerDelegate, EMChatToolbarDelegate, UITableViewDelegate, UITableViewDataSource>//EMCDDeviceManagerDelegate,
+//EMCDDeviceManagerDelegate,
+@interface ChatViewController () <EaseMessageCellDelegate, EMChatManagerDelegate, EMChatToolbarDelegate, UITableViewDelegate, UITableViewDataSource>
 {
     dispatch_queue_t _messageQueue;
 }
@@ -745,11 +747,11 @@ NSString * const Flag_Redpacket = @"Redpacket"; // 打赏消息的扩展key,根�
 
 #pragma mark - EaseMessageCellDelegate
 // 只处理图片、声音、视频、位置、文件的cell
-- (void)messageCellSelected:(id<IMessageModel>)model {
+- (void)messageCellSelected:(id<IMessageModel>)model sourceView:(UIImageView *)tapView {
     switch (model.bodyType) {
         case EMMessageBodyTypeImage:
         {
-            [self _imageMessageCellSelected:model];
+            [self _imageMessageCellSelected:model sourceView:tapView];
         }
             break;
         case EMMessageBodyTypeLocation:
@@ -779,7 +781,7 @@ NSString * const Flag_Redpacket = @"Redpacket"; // 打赏消息的扩展key,根�
     [self.navigationController pushViewController:locationController animated:YES];
 }
 
-- (void)_imageMessageCellSelected:(id<IMessageModel>)model {
+- (void)_imageMessageCellSelected:(id<IMessageModel>)model sourceView:(UIImageView *)tapView {
     _scrollToBottomWhenAppear = NO;
     __weak typeof(self) weakSelf = self;
     EMImageMessageBody *imageBody = (EMImageMessageBody*)model.message.body;
@@ -789,7 +791,7 @@ NSString * const Flag_Redpacket = @"Redpacket"; // 打赏消息的扩展key,根�
                 // send the acknowledgement
                 [weakSelf sendHasReadResponseForMessages:@[model.message] isRead:YES];
                 if ([model.message.ext[Flag_Snap] boolValue] && !model.isSender) {
-                    [PhotoBrowserHelp openPhotoBrowserWithImages:@[model.fileURLPath] currentIndex:0];
+                    [PhotoBrowserHelp openPhotoBrowserWithImages:@[model.fileURLPath] sourceImageView:tapView];
                     [self deleteMessageModel:model.messageId];
                     return;
                 }
@@ -798,22 +800,21 @@ NSString * const Flag_Redpacket = @"Redpacket"; // 打赏消息的扩展key,根�
                 if (localPath && localPath.length > 0) {
                     UIImage *image = [UIImage imageWithContentsOfFile:localPath];
                     if (image) {
-                        [PhotoBrowserHelp openPhotoBrowserWithImageArray:@[image] currentIndex:0];
+                        [PhotoBrowserHelp openPhotoBrowserWithImageArray:@[image] sourceImageView:tapView];
                     } else {
-                        [PhotoBrowserHelp openPhotoBrowserWithImages:@[model.fileURLPath] currentIndex:0];
+                        [PhotoBrowserHelp openPhotoBrowserWithImages:@[model.fileURLPath] sourceImageView:tapView];
                     }
                     return;
                 }
             }
-            [weakSelf showHudInView:weakSelf.view
-                               hint:NSEaseLocalizedString(@"message.downloadingImage", @"downloading a image...")];
+            [weakSelf showHudInView:weakSelf.view hint:NSEaseLocalizedString(@"message.downloadingImage", @"downloading a image...")];
             [[EMClient sharedClient].chatManager downloadMessageAttachment:model.message progress:nil completion:^(EMMessage *message, EMError *error) {
                 [weakSelf hideHud];
                 if (!error) {
                     //send the acknowledgement
                     [weakSelf sendHasReadResponseForMessages:@[model.message] isRead:YES];
                     if ([model.message.ext[Flag_Snap] boolValue] && !model.isSender) {
-                        [PhotoBrowserHelp openPhotoBrowserWithImages:@[model.fileURLPath] currentIndex:0];
+                        [PhotoBrowserHelp openPhotoBrowserWithImages:@[model.fileURLPath] sourceImageView:tapView];
                         [weakSelf deleteMessageModel:model.messageId];
                         return;
                     }
@@ -821,8 +822,7 @@ NSString * const Flag_Redpacket = @"Redpacket"; // 打赏消息的扩展key,根�
                     if (localPath && localPath.length) {
                         UIImage *image = [UIImage imageWithContentsOfFile:localPath];
                         if (image) {
-                            //[[EaseMessageReadManager defaultManager] showBrowserWithImages:@[image]];
-                            [PhotoBrowserHelp openPhotoBrowserWithImageArray:@[image] currentIndex:0];
+                           [PhotoBrowserHelp openPhotoBrowserWithImageArray:@[image] sourceImageView:tapView];
                         }
                     }
                 } else {
@@ -1118,20 +1118,41 @@ NSString * const Flag_Redpacket = @"Redpacket"; // 打赏消息的扩展key,根�
     NSDictionary *infoDict = _conversation.ext[Key_Conversation_Ext];
     UIStoryboard *otherSB = [UIStoryboard storyboardWithName:@"Other" bundle:nil];
     RewardViewController *rewardVC = [otherSB instantiateViewControllerWithIdentifier:@"Reward"];
-    rewardVC.headImg = infoDict[@"headImg"];
+    rewardVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
     rewardVC.userID  = infoDict[@"userId"];
     rewardVC.rType = @"hb";
     __weak typeof(self) weakself = self;
-    rewardVC.payRewardSucess = ^(CGFloat amount, NSString *payType) {
-        EMMessage *message = [EaseSDKHelper sendTextMessage:[NSString stringWithFormat:@"%.0f",amount]
-                                                         to:weakself.conversation.conversationId
-                                                messageType:EMChatTypeChat
-                                                 messageExt:@{Flag_Redpacket:@YES}];
-        [weakself sendMessage:message];
+    rewardVC.payForReward = ^(NSNumber *amount, NSString *payType, NSString *orderNo) {
+        NSString *message = [NSString stringWithFormat:@"本次消费您需支付%@ u币，确定支付？",amount];
+        [AlertViewTool showAlertViewWithTitle:nil Message:message cancelTitle:@"取消" sureTitle:@"零钱支付" sureBlock:^{
+            [weakself payByWalletWithOrderNo:orderNo payMethod:payType amount:amount];
+        } cancelBlock:^{
+            
+        }];
     };
-    rewardVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
     [self presentViewController:rewardVC animated:YES completion:nil];
 }
+
+- (void)payByWalletWithOrderNo:(NSString *)orderNo payMethod:(NSString *)payType amount:(NSNumber *)amount {
+    [NetworkTool payForRewardWithOrderNo:orderNo success:^{
+        EMMessage *message = [EaseSDKHelper sendTextMessage:amount.stringValue
+                                                         to:self.conversation.conversationId
+                                                messageType:EMChatTypeChat
+                                                 messageExt:@{Flag_Redpacket:@YES}];
+        [self sendMessage:message];
+    } failure:^(NSError *error, NSString *msg){
+        if (error) {
+            [SVProgressHUD showErrorWithStatus:error.localizedDescription];
+        } else if ([msg isEqualToString:@"金额不足"]) {
+            [PayTool payFailureTranslateToRechargeVC:self rechargeSuccess:^{
+                [self payByWalletWithOrderNo:orderNo payMethod:payType amount:amount];
+            } rechargeFailure:nil];
+        } else {
+            [SVProgressHUD showErrorWithStatus:@"打赏失败"];
+        }
+    }];
+}
+
 
 #pragma mark - 定位位置
 - (void)actionChooseLocation {

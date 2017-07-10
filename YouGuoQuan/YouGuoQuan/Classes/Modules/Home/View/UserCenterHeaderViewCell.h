@@ -31,7 +31,6 @@ static NSString * const kNotification_FocusOperator = @"kNotification_FocusOpera
 
 @property (nonatomic, strong) NSArray *photoArray;
 
-@property (nonatomic, strong) NSArray *contributerArray;
-
 @property (nonatomic, assign) BOOL isMyFocus;
+
 @end

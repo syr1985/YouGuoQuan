@@ -117,7 +117,8 @@
 }
 
 - (void)showBigImage:(UITapGestureRecognizer *)sender {
-    [PhotoBrowserHelp openPhotoBrowserWithImages:@[_userBaseInfoModel.headImg] currentIndex:0];
+    UIImageView *tapView = (UIImageView *)sender.view;
+    [PhotoBrowserHelp openPhotoBrowserWithImages:@[_userBaseInfoModel.headImg] sourceImageView:tapView];
 }
 
 #pragma mark - Table view data source

@@ -215,7 +215,7 @@
                 [LoginData sharedLoginData].audit == 1 ||
                 [LoginData sharedLoginData].audit == 3;
     } else {
-        return  [LoginData sharedLoginData].star < 2 ||
+        return  [LoginData sharedLoginData].star > 2 ||
                 [LoginData sharedLoginData].isRecommend ||
                 [LoginData sharedLoginData].audit == 1 ||
                 [LoginData sharedLoginData].audit == 3;

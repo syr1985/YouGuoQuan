@@ -108,10 +108,40 @@ NSString * const Key_Conversation_Ext = @"userInfo";
         if ([lastMessage.ext[Flag_Snap] boolValue]) {
             latestMessageTitle = @"[阅后即焚消息]";
         } else if ([lastMessage.ext[Flag_Redpacket] boolValue]) {
+            NSString *giftName = @"";
+            switch ([latestMessageTitle integerValue]) {
+                case 80:
+                    giftName = @"冰淇淋";
+                    break;
+                case 299:
+                    giftName = @"巧克力";
+                    break;
+                case 666:
+                    giftName = @"蛋糕";
+                    break;
+                case 1314:
+                    giftName = @"香水";
+                    break;
+                case 2999:
+                    giftName = @"水晶鞋";
+                    break;
+                case 5200:
+                    giftName = @"耳坠";
+                    break;
+                case 9999:
+                    giftName = @"钻戒";
+                    break;
+                case 19999:
+                    giftName = @"跑车";
+                    break;
+                case 29999:
+                    giftName = @"游艇";
+                    break;
+            }
             if ([lastMessage.from isEqualToString:[LoginData sharedLoginData].hxu]) {
-                return [NSString stringWithFormat:@"您打赏了%@%@u币",self.nameLabel.text,latestMessageTitle];
+                return [NSString stringWithFormat:@"您赠送了%@%@ 价值%@ u币",self.nameLabel.text,giftName,latestMessageTitle];
             } else {
-                return [NSString stringWithFormat:@"%@打赏了您%@u币",self.nameLabel.text,latestMessageTitle];
+                return [NSString stringWithFormat:@"%@赠送了您%@ 价值%@ u币",self.nameLabel.text,giftName,latestMessageTitle];
             }
         }
     }

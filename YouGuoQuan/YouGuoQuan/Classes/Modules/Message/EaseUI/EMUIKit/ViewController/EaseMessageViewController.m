@@ -1260,22 +1260,22 @@
 
 #pragma mark - 发红包
 - (void)showSendBonusController {
-    NSDictionary *infoDict = _conversation.ext[@"userInfo"];
-    UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
-    RewardViewController *rewardVC = [homeSB instantiateViewControllerWithIdentifier:@"Reward"];
-    rewardVC.headImg = infoDict[@"headImg"];
-    rewardVC.userID  = infoDict[@"userId"];
-    rewardVC.rType = @"hb";
-    __weak typeof(self) weakself = self;
-    rewardVC.payRewardSucess = ^(CGFloat amount, NSString *payType) {
-        EMMessage *message = [EaseSDKHelper sendTextMessage:[NSString stringWithFormat:@"%.0f",amount]
-                                                         to:self.conversation.conversationId
-                                                messageType:[self _messageTypeFromConversationType]
-                                                 messageExt:@{Flag_Redpacket:@YES}];
-        [weakself _sendMessage:message];
-    };
-    rewardVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-    [self presentViewController:rewardVC animated:YES completion:nil];
+//    NSDictionary *infoDict = _conversation.ext[@"userInfo"];
+//    UIStoryboard *homeSB = [UIStoryboard storyboardWithName:@"Home" bundle:nil];
+//    RewardViewController *rewardVC = [homeSB instantiateViewControllerWithIdentifier:@"Reward"];
+//    rewardVC.headImg = infoDict[@"headImg"];
+//    rewardVC.userID  = infoDict[@"userId"];
+//    rewardVC.rType = @"hb";
+//    __weak typeof(self) weakself = self;
+//    rewardVC.payRewardSucess = ^(CGFloat amount, NSString *payType) {
+//        EMMessage *message = [EaseSDKHelper sendTextMessage:[NSString stringWithFormat:@"%.0f",amount]
+//                                                         to:self.conversation.conversationId
+//                                                messageType:[self _messageTypeFromConversationType]
+//                                                 messageExt:@{Flag_Redpacket:@YES}];
+//        [weakself _sendMessage:message];
+//    };
+//    rewardVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+//    [self presentViewController:rewardVC animated:YES completion:nil];
 }
 
 - (void)actionChooseLocation {

@@ -634,6 +634,9 @@
                                                 </imageView>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="男" translatesAutoresizingMaskIntoConstraints="NO" id="J0E-cd-Yc1">
                                                     <rect key="frame" x="138" y="9" width="14" height="14"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="14" id="6RE-ra-F6O"/>
+                                                    </constraints>
                                                 </imageView>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HUp-MG-Hne">
                                                     <rect key="frame" x="156" y="9" width="29" height="14"/>
@@ -644,6 +647,9 @@
                                                 </imageView>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="等级 1" translatesAutoresizingMaskIntoConstraints="NO" id="jzS-9P-QPq">
                                                     <rect key="frame" x="189" y="9" width="29" height="14"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="29" id="yjE-LQ-61e"/>
+                                                    </constraints>
                                                 </imageView>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GkI-k5-gLh">
                                                     <rect key="frame" x="17" y="52" width="354" height="2"/>
@@ -943,7 +949,7 @@
             <objects>
                 <navigationController storyboardIdentifier="VideoDetail" automaticallyAdjustsScrollViewInsets="NO" id="zMB-yJ-zEy" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="iQw-5e-VtG">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" id="iQw-5e-VtG">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -961,7 +967,7 @@
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="ZSZ-IF-djl" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="wYc-w2-AWU">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" id="wYc-w2-AWU">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>

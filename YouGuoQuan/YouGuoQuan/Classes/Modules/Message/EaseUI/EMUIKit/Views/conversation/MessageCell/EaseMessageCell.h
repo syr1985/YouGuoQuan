@@ -172,6 +172,8 @@ typedef enum {
  */
 - (void)messageCellSelected:(id<IMessageModel>)model;
 
+- (void)messageCellSelected:(id<IMessageModel>)model sourceView:(UIImageView *)tapView;
+
 /*
  *  状态按钮点击回调
  *

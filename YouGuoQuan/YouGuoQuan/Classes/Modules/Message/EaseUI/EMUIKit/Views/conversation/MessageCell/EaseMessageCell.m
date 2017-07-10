@@ -567,57 +567,51 @@ NSString *const EaseMessageCellIdentifierSendFile = @"EaseMessageCellSendFile";
 #pragma mark - action
 
 - (void)bubbleViewTapAction:(UITapGestureRecognizer *)tapRecognizer {
+    EaseBubbleView *tapView = (EaseBubbleView *)tapRecognizer.view;
     if (tapRecognizer.state == UIGestureRecognizerStateEnded) {
         if (!_delegate) {
             return;
         }
         
         if ([self respondsToSelector:@selector(isCustomBubbleView:)] && [self isCustomBubbleView:_model]) {
-            if ([_delegate respondsToSelector:@selector(messageCellSelected:)]) {
-                [_delegate messageCellSelected:_model];
+            if ([_delegate respondsToSelector:@selector(messageCellSelected:sourceView:)]) {
+                [_delegate messageCellSelected:_model sourceView:tapView.imageView];
                 return;
             }
         }
         switch (_model.bodyType) {
             case EMMessageBodyTypeImage:
             {
-                if ([_delegate respondsToSelector:@selector(messageCellSelected:)]) {
-                    [_delegate messageCellSelected:_model];
+                if ([_delegate respondsToSelector:@selector(messageCellSelected:sourceView:)]) {
+                    [_delegate messageCellSelected:_model sourceView:tapView.imageView];
                 }
             }
                 break;
             case EMMessageBodyTypeLocation:
             {
-                if ([_delegate respondsToSelector:@selector(messageCellSelected:)]) {
-                    [_delegate messageCellSelected:_model];
+                if ([_delegate respondsToSelector:@selector(messageCellSelected:sourceView:)]) {
+                    [_delegate messageCellSelected:_model sourceView:tapView.imageView];
                 }
             }
                 break;
             case EMMessageBodyTypeVoice:
             {
-                //                _model.isMediaPlaying = !_model.isMediaPlaying;
-                //                if (_model.isMediaPlaying) {
-                //                    [_bubbleView.voiceImageView startAnimating];
-                //                }
-                //                else{
-                //                    [_bubbleView.voiceImageView stopAnimating];
-                //                }
-                if ([_delegate respondsToSelector:@selector(messageCellSelected:)]) {
-                    [_delegate messageCellSelected:_model];
+                if ([_delegate respondsToSelector:@selector(messageCellSelected:sourceView:)]) {
+                    [_delegate messageCellSelected:_model sourceView:tapView.imageView];
                 }
             }
                 break;
             case EMMessageBodyTypeVideo:
             {
-                if ([_delegate respondsToSelector:@selector(messageCellSelected:)]) {
-                    [_delegate messageCellSelected:_model];
+                if ([_delegate respondsToSelector:@selector(messageCellSelected:sourceView:)]) {
+                    [_delegate messageCellSelected:_model sourceView:tapView.imageView];
                 }
             }
                 break;
             case EMMessageBodyTypeFile:
             {
-                if ([_delegate respondsToSelector:@selector(messageCellSelected:)]) {
-                    [_delegate messageCellSelected:_model];
+                if ([_delegate respondsToSelector:@selector(messageCellSelected:sourceView:)]) {
+                    [_delegate messageCellSelected:_model sourceView:tapView.imageView];
                 }
             }
                 break;

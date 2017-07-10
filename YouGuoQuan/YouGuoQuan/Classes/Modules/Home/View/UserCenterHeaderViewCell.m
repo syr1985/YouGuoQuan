@@ -44,6 +44,9 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *scrollViewTopConstaint;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *vipImageViewWidthConstraint;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *vipImageViewLeadingConstraint;
+
+@property (nonatomic, strong) NSArray *contributerArray;
+
 @end
 
 @implementation UserCenterHeaderViewCell
@@ -78,7 +81,6 @@
                                              selector:@selector(focusOperator:)
                                                  name:kNotification_FocusOperator
                                                object:nil];
-    
 }
 
 - (void)pulledBlackList {
@@ -166,15 +168,9 @@
 - (void)setUserBaseInfoModel:(UserBaseInfoModel *)userBaseInfoModel {
     _userBaseInfoModel = userBaseInfoModel;
     
-//    NSString *headBackImageUrlStr = [NSString cropImageUrlWithUrlString:userBaseInfoModel.coverImgUrl
-//                                                                  width:_headerBackgroundImageView.bounds.size.width
-//                                                                 height:_headerBackgroundImageView.bounds.size.height];
     [_headerBackgroundImageView sd_setImageWithURL:[NSURL URLWithString:userBaseInfoModel.coverImgUrl]
                                   placeholderImage:[UIImage imageNamed:@"背景封面默认图"]];
     
-//    NSString *headImageUrlStr = [NSString cropImageUrlWithUrlString:userBaseInfoModel.headImg
-//                                                              width:_headerImageView.bounds.size.width
-//                                                             height:_headerImageView.bounds.size.height];
     NSString *headImageUrlStr = [NSString stringWithFormat:@"%@?imageslim",userBaseInfoModel.headImg];
     [_headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
                         placeholderImage:[UIImage imageNamed:@"my_head_default"]];
@@ -232,7 +228,23 @@
     CLLocation *location = [[CLLocation alloc] initWithLatitude:userBaseInfoModel.latitude longitude:userBaseInfoModel.longitude];
     CLLocationDistance distance = [myLocation distanceFromLocation:location];
     [_distanceButton setTitle:[NSString stringWithFormat:@"%.2fkm",distance / 1000] forState:UIControlStateNormal];
+    
+    [self getContributerList];
 }
+
+#pragma mark - 获取用户贡献榜信息
+- (void)getContributerList {
+    [NetworkTool getOtherContributerWithPageNo:@1 pageSize:@3 userID:_userBaseInfoModel.userId success:^(id result) {
+        NSMutableArray *muArray = [NSMutableArray array];
+        for (NSDictionary *dict in result) {
+            OthersContributerModel *model = [OthersContributerModel othersContributerModelWithDict:dict];
+            [muArray addObject:model];
+        }
+        self.contributerArray = [muArray mutableCopy];
+        //[self updateUserBaseInfo];
+    } failure:nil];
+}
+
 
 - (void)setPhotoArray:(NSArray *)photoArray {
     _photoArray = photoArray;
@@ -307,9 +319,9 @@
  *  打开图片浏览器
  */
 - (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
-    UIView *tapView = sender.view;
+     UIImageView *tapView = (UIImageView *)sender.view;
     if (_photoArray.count > 0) {
-        [PhotoBrowserHelp openPhotoBrowserWithImages:_photoArray currentIndex:tapView.tag];
+        [PhotoBrowserHelp openPhotoBrowserWithImages:_photoArray sourceImageView:tapView];
     }
 }
 

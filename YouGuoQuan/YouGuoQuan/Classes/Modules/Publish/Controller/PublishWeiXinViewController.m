@@ -56,7 +56,7 @@
             [weakself pushToBuyerListViewController];
         } cancelBlock:^{
             weakself.accountTextField.text = [LoginData sharedLoginData].publishWX;
-            weakself.priceTextField.text = [LoginData sharedLoginData].publishWXPrice;
+            weakself.priceTextField.text = [NSString stringWithFormat:@"%@ u币",[LoginData sharedLoginData].publishWXPrice];
         }];
     } else {
         UIStoryboard *publishSB = [UIStoryboard storyboardWithName:@"Publish" bundle:nil];
@@ -94,10 +94,10 @@
             UIStoryboard *publishSB = [UIStoryboard storyboardWithName:@"Publish" bundle:nil];
             ChooseWeiXinPriceViewController *choosePriceVC = [publishSB instantiateViewControllerWithIdentifier:@"ChooseWeiXinPriceVC"];
             choosePriceVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-            __weak typeof(self) weakself = self;
+//            __weak typeof(self) weakself = self;
             choosePriceVC.selectPublishPriceBlock = ^(NSString *text, NSNumber *price) {
-                weakself.price = price;
-                weakself.priceTextField.text = text;
+                self.price = price;
+                self.priceTextField.text = text;
             };
             [self presentViewController:choosePriceVC animated:YES completion:nil];
         });
@@ -129,7 +129,7 @@
     
     [SVProgressHUD showWithStatus:@"发布微信"];
     __weak typeof(self) weakself = self;
-    [NetworkTool sellWeixin:_price weixinID:wxId success:^{
+    [NetworkTool sellWeixin:self.price weixinID:wxId success:^{
         [SVProgressHUD dismiss];
         
         [LoginData sharedLoginData].havePublishWX = YES;

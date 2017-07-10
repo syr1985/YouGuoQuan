@@ -55,7 +55,7 @@ NSString * const kUpdatePlayTimesNotification = @"kUpdatePlayTimesNotification";
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
-    [self releaseWMPlayer];
+    [self stopWMPlayer];
 }
 
 //- (WMPlayer *)wmPlayer {
@@ -127,13 +127,11 @@ NSString * const kUpdatePlayTimesNotification = @"kUpdatePlayTimesNotification";
 - (void)setHomeFocusModel:(HomeFocusModel *)homeFocusModel {
     _homeFocusModel = homeFocusModel;
     
-    
-    
     NSString *headImageUrlStr = [NSString compressImageUrlWithUrlString:homeFocusModel.headImg
                                                                   width:_headerImageView.bounds.size.width
                                                                  height:_headerImageView.bounds.size.height];
     [_headerImageView sd_setImageWithURL:[NSURL URLWithString:headImageUrlStr]
-                            placeholderImage:[UIImage imageNamed:@"my_head_default"]];
+                        placeholderImage:[UIImage imageNamed:@"my_head_default"]];
     
     _nickNameLabel.text = homeFocusModel.nickName;
     _crownImageView.hidden = (homeFocusModel.star != 6);
@@ -227,7 +225,7 @@ NSString * const kUpdatePlayTimesNotification = @"kUpdatePlayTimesNotification";
 
 - (void)stopPlayingVideo:(NSNotification *)noti {
     NSDictionary *infoDict = noti.userInfo;
-    if (![infoDict[@"feedsId"] isEqualToString:_homeFocusModel.focusId]) {
+    if (![infoDict[@"feedsId"] isEqualToString:self.homeFocusModel.focusId]) {
         [self stopWMPlayer];
     }
 }
@@ -257,10 +255,6 @@ NSString * const kUpdatePlayTimesNotification = @"kUpdatePlayTimesNotification";
             sender.selected = NO;
             NSInteger priseCount = [weakself.homeFocusModel.recommendCount integerValue];
             NSNumber *newPriseCount = @(priseCount - 1);
-//            NSString *newPriseCount = [NSString stringWithFormat:@"%zd",priseCount - 1];
-//            weakself.homeFocusModel.recommendCount = @(priseCount - 1);;//newPriseCount;
-//            [weakself.favourButton setTitle:newPriseCount forState:UIControlStateNormal];
-//            weakself.homeFocusModel.praise = NO;
             [[NSNotificationCenter defaultCenter] postNotificationName:kFavourSuccessNotification
                                                                 object:nil
                                                               userInfo:@{@"NewFavourCount":newPriseCount,
@@ -277,10 +271,6 @@ NSString * const kUpdatePlayTimesNotification = @"kUpdatePlayTimesNotification";
             sender.selected = YES;
             NSInteger priseCount = [weakself.homeFocusModel.recommendCount integerValue];
             NSNumber *newPriseCount = @(priseCount + 1);
-//            NSString *newPriseCount = [NSString stringWithFormat:@"%zd",priseCount + 1];
-//            weakself.homeFocusModel.recommendCount = @(priseCount + 1);//newPriseCount;
-//            [weakself.favourButton setTitle:newPriseCount forState:UIControlStateNormal];
-//            weakself.homeFocusModel.praise = YES;
             [[NSNotificationCenter defaultCenter] postNotificationName:kFavourSuccessNotification
                                                                 object:nil
                                                               userInfo:@{@"NewFavourCount":newPriseCount,
@@ -336,26 +326,25 @@ NSString * const kUpdatePlayTimesNotification = @"kUpdatePlayTimesNotification";
  */
 - (IBAction)startPlayVideo:(UIButton *)sender {
     // 判断当前网络
-    self.wmPlayer.URLString = _homeFocusModel.videoUrl;
+    self.wmPlayer.URLString = self.homeFocusModel.videoUrl;
     //_wmPlayer.placeholderImage = _videoCoverImageView.image;
-    [_videoBackgroundView bringSubviewToFront:self.wmPlayer];
+    [self.videoBackgroundView bringSubviewToFront:self.wmPlayer];
     [self.wmPlayer play];
     
     // 增加播放次数
-    __weak typeof(self) weakself = self;
     [NetworkTool updatePlayTimesWithVideoTrendsID:_homeFocusModel.focusId success:^{
-        if (weakself.isTrendsDetail) {
+        if (self.isTrendsDetail) {
             [[NSNotificationCenter defaultCenter] postNotificationName:kUpdatePlayTimesNotification
                                                                 object:nil
-                                                              userInfo:@{@"feedsId":_homeFocusModel.focusId}];
+                                                              userInfo:@{@"feedsId":self.homeFocusModel.focusId}];
         } else {
-            [weakself updateLocalPlayTimes];
+            [self updateLocalPlayTimes];
         }
     }];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kPlayingVideoNotification
                                                         object:nil
-                                                      userInfo:@{@"feedsId":_homeFocusModel.focusId}];
+                                                      userInfo:@{@"feedsId":self.homeFocusModel.focusId}];
 }
 
 /**
@@ -406,6 +395,7 @@ NSString * const kUpdatePlayTimesNotification = @"kUpdatePlayTimesNotification";
 - (void)wmplayerFinishedPlay:(WMPlayer *)wmplayer {
     // 恢复视频视图
     [self toOrientation:UIInterfaceOrientationPortrait];
+    [_videoBackgroundView bringSubviewToFront:_playButton.superview];
 }
 
 /**
@@ -460,11 +450,9 @@ NSString * const kUpdatePlayTimesNotification = @"kUpdatePlayTimesNotification";
         }];
         
         [UIView animateWithDuration:0.5 animations:^{
-            weakself.wmPlayer.transform = CGAffineTransformIdentity;
-        } completion:^(BOOL finished) {
-            if (finished) {
-                [_videoBackgroundView bringSubviewToFront:_playButton.superview];
-            }
+            self.wmPlayer.transform = CGAffineTransformIdentity;
+            [self.wmPlayer removeFromSuperview];
+            [self.videoBackgroundView addSubview:self.wmPlayer];
         }];
     } else {
         //获取到当前状态条的方向
@@ -512,7 +500,8 @@ NSString * const kUpdatePlayTimesNotification = @"kUpdatePlayTimesNotification";
         } else {
             urlArray = @[_homeFocusModel.videoEvelope];
         }
-        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:0];
+        UIImageView *tapView = (UIImageView *)sender.view;
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray sourceImageView:tapView];
     }
 }
 

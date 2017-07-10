@@ -85,15 +85,6 @@
     if (_buyButtonClickedBlock) {
         _buyButtonClickedBlock(_userCenterModel);
     }
-//    if (_userCenterModel.imageUrl && _userCenterModel.imageUrl.length) {
-//        NSArray *urlArray;
-//        if ([_userCenterModel.imageUrl containsString:@";"]) {
-//            urlArray = [_userCenterModel.imageUrl componentsSeparatedByString:@";"];
-//        } else {
-//            urlArray = @[_userCenterModel.imageUrl];
-//        }
-//        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:0];
-//    }
 }
 
 @end

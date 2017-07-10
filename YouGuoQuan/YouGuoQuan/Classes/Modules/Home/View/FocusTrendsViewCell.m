@@ -265,7 +265,7 @@ NSString * const kFavourSuccessNotification = @"kNotification_FavourSuccess";
  *  打开图片浏览器
  */
 - (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
-    UIView *tapView = sender.view;
+    UIImageView *tapView = (UIImageView *)sender.view;
     if (_homeFocusModel.imageUrl && _homeFocusModel.imageUrl.length) {
         NSArray *urlArray;
         if ([_homeFocusModel.imageUrl containsString:@";"]) {
@@ -273,7 +273,7 @@ NSString * const kFavourSuccessNotification = @"kNotification_FavourSuccess";
         } else {
             urlArray = @[_homeFocusModel.imageUrl];
         }
-        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:tapView.tag];
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray sourceImageView:tapView];
     }
 }
 

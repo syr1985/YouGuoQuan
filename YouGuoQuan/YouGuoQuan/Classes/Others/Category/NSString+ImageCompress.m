@@ -32,7 +32,7 @@
 
 + (NSString *)imageUrlWithWatermark:(NSString *)urlString {
 //    NSInteger scale = IS_IPHONE_6P_7P ? 3 : 2;
-    NSString *url = [NSString stringWithFormat:@"%@?watermark/1/image/aHR0cHM6Ly9pbWcueW91Z3Vvd2FuZy5jb20vd2F0ZXJtYXJrZXIucG5n/dissolve/30/gravity/SouthEast/dx/10/dy/10|imageslim",urlString];
+    NSString *url = [NSString stringWithFormat:@"%@?watermark/1/image/aHR0cHM6Ly9pbWcueW91Z3Vvd2FuZy5jb20vd2F0ZXJtYXJrZXIucG5n/dissolve/100/gravity/SouthEast/dx/10/dy/10|imageslim",urlString];
     return [url URLEncoding];
 }
 

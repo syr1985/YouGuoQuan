@@ -249,7 +249,7 @@ NSString * const kUserCenterBuyPhotoSuccessNotification = @"BuyPhotoSuccessNotif
  *  打开图片浏览器
  */
 - (void)popupPhotoBrowser:(UITapGestureRecognizer *)sender {
-    UIView *tapView = sender.view;
+    UIImageView *tapView = (UIImageView *)sender.view;
     if (!_userCenterModel.isBuy &&
         ![_userCenterModel.userId isEqualToString:[LoginData sharedLoginData].userId] &&
         [LoginData sharedLoginData].ope) {
@@ -264,7 +264,7 @@ NSString * const kUserCenterBuyPhotoSuccessNotification = @"BuyPhotoSuccessNotif
         } else {
             urlArray = @[_userCenterModel.imageUrl];
         }
-        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray currentIndex:tapView.tag];
+        [PhotoBrowserHelp openPhotoBrowserWithImages:urlArray sourceImageView:tapView];
     }
 }
 
